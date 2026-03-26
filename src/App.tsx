@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap } from 'lucide-react';
+import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
@@ -85,20 +86,20 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto shadow-2xl"
       >
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 p-6 border-b flex items-center justify-between">
-          <h2 className="text-2xl font-heading text-romantic-pink">Customize Your Surprise</h2>
+        <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 p-4 md:p-6 border-b flex items-center justify-between">
+          <h2 className="text-xl md:text-2xl font-heading text-romantic-pink">Customize Your Surprise</h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <X size={24} />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-5 md:p-8 space-y-6 md:space-y-8">
           {/* Templates Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -329,16 +330,119 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
             </div>
           </div>
 
-          {/* Love Letter */}
+          {/* Visuals Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <MessageCircle size={18} className="text-romantic-pink" /> Love Letter
+              <Camera size={18} className="text-romantic-pink" /> Visuals
             </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Hero Image */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase">Hero Background Image</label>
+                <div className="flex gap-2">
+                  <input 
+                    value={formData.HERO_IMAGE} 
+                    onChange={(e) => handleChange('HERO_IMAGE', e.target.value)}
+                    className="flex-1 px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none text-sm"
+                    placeholder="Image URL..."
+                  />
+                  <label className="cursor-pointer p-2 bg-romantic-pink/10 text-romantic-pink rounded-xl hover:bg-romantic-pink/20 transition-colors">
+                    <Upload size={20} />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => handleChange('HERO_IMAGE', reader.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+              {/* Recipient Photo */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400 uppercase">Recipient Photo</label>
+                <div className="flex gap-2">
+                  <input 
+                    value={formData.GIRLFRIEND_PHOTO} 
+                    onChange={(e) => handleChange('GIRLFRIEND_PHOTO', e.target.value)}
+                    className="flex-1 px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none text-sm"
+                    placeholder="Image URL..."
+                  />
+                  <label className="cursor-pointer p-2 bg-romantic-pink/10 text-romantic-pink rounded-xl hover:bg-romantic-pink/20 transition-colors">
+                    <Upload size={20} />
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => handleChange('GIRLFRIEND_PHOTO', reader.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Love Letter */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <MessageCircle size={18} className="text-romantic-pink" /> Love Letter
+              </h3>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => {
+                    const textarea = document.getElementById('love-letter-textarea') as HTMLTextAreaElement;
+                    if (textarea) {
+                      const start = textarea.selectionStart;
+                      const end = textarea.selectionEnd;
+                      const text = formData.LOVE_LETTER;
+                      const newText = text.substring(0, start) + '**' + text.substring(start, end) + '**' + text.substring(end);
+                      handleChange('LOVE_LETTER', newText);
+                    }
+                  }}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                  title="Bold"
+                >
+                  <Bold size={16} />
+                </button>
+                <button 
+                  onClick={() => {
+                    const textarea = document.getElementById('love-letter-textarea') as HTMLTextAreaElement;
+                    if (textarea) {
+                      const start = textarea.selectionStart;
+                      const end = textarea.selectionEnd;
+                      const text = formData.LOVE_LETTER;
+                      const newText = text.substring(0, start) + '*' + text.substring(start, end) + '*' + text.substring(end);
+                      handleChange('LOVE_LETTER', newText);
+                    }
+                  }}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
+                  title="Italic"
+                >
+                  <Italic size={16} />
+                </button>
+              </div>
+            </div>
             <textarea 
+              id="love-letter-textarea"
               value={formData.LOVE_LETTER} 
               onChange={(e) => handleChange('LOVE_LETTER', e.target.value)}
               rows={6}
               className="w-full px-4 py-3 rounded-2xl border focus:border-romantic-pink outline-none resize-none"
+              placeholder="Write your heart out... Use **bold** or *italics* for emphasis."
             />
           </div>
 
@@ -348,12 +452,37 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <Camera size={18} className="text-romantic-pink" /> Photos
               </h3>
-              <button 
-                onClick={() => addArrayItem('PHOTOS', { url: 'https://picsum.photos/800/1000', caption: 'New Memory' })}
-                className="text-xs font-bold text-romantic-pink flex items-center gap-1"
-              >
-                <Plus size={14} /> Add Photo
-              </button>
+              <div className="flex gap-2">
+                <label className="cursor-pointer text-xs font-bold text-romantic-pink flex items-center gap-1 hover:bg-romantic-pink/5 px-2 py-1 rounded-lg transition-colors">
+                  <Upload size={14} /> Upload
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 2 * 1024 * 1024) {
+                          toast.error("Image too large! Please keep it under 2MB.");
+                          return;
+                        }
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          addArrayItem('PHOTOS', { url: reader.result as string, caption: file.name.split('.')[0] });
+                          toast.success("Image uploaded!");
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </label>
+                <button 
+                  onClick={() => addArrayItem('PHOTOS', { url: 'https://picsum.photos/800/1000', caption: 'New Memory' })}
+                  className="text-xs font-bold text-romantic-pink flex items-center gap-1 hover:bg-romantic-pink/5 px-2 py-1 rounded-lg transition-colors"
+                >
+                  <Plus size={14} /> Add URL
+                </button>
+              </div>
             </div>
             <div className="space-y-3">
               {formData.PHOTOS.map((photo: any, i: number) => (
@@ -532,6 +661,53 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
             )}
           </div>
 
+          {/* Stats Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Zap size={18} className="text-romantic-pink" /> Relationship Stats
+            </h3>
+            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-2xl">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Days Together</label>
+                <input
+                  type="number"
+                  value={formData.STATS?.DAYS_TOGETHER || 0}
+                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, DAYS_TOGETHER: parseInt(e.target.value) } })}
+                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Photos Shared</label>
+                <input
+                  type="number"
+                  value={formData.STATS?.PHOTOS_SHARED || 0}
+                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, PHOTOS_SHARED: parseInt(e.target.value) } })}
+                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Date Nights</label>
+                <input
+                  type="number"
+                  value={formData.STATS?.DATE_NIGHTS || 0}
+                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, DATE_NIGHTS: parseInt(e.target.value) } })}
+                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Love Score (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.STATS?.LOVE_SCORE || 0}
+                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, LOVE_SCORE: parseInt(e.target.value) } })}
+                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Export Options */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -595,14 +771,15 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
 
 const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: { 
   config: any, 
-  onClose: () => void,
+  onClose: () => void, 
   onDownloadHTML: () => void,
   onDownloadPDF: () => void,
-  onDownloadStory: () => void,
+  onDownloadStory: (templateId: number) => void,
   onEnterCinematicMode: () => void
 }) => {
   const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
   const [showStoryPreview, setShowStoryPreview] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(0);
 
   const handleCopyLink = async () => {
     const encoded = encodeConfig(config);
@@ -628,56 +805,85 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
 
   if (showStoryPreview) {
     return (
-      <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 overflow-y-auto">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative w-full max-w-lg flex flex-col items-center gap-4 md:gap-6 my-auto"
+          className="relative w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 my-auto"
         >
-          <div className="absolute -top-12 right-0 flex gap-4">
-            <button 
-              onClick={() => setShowStoryPreview(false)}
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
-
-          <div className="text-center text-white">
-            <h3 className="text-lg md:text-xl font-heading">Story Preview</h3>
-            <p className="text-[10px] md:text-xs opacity-60">This is how your story will look</p>
-          </div>
-
-          {/* Scaled Preview of StoryCard - Responsive sizing */}
-          <div 
-            className="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 md:border-4 border-white/20 bg-white/5"
-            style={{ 
-              width: 'min(260px, 75vw)', 
-              height: 'min(462px, 133vw)', // 9:16 ratio
-              position: 'relative'
-            }}
+          <button 
+            onClick={() => setShowStoryPreview(false)}
+            className="absolute -top-12 right-0 md:top-0 md:-right-12 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
           >
-            <div style={{ transform: `scale(${Math.min(260, window.innerWidth * 0.75) / 1080})`, transformOrigin: 'top left', width: '1080px', height: '1920px' }}>
-              <StoryCard config={config} />
+            <X size={24} />
+          </button>
+
+          {/* Left: Preview */}
+          <div className="flex-shrink-0">
+            <div 
+              className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 bg-white/5"
+              style={{ 
+                width: 'min(320px, 80vw)', 
+                height: 'min(568px, 142vw)', // 9:16 ratio
+                position: 'relative'
+              }}
+            >
+              <div style={{ transform: `scale(${Math.min(320, window.innerWidth * 0.8) / 1080})`, transformOrigin: 'top left', width: '1080px', height: '1920px' }}>
+                <StoryCard config={config} templateId={selectedTemplateId} />
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col w-full gap-2 md:gap-3">
-            <button 
-              onClick={() => {
-                onDownloadStory();
-                setShowStoryPreview(false);
-              }}
-              className="w-full py-3 md:py-4 bg-romantic-pink text-white rounded-xl md:rounded-2xl font-bold shadow-lg hover:bg-romantic-pink/90 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
-            >
-              <Download size={18} /> Download Image
-            </button>
-            <button 
-              onClick={() => setShowStoryPreview(false)}
-              className="w-full py-3 md:py-4 bg-white/10 text-white rounded-xl md:rounded-2xl font-bold hover:bg-white/20 transition-all text-sm md:text-base"
-            >
-              Go Back
-            </button>
+          {/* Right: Controls */}
+          <div className="flex-1 flex flex-col gap-6 text-white w-full">
+            <div>
+              <h3 className="text-2xl font-heading mb-2">Template Browser</h3>
+              <p className="text-sm opacity-60">Browse 100+ Pinterest-style birthday templates</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto p-2 scrollbar-hide">
+              {TEMPLATE_PRESETS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedTemplateId(t.id)}
+                  className={cn(
+                    "p-4 rounded-2xl text-left transition-all border-2",
+                    selectedTemplateId === t.id 
+                      ? "bg-romantic-pink border-white shadow-lg scale-105" 
+                      : "bg-white/5 border-transparent hover:bg-white/10"
+                  )}
+                >
+                  <p className="font-bold text-sm">Template #{t.id + 1}</p>
+                  <p className="text-[10px] opacity-60 uppercase tracking-widest">{t.layout.replace('-', ' ')}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => {
+                  onDownloadStory(selectedTemplateId);
+                  setShowStoryPreview(false);
+                }}
+                className="w-full py-4 bg-romantic-pink text-white rounded-2xl font-bold shadow-xl hover:bg-romantic-pink/90 transition-all flex items-center justify-center gap-2"
+              >
+                <Download size={20} /> Download Template #{selectedTemplateId + 1}
+              </button>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setSelectedTemplateId(prev => Math.max(0, prev - 1))}
+                  className="flex-1 py-3 bg-white/10 rounded-xl font-bold hover:bg-white/20 transition-all"
+                >
+                  Previous
+                </button>
+                <button 
+                  onClick={() => setSelectedTemplateId(prev => Math.min(99, prev + 1))}
+                  className="flex-1 py-3 bg-white/10 rounded-xl font-bold hover:bg-white/20 transition-all"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -796,48 +1002,111 @@ const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-romantic-pink/20 to-romantic-purple/20 backdrop-blur-xl">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass p-8 rounded-[2.5rem] w-full max-w-md mx-4 text-center shadow-2xl border border-white/50"
-      >
-        <div className="mb-6 relative inline-block">
-          <div className="absolute inset-0 bg-romantic-pink/20 blur-2xl rounded-full animate-pulse" />
-          <Heart className="w-16 h-16 text-romantic-pink relative z-10" fill="currentColor" />
-        </div>
-        <h2 className="text-3xl font-heading mb-2 text-gray-800">Create a Surprise</h2>
-        <p className="text-sm text-gray-500 mb-8 italic">Let's start with some basic details ❤️</p>
-        
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-1 text-left">
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-4 tracking-widest">Who is this for?</label>
-            <input
-              required
-              value={receiver}
-              onChange={(e) => setReceiver(e.target.value)}
-              placeholder="Her name (e.g. Sarah)"
-              className="w-full px-6 py-3 rounded-full bg-white/50 border-2 border-romantic-pink/20 focus:border-romantic-pink outline-none transition-all"
-            />
+    <div className="fixed inset-0 z-50 overflow-hidden bg-[#050505]">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 90, 0],
+            x: [0, 100, 0],
+            y: [0, -50, 0]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-romantic-pink/10 rounded-full blur-[120px]" 
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            rotate: [0, -90, 0],
+            x: [0, -100, 0],
+            y: [0, 50, 0]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-romantic-purple/10 rounded-full blur-[150px]" 
+        />
+      </div>
+
+      <div className="h-full flex items-center justify-center p-2 md:p-4 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative z-10 w-full max-w-lg max-h-full"
+        >
+          <div className="glass p-5 md:p-12 rounded-[1.5rem] md:rounded-[3rem] text-center shadow-2xl border border-white/10 backdrop-blur-3xl bg-white/5 overflow-hidden">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              className="mb-3 md:mb-8 relative inline-block"
+            >
+              <div className="absolute inset-0 bg-romantic-pink/30 blur-3xl rounded-full animate-pulse" />
+              <div className="relative z-10 p-3 md:p-6 bg-gradient-to-br from-romantic-pink to-romantic-purple rounded-xl md:rounded-3xl shadow-2xl shadow-romantic-pink/20">
+                <Heart className="w-6 h-6 md:w-10 md:h-10 text-white" fill="currentColor" />
+              </div>
+            </motion.div>
+
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-2xl md:text-5xl font-heading mb-1 md:mb-2 text-white tracking-tight"
+            >
+              Create a <span className="text-romantic-pink">Surprise</span>
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-gray-400 mb-4 md:mb-10 text-xs md:text-base font-light leading-relaxed"
+            >
+              Craft a beautiful, personalized experience for your special someone.
+            </motion.p>
+            
+            <form onSubmit={handleSubmit} className="space-y-3 md:space-y-6">
+              <div className="space-y-1 text-left">
+                <label className="text-[9px] font-bold text-romantic-pink uppercase ml-3 md:ml-6 tracking-[0.3em]">Recipient's Name</label>
+                <input
+                  required
+                  value={receiver}
+                  onChange={(e) => setReceiver(e.target.value)}
+                  placeholder="e.g. Sarah"
+                  className="w-full px-5 py-2.5 md:px-8 md:py-4 rounded-lg md:rounded-2xl bg-white/5 border border-white/10 focus:border-romantic-pink text-white outline-none transition-all placeholder:text-gray-600 text-sm md:text-base"
+                />
+              </div>
+              <div className="space-y-1 text-left">
+                <label className="text-[9px] font-bold text-romantic-pink uppercase ml-3 md:ml-6 tracking-[0.3em]">Your Name</label>
+                <input
+                  required
+                  value={sender}
+                  onChange={(e) => setSender(e.target.value)}
+                  placeholder="e.g. Anil"
+                  className="w-full px-5 py-2.5 md:px-8 md:py-4 rounded-lg md:rounded-2xl bg-white/5 border border-white/10 focus:border-romantic-pink text-white outline-none transition-all placeholder:text-gray-600 text-sm md:text-base"
+                />
+              </div>
+              <motion.button 
+                whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(236, 72, 153, 0.3)" }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="w-full py-3 md:py-4 rounded-lg md:rounded-2xl bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold text-sm md:text-lg shadow-2xl transition-all mt-1 md:mt-4"
+              >
+                Start Creating ✨
+              </motion.button>
+            </form>
           </div>
-          <div className="space-y-1 text-left">
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-4 tracking-widest">Your Name</label>
-            <input
-              required
-              value={sender}
-              onChange={(e) => setSender(e.target.value)}
-              placeholder="Your name (e.g. Anil)"
-              className="w-full px-6 py-3 rounded-full bg-white/50 border-2 border-romantic-pink/20 focus:border-romantic-pink outline-none transition-all"
-            />
-          </div>
-          <button 
-            type="submit"
-            className="w-full py-4 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-xl hover:shadow-romantic-pink/50 transition-all active:scale-95 mt-4"
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="mt-3 md:mt-6 text-center text-gray-500 text-[9px] md:text-xs"
           >
-            Start Creating ✨
-          </button>
-        </form>
-      </motion.div>
+            Your data is stored locally and in the URL.
+          </motion.p>
+        </motion.div>
+      </div>
     </div>
   );
 };
@@ -950,17 +1219,17 @@ const PasswordLock = ({ password, onUnlock }: { password: string, onUnlock: () =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-romantic-pink/20 to-romantic-purple/20 backdrop-blur-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-romantic-pink/20 to-romantic-purple/20 backdrop-blur-xl p-4 overflow-hidden">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass p-8 rounded-3xl w-full max-w-sm mx-4 text-center"
+        className="glass p-6 md:p-8 rounded-2xl md:rounded-3xl w-full max-w-sm text-center"
       >
-        <Heart className="w-16 h-16 text-romantic-pink mx-auto mb-6 animate-pulse" fill="currentColor" />
-        <h2 className="text-3xl font-heading mb-2 text-gray-800">Unlock My Heart</h2>
-        <p className="text-sm text-gray-500 mb-6 italic">Hint: Your name ❤️</p>
+        <Heart className="w-12 h-12 md:w-16 md:h-16 text-romantic-pink mx-auto mb-4 md:mb-6 animate-pulse" fill="currentColor" />
+        <h2 className="text-2xl md:text-3xl font-heading mb-1 md:mb-2 text-gray-800">Unlock My Heart</h2>
+        <p className="text-xs md:text-sm text-gray-500 mb-4 md:mb-6 italic">Hint: Your name ❤️</p>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
           <motion.input
             animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
             transition={{ duration: 0.4 }}
@@ -969,13 +1238,13 @@ const PasswordLock = ({ password, onUnlock }: { password: string, onUnlock: () =
             onChange={(e) => setInputPassword(e.target.value)}
             placeholder="Enter password..."
             className={cn(
-              "w-full px-6 py-3 rounded-full bg-white/50 border-2 outline-none transition-all text-center",
+              "w-full px-5 py-2.5 md:px-6 md:py-3 rounded-full bg-white/50 border-2 outline-none transition-all text-center text-sm md:text-base",
               error ? "border-red-400" : "border-romantic-pink/30 focus:border-romantic-pink"
             )}
           />
           <button 
             type="submit"
-            className="w-full py-3 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-semibold shadow-lg hover:shadow-romantic-pink/50 transition-all active:scale-95"
+            className="w-full py-2.5 md:py-3 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-semibold shadow-lg hover:shadow-romantic-pink/50 transition-all active:scale-95 text-sm md:text-base"
           >
             Unlock
           </button>
@@ -1051,8 +1320,8 @@ const TypingText = ({ text }: { text: string }) => {
   }, [index, text]);
 
   return (
-    <div className="whitespace-pre-wrap leading-relaxed text-lg italic text-gray-700">
-      {displayedText}
+    <div className="whitespace-pre-wrap leading-relaxed text-lg italic text-gray-700 markdown-content">
+      <ReactMarkdown>{displayedText}</ReactMarkdown>
       <motion.span 
         animate={{ opacity: [0, 1, 0] }}
         transition={{ repeat: Infinity, duration: 0.8 }}
@@ -1110,6 +1379,60 @@ const FloatingHearts = () => {
   );
 };
 
+const StatsSection = ({ config }: { config: any }) => {
+  const stats = [
+    { label: 'Days Together', value: config.STATS?.DAYS_TOGETHER || 365, icon: Heart },
+    { label: 'Photos Shared', value: config.STATS?.PHOTOS_SHARED || 1240, icon: Camera },
+    { label: 'Date Nights', value: config.STATS?.DATE_NIGHTS || 52, icon: MessageCircle },
+    { label: 'Love Score', value: `${config.STATS?.LOVE_SCORE || 100}%`, icon: Zap }
+  ];
+
+  return (
+    <section className="py-16 md:py-24 px-6 bg-[#0a0a0a] text-white overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-romantic-pink rounded-full blur-[200px]" />
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-20 gap-8">
+          <div>
+            <p className="text-romantic-pink font-mono text-xs md:text-sm tracking-[0.4em] uppercase mb-4 md:mb-4">// Relationship_Metrics</p>
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-heading tracking-tight">The Data of <span className="text-romantic-pink italic">Us</span></h2>
+          </div>
+          <div className="text-right hidden md:block">
+            <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">System_Status: Stable</p>
+            <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">Connection: Forever</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-3xl overflow-hidden">
+          {stats.map((stat, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-[#0a0a0a] p-8 md:p-10 group hover:bg-white/5 transition-colors"
+            >
+              <div className="flex justify-between items-start mb-8 md:mb-12">
+                <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-romantic-pink/20 transition-colors">
+                  <stat.icon size={24} className="text-romantic-pink" />
+                </div>
+                <span className="text-gray-700 font-mono text-xs">0{i + 1}</span>
+              </div>
+              <p className="text-gray-500 font-mono text-xs uppercase tracking-widest mb-2">{stat.label}</p>
+              <div className="text-4xl md:text-5xl font-bold tracking-tighter group-hover:text-romantic-pink transition-colors">
+                {stat.value}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const MapSection = ({ config }: { config: any }) => {
   if (!config.MAP_CONFIG?.show) return null;
 
@@ -1122,7 +1445,7 @@ const MapSection = ({ config }: { config: any }) => {
     <section className="py-20 px-6">
       <div className="max-w-4xl mx-auto">
         <motion.div
-          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
           whileInView="animate"
           viewport={{ once: true }}
           className="text-center mb-12"
@@ -1135,7 +1458,7 @@ const MapSection = ({ config }: { config: any }) => {
         </motion.div>
 
         <motion.div
-          {...ANIMATION_PRESETS[config.ANIMATIONS.CARDS as AnimationKey]}
+          {...ANIMATION_PRESETS[config.ANIMATIONS.CARDS as AnimationKey] as any}
           whileInView="animate"
           viewport={{ once: true }}
           className="glass p-4 rounded-[2.5rem] shadow-2xl overflow-hidden aspect-video relative"
@@ -1168,119 +1491,517 @@ const MapSection = ({ config }: { config: any }) => {
   );
 };
 
-const StoryCard = ({ config }: { config: any }) => {
+// --- Template System Constants ---
+
+const TEMPLATE_LAYOUTS = [
+  'editorial-modern', 'glass-floating', 'atmospheric-blur', 'brutalist-bold', 'organic-soft',
+  'polaroid-stack', 'magazine-cover', 'minimal-text', 'collage-scatter', 'film-strip', 'love-stats', 'modern-split'
+];
+
+const TEMPLATE_FONTS = [
+  { name: 'Serif', family: "'Playfair Display', serif" },
+  { name: 'Sans', family: "'Inter', sans-serif" },
+  { name: 'Mono', family: "'JetBrains Mono', monospace" },
+  { name: 'Handwritten', family: "'Dancing Script', cursive" },
+  { name: 'Display', family: "'Anton', sans-serif" }
+];
+
+const TEMPLATE_DECORATIONS = [
+  'hearts', 'sparkles', 'tape', 'minimal', 'floral', 'geometric', 'stars', 'bubbles'
+];
+
+const TEMPLATE_BACKGROUNDS = [
+  'solid', 'gradient', 'blurred-image', 'paper-texture', 'mesh-gradient'
+];
+
+// Generate 100 preset IDs
+const TEMPLATE_PRESETS = Array.from({ length: 100 }, (_, i) => ({
+  id: i,
+  layout: TEMPLATE_LAYOUTS[i % TEMPLATE_LAYOUTS.length],
+  font: TEMPLATE_FONTS[Math.floor(i / 20) % TEMPLATE_FONTS.length],
+  decoration: TEMPLATE_DECORATIONS[Math.floor(i / 12) % TEMPLATE_DECORATIONS.length],
+  background: TEMPLATE_BACKGROUNDS[Math.floor(i / 25) % TEMPLATE_BACKGROUNDS.length],
+}));
+
+const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: number }) => {
   const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
+  const template = TEMPLATE_PRESETS[templateId] || TEMPLATE_PRESETS[0];
   
-  // Standard colors to avoid oklab/oklch issues with html2canvas
   const primaryColor = config.THEME.primary;
   const textColor = config.THEME.text;
   const bgColor = config.THEME.background;
 
+  // Helper to get background style
+  const getBackgroundStyle = () => {
+    switch (template.background) {
+      case 'gradient':
+        return { background: `linear-gradient(135deg, ${bgColor}, ${primaryColor}33)` };
+      case 'mesh-gradient':
+        return { 
+          background: `radial-gradient(at 0% 0%, ${primaryColor}22 0, transparent 50%), 
+                       radial-gradient(at 100% 0%, ${primaryColor}22 0, transparent 50%),
+                       radial-gradient(at 100% 100%, ${primaryColor}22 0, transparent 50%),
+                       radial-gradient(at 0% 100%, ${primaryColor}22 0, transparent 50%)`,
+          backgroundColor: bgColor
+        };
+      case 'blurred-image':
+        return {
+          backgroundImage: `url(${config.PHOTOS[0]?.url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'blur(20px) brightness(0.8)'
+        };
+      case 'paper-texture':
+        return {
+          backgroundColor: '#fdfcf0',
+          backgroundImage: 'url("https://www.transparenttextures.com/patterns/paper-fibers.png")',
+          color: '#2c3e50'
+        };
+      default:
+        return { backgroundColor: bgColor };
+    }
+  };
+
+  // Helper to render decorations
+  const renderDecorations = () => {
+    switch (template.decoration) {
+      case 'hearts':
+        return [...Array(15)].map((_, i) => (
+          <div key={i} style={{ position: 'absolute', top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, opacity: 0.1, color: primaryColor, transform: `rotate(${Math.random() * 360}deg)` }}>
+            <Heart size={Math.random() * 100 + 50} fill="currentColor" />
+          </div>
+        ));
+      case 'sparkles':
+        return [...Array(30)].map((_, i) => (
+          <div key={i} style={{ position: 'absolute', top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, opacity: 0.2, color: primaryColor }}>
+            <Zap size={Math.random() * 30 + 10} fill="currentColor" />
+          </div>
+        ));
+      case 'tape':
+        return (
+          <div style={{ position: 'absolute', top: '40px', left: '50%', transform: 'translateX(-50%) rotate(-2deg)', width: '200px', height: '60px', backgroundColor: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(5px)', border: '1px solid rgba(255,255,255,0.2)', zIndex: 100 }} />
+        );
+      default: return null;
+    }
+  };
+
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '1080px',
+    height: '1920px',
+    position: 'relative',
+    overflow: 'hidden',
+    fontFamily: template.font.family,
+    color: textColor,
+    ...getBackgroundStyle()
+  };
+
+  // Layout Renderers
+  const renderLayout = () => {
+    const photos = config.PHOTOS;
+    const mainPhoto = config.GIRLFRIEND_PHOTO || photos[0]?.url || 'https://picsum.photos/800/1000';
+    const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
+    switch (template.layout) {
+      case 'editorial-modern':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '60px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
+              <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: '14px', letterSpacing: '4px', opacity: 0.5, textTransform: 'uppercase' }}>
+                {dateStr} — Captured with Love
+              </div>
+              <h1 style={{ fontSize: '180px', fontWeight: '900', lineHeight: 0.8, margin: 0, letterSpacing: '-8px' }}>
+                {config.GIRLFRIEND_NAME.substring(0, 1).toUpperCase()}
+              </h1>
+            </div>
+            <div style={{ flex: 1, position: 'relative', borderRadius: '20px', overflow: 'hidden' }}>
+              <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', backgroundColor: 'white', padding: '40px', borderRadius: '12px' }}>
+                <p style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '4px', color: primaryColor, marginBottom: '10px', fontWeight: 'bold' }}>Happy {currentEvent.label}</p>
+                <h2 style={{ fontSize: '60px', fontWeight: 'bold', margin: '0 0 20px 0', color: '#111' }}>{config.GIRLFRIEND_NAME}</h2>
+                <div style={{ fontSize: '28px', color: '#666', lineHeight: 1.6 }} className="markdown-content">
+                  <ReactMarkdown>{config.LOVE_LETTER.substring(0, 180) + '...'}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'glass-floating':
+        return (
+          <div style={{ height: '100%', position: 'relative', padding: '60px' }}>
+            <img src={mainPhoto} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.4))' }} />
+            
+            <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '40px' }}>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                {photos.slice(0, 2).map((p: any, i: number) => (
+                  <div key={i} style={{ width: '200px', height: '280px', borderRadius: '20px', overflow: 'hidden', border: '4px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(10px)' }}>
+                    <img src={p.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(30px)', padding: '60px', borderRadius: '40px', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 40px 80px rgba(0,0,0,0.3)' }}>
+                <p style={{ fontSize: '24px', color: 'white', opacity: 0.8, letterSpacing: '8px', textTransform: 'uppercase', marginBottom: '20px' }}>Happy {currentEvent.label}</p>
+                <h1 style={{ fontSize: '100px', fontWeight: 'bold', color: 'white', marginBottom: '20px' }}>{config.GIRLFRIEND_NAME}</h1>
+                <div style={{ fontSize: '32px', color: 'white', lineHeight: 1.6, opacity: 0.9 }} className="markdown-content">
+                  <ReactMarkdown>{config.LOVE_LETTER.substring(0, 250) + '...'}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'atmospheric-blur':
+        return (
+          <div style={{ height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px' }}>
+            <img src={mainPhoto} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(40px) brightness(0.7)' }} crossOrigin="anonymous" />
+            <div style={{ position: 'absolute', inset: '40px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '40px' }} />
+            
+            <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
+              <div style={{ width: '300px', height: '300px', margin: '0 auto 60px', borderRadius: '50%', overflow: 'hidden', border: '8px solid white', boxShadow: '0 30px 60px rgba(0,0,0,0.4)' }}>
+                <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              </div>
+              <p style={{ fontSize: '24px', letterSpacing: '12px', textTransform: 'uppercase', marginBottom: '20px', opacity: 0.8 }}>Happy {currentEvent.label}</p>
+              <h1 style={{ fontSize: '120px', fontWeight: '200', letterSpacing: '10px', marginBottom: '40px' }}>{config.GIRLFRIEND_NAME}</h1>
+              <div style={{ fontSize: '36px', lineHeight: 1.8, fontStyle: 'italic', opacity: 0.9 }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 350) + '...'}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'brutalist-bold':
+        return (
+          <div style={{ height: '100%', backgroundColor: '#000', padding: '40px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+            <div style={{ display: 'flex', gap: '40px', flex: 1 }}>
+              <div style={{ flex: 1, border: '10px solid #fff', overflow: 'hidden' }}>
+                <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(1)' }} crossOrigin="anonymous" />
+              </div>
+              <div style={{ width: '120px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#fff', fontSize: '24px', fontWeight: 'bold', writingMode: 'vertical-rl' }}>
+                <span>{dateStr}</span>
+                <span style={{ color: primaryColor }}>{currentEvent.id.toUpperCase()}.EDITION</span>
+                <span>2026.VOL.01</span>
+              </div>
+            </div>
+            <div style={{ backgroundColor: primaryColor, padding: '60px', border: '10px solid #fff' }}>
+              <h1 style={{ fontSize: '140px', fontWeight: '900', color: '#000', textTransform: 'uppercase', lineHeight: 0.9, marginBottom: '20px' }}>{config.GIRLFRIEND_NAME}</h1>
+              <div style={{ fontSize: '32px', color: '#000', fontWeight: 'bold', lineHeight: 1.4 }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 200)}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'organic-soft':
+        return (
+          <div style={{ height: '100%', backgroundColor: '#f9f7f2', padding: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'relative', width: '100%', height: '1000px', marginBottom: '80px' }}>
+              <div style={{ position: 'absolute', top: 0, left: '10%', width: '60%', height: '80%', borderRadius: '300px 300px 0 0', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.1)' }}>
+                <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              </div>
+              <div style={{ position: 'absolute', bottom: 0, right: '10%', width: '50%', height: '60%', borderRadius: '200px', overflow: 'hidden', border: '20px solid #fff', boxShadow: '0 40px 80px rgba(0,0,0,0.1)' }}>
+                <img src={photos[0]?.url || mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', maxWidth: '800px' }}>
+              <p style={{ fontSize: '28px', color: '#8a817c', fontStyle: 'italic', marginBottom: '20px' }}>To my dearest {config.GIRLFRIEND_NAME}</p>
+              <h1 style={{ fontSize: '100px', fontFamily: "'Playfair Display', serif", color: '#463f3a', marginBottom: '30px' }}>Happy {currentEvent.label}</h1>
+              <div style={{ fontSize: '32px', color: '#8a817c', lineHeight: 1.8 }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 250) + '...'}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'polaroid-stack':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '80px', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }}>
+            <div style={{ position: 'absolute', top: '40px', left: '40px', fontSize: '14px', letterSpacing: '4px', opacity: 0.4 }}>
+              MOMENTS / {dateStr}
+            </div>
+            <div style={{ position: 'relative', width: '100%', height: '1200px' }}>
+              {[mainPhoto, ...photos.slice(0, 2)].map((url, i) => (
+                <div key={i} style={{ 
+                  position: 'absolute',
+                  backgroundColor: 'white', 
+                  padding: '30px 30px 120px 30px', 
+                  boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
+                  transform: `rotate(${[ -8, 5, -3 ][i]}deg) translate(${[ -40, 60, 0 ][i]}px, ${[ 0, 100, 200 ][i]}px)`,
+                  width: '700px',
+                  left: '50%',
+                  marginLeft: '-350px',
+                  zIndex: 10 - i,
+                  border: '1px solid rgba(0,0,0,0.05)'
+                }}>
+                  <div style={{ width: '100%', aspectRatio: '1', overflow: 'hidden' }}>
+                    <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                  </div>
+                  <div style={{ marginTop: '30px', textAlign: 'center' }}>
+                     <p style={{ color: '#333', fontSize: '32px', fontFamily: "'Dancing Script', cursive" }}>
+                       {i === 0 ? `To my dearest ${config.GIRLFRIEND_NAME}` : i === 1 ? "Forever & Always" : `Happy ${currentEvent.label}!`}
+                     </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: '100px', textAlign: 'center', maxWidth: '800px' }}>
+              <h1 style={{ fontSize: '60px', fontWeight: 'bold', marginBottom: '20px', letterSpacing: '-2px' }}>{config.GIRLFRIEND_NAME}</h1>
+              <div style={{ fontSize: '28px', opacity: 0.6, lineHeight: 1.6 }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 150) + '...'}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'magazine-cover':
+        return (
+          <div style={{ height: '100%', position: 'relative', backgroundColor: '#000' }}>
+            <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9 }} crossOrigin="anonymous" />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%, rgba(0,0,0,0.4) 100%)' }} />
+            
+            <div style={{ position: 'absolute', top: '60px', left: '60px', right: '60px', display: 'flex', justifyContent: 'space-between', color: 'white', fontSize: '14px', letterSpacing: '4px', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
+              <span>Special Edition</span>
+              <span>{dateStr}</span>
+            </div>
+
+            <div style={{ position: 'absolute', top: '140px', width: '100%', textAlign: 'center' }}>
+              <h1 style={{ fontSize: '240px', fontWeight: '900', color: 'white', letterSpacing: '-15px', textTransform: 'uppercase', margin: 0, opacity: 0.95 }}>{currentEvent.label.split(' ')[0]}</h1>
+              <p style={{ fontSize: '32px', color: primaryColor, letterSpacing: '25px', textTransform: 'uppercase', marginTop: '-20px', fontWeight: 'bold' }}>{currentEvent.label.split(' ')[1] || 'SPECIAL'}</p>
+            </div>
+
+            <div style={{ position: 'absolute', bottom: '80px', left: '60px', right: '60px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>
+                <div style={{ height: '2px', flex: 1, backgroundColor: primaryColor }} />
+                <span style={{ color: 'white', fontSize: '18px', letterSpacing: '6px', textTransform: 'uppercase' }}>The Cover Story</span>
+                <div style={{ height: '2px', flex: 1, backgroundColor: primaryColor }} />
+              </div>
+              <h2 style={{ fontSize: '140px', color: 'white', fontWeight: 'bold', marginBottom: '20px', letterSpacing: '-4px' }}>{config.GIRLFRIEND_NAME}</h2>
+              <div style={{ fontSize: '36px', color: 'white', opacity: 0.8, lineHeight: 1.5, maxWidth: '800px' }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 200) + '...'}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'minimal-text':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '120px', justifyContent: 'center', textAlign: 'center', backgroundColor: '#fff' }}>
+            <div style={{ position: 'absolute', top: '60px', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '40px', opacity: 0.3, fontSize: '14px', letterSpacing: '8px', textTransform: 'uppercase' }}>
+              <span>{dateStr}</span>
+              <span>•</span>
+              <span>Happy {currentEvent.label}</span>
+            </div>
+            
+            <div style={{ width: '240px', height: '240px', margin: '0 auto 80px', borderRadius: '50%', overflow: 'hidden', border: `2px solid #eee`, padding: '10px' }}>
+              <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} crossOrigin="anonymous" />
+            </div>
+            
+            <h1 style={{ fontSize: '160px', fontWeight: '200', letterSpacing: '30px', textTransform: 'uppercase', marginBottom: '60px', color: '#111' }}>{config.GIRLFRIEND_NAME}</h1>
+            <div style={{ width: '80px', height: '4px', backgroundColor: primaryColor, margin: '0 auto 60px' }} />
+            <div style={{ fontSize: '44px', lineHeight: 1.8, color: '#444', fontWeight: '300', maxWidth: '800px', margin: '0 auto' }} className="markdown-content">
+              <ReactMarkdown>{config.LOVE_LETTER.substring(0, 450)}</ReactMarkdown>
+            </div>
+            
+            <div style={{ position: 'absolute', bottom: '80px', left: '0', right: '0', fontSize: '12px', letterSpacing: '4px', opacity: 0.2, textTransform: 'uppercase' }}>
+              Designed with love for the one and only
+            </div>
+          </div>
+        );
+
+      case 'collage-scatter':
+        return (
+          <div style={{ height: '100%', position: 'relative', backgroundColor: '#1a1a1a', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: '-100px', right: '-100px', fontSize: '400px', fontWeight: '900', color: 'rgba(255,255,255,0.03)', pointerEvents: 'none' }}>
+              {config.GIRLFRIEND_NAME.substring(0, 1)}
+            </div>
+            
+            {[mainPhoto, ...photos.slice(0, 4)].map((url, i) => (
+              <div key={i} style={{ 
+                position: 'absolute',
+                width: i === 0 ? '700px' : '350px',
+                height: i === 0 ? '900px' : '450px',
+                top: `${[15, 55, 10, 60, 25][i]}%`,
+                left: `${[10, 15, 65, 60, 45][i]}%`,
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
+                transform: `rotate(${[ -4, 6, 12, -8, 3 ][i]}deg)`,
+                zIndex: i === 0 ? 5 : 1,
+                border: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              </div>
+            ))}
+            
+            <div style={{ position: 'absolute', bottom: '80px', left: '60px', right: '60px', zIndex: 20 }}>
+              <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', padding: '60px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
+                  <span style={{ color: primaryColor, fontSize: '14px', letterSpacing: '6px', textTransform: 'uppercase', fontWeight: 'bold' }}>Happy {currentEvent.label}</span>
+                  <div style={{ height: '1px', flex: 1, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                </div>
+                <h1 style={{ fontSize: '100px', fontWeight: 'bold', color: 'white', marginBottom: '20px', letterSpacing: '-2px' }}>{config.GIRLFRIEND_NAME}</h1>
+                <div style={{ fontSize: '30px', color: 'white', opacity: 0.8, lineHeight: 1.6 }} className="markdown-content">
+                  <ReactMarkdown>{config.LOVE_LETTER.substring(0, 180) + '...'}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'film-strip':
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '40px', gap: '20px', backgroundColor: '#0a0a0a' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#444', fontSize: '12px', fontFamily: 'monospace', padding: '0 20px' }}>
+              <span>KODAK PORTRA 400</span>
+              <span>{dateStr}</span>
+              <span>SAFETY FILM</span>
+            </div>
+            
+            {[mainPhoto, ...photos.slice(0, 2)].map((url, i) => (
+              <div key={i} style={{ flex: 1, position: 'relative', overflow: 'hidden', borderTop: '20px solid #000', borderBottom: '20px solid #000' }}>
+                <div style={{ position: 'absolute', left: '20px', top: '0', bottom: '0', width: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-around', opacity: 0.3 }}>
+                  {[...Array(8)].map((_, j) => <div key={j} style={{ width: '24px', height: '32px', backgroundColor: '#222', borderRadius: '4px' }} />)}
+                </div>
+                <div style={{ position: 'absolute', right: '20px', top: '0', bottom: '0', width: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-around', opacity: 0.3 }}>
+                  {[...Array(8)].map((_, j) => <div key={j} style={{ width: '24px', height: '32px', backgroundColor: '#222', borderRadius: '4px' }} />)}
+                </div>
+                <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover', padding: '0 80px', filter: 'contrast(1.1) saturate(1.1)' }} crossOrigin="anonymous" />
+                <div style={{ position: 'absolute', bottom: '20px', right: '100px', color: '#ff6b00', fontFamily: 'monospace', fontSize: '20px', opacity: 0.8 }}>
+                  {i + 1}A
+                </div>
+              </div>
+            ))}
+            
+            <div style={{ padding: '60px', backgroundColor: '#111', border: '1px solid #222', textAlign: 'center' }}>
+              <p style={{ color: primaryColor, fontSize: '14px', letterSpacing: '8px', textTransform: 'uppercase', marginBottom: '20px' }}>Happy {currentEvent.label}</p>
+              <h1 style={{ fontSize: '80px', color: 'white', fontFamily: 'monospace', marginBottom: '20px', letterSpacing: '-4px' }}>{config.GIRLFRIEND_NAME}</h1>
+              <div style={{ color: 'white', opacity: 0.5, fontSize: '28px', lineHeight: 1.6, fontFamily: 'monospace' }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 150) + '...'}</ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'love-stats':
+        return (
+          <div style={{ height: '100%', backgroundColor: '#E4E3E0', padding: '60px', display: 'flex', flexDirection: 'column', gap: '40px', color: '#141414', fontFamily: "'JetBrains Mono', monospace" }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #141414', paddingBottom: '20px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold' }}>RELATIONSHIP_ANALYTICS_V1.0</div>
+              <div style={{ fontSize: '24px' }}>{dateStr}</div>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', flex: 1 }}>
+              <div style={{ border: '2px solid #141414', padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '20px', textTransform: 'uppercase' }}>// Subject_Identity</p>
+                  <h1 style={{ fontSize: '80px', fontWeight: 'bold', lineHeight: 1, marginBottom: '40px' }}>{config.GIRLFRIEND_NAME}</h1>
+                  <div style={{ width: '100%', aspectRatio: '1', border: '2px solid #141414', overflow: 'hidden' }}>
+                    <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                  </div>
+                </div>
+                <div style={{ marginTop: '40px' }}>
+                  <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '10px' }}>// Love_Letter_Snippet</p>
+                  <div style={{ fontSize: '20px', lineHeight: 1.4 }} className="markdown-content">
+                    <ReactMarkdown>{config.LOVE_LETTER.substring(0, 150) + '...'}</ReactMarkdown>
+                  </div>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                <div style={{ border: '2px solid #141414', padding: '40px', flex: 1 }}>
+                  <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '30px', textTransform: 'uppercase' }}>// Core_Metrics</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                    {[
+                      { label: 'Days Together', value: config.STATS?.DAYS_TOGETHER || 365 },
+                      { label: 'Photos Shared', value: config.STATS?.PHOTOS_SHARED || 1240 },
+                      { label: 'Date Nights', value: config.STATS?.DATE_NIGHTS || 52 },
+                      { label: 'Love Score', value: `${config.STATS?.LOVE_SCORE || 100}%` }
+                    ].map((stat, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px dashed #141414', paddingBottom: '10px' }}>
+                        <span style={{ fontSize: '24px', opacity: 0.7 }}>{stat.label}</span>
+                        <span style={{ fontSize: '48px', fontWeight: 'bold' }}>{stat.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div style={{ border: '2px solid #141414', padding: '40px', backgroundColor: '#141414', color: '#E4E3E0' }}>
+                  <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '20px', textTransform: 'uppercase' }}>// System_Status</p>
+                  <div style={{ fontSize: '32px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '20px', height: '20px', backgroundColor: '#00FF00', borderRadius: '50%', boxShadow: '0 0 10px #00FF00' }} />
+                    FOREVER_ACTIVE
+                  </div>
+                  <p style={{ fontSize: '16px', marginTop: '20px', opacity: 0.7 }}>Connection established. No expiration date detected.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.5 }}>
+              <span>ENCRYPTED_WITH_AFFECTION</span>
+              <span>STORY_ID: {template.id}</span>
+              <span>DESIGNED_BY_{config.YOUR_NAME.toUpperCase()}</span>
+            </div>
+          </div>
+        );
+
+      case 'modern-split':
+        return (
+          <div style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', backgroundColor: '#f5f5f4', color: '#0a0a0a', fontFamily: "'Inter', sans-serif" }}>
+            <div style={{ padding: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center', borderRight: '1px solid #0a0a0a' }}>
+              <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.08em', fontSize: '14px', textTransform: 'uppercase', opacity: 0.5, marginBottom: '40px' }}>
+                {dateStr} — {currentEvent.label}
+              </div>
+              <h1 style={{ fontSize: '140px', lineHeight: 0.88, letterSpacing: '-0.02em', fontWeight: '600', marginBottom: '60px' }}>
+                {config.GIRLFRIEND_NAME.toUpperCase()}
+              </h1>
+              <div style={{ fontSize: '32px', lineHeight: 1.6, opacity: 0.7, maxWidth: '500px' }} className="markdown-content">
+                <ReactMarkdown>{config.LOVE_LETTER.substring(0, 250) + '...'}</ReactMarkdown>
+              </div>
+              <div style={{ marginTop: '80px', display: 'flex', alignItems: 'center', gap: '40px' }}>
+                <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: '1px solid #0a0a0a', display: 'grid', placeItems: 'center', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '0.14em' }}>
+                  Forever
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '4px' }}>
+                  By {config.YOUR_NAME}
+                </div>
+              </div>
+            </div>
+            <div style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#0a0a0a' }}>
+              <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} crossOrigin="anonymous" />
+              <div style={{ position: 'absolute', top: '40px', right: '40px', padding: '24px', backgroundColor: 'white', border: '1px solid #0a0a0a', borderRadius: '9999px', transform: 'rotate(-6deg)', boxShadow: '20px 20px 0 rgba(0,0,0,0.2)' }}>
+                <p style={{ fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase' }}>Memory_01</p>
+              </div>
+              <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', padding: '40px', backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '24px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  {photos.slice(0, 3).map((p: any, i: number) => (
+                    <div key={i} style={{ flex: 1, aspectRatio: '1', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      <img src={p.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '80px', justifyContent: 'center' }}>
+             <h1 style={{ fontSize: '100px' }}>{config.GIRLFRIEND_NAME}</h1>
+             <p>{template.layout} layout coming soon...</p>
+          </div>
+        );
+    }
+  };
+
   return (
-    <div 
-      style={{ 
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '60px 80px',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        width: '1080px', 
-        height: '1920px', 
-        backgroundColor: bgColor,
-        color: textColor,
-        fontFamily: 'sans-serif'
-      }}
-    >
-      {/* Background Decorations */}
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.05, pointerEvents: 'none' }}>
-        {[...Array(30)].map((_, i) => (
-          <div 
-            key={i} 
-            style={{ 
-              position: 'absolute',
-              top: `${Math.random() * 100}%`, 
-              left: `${Math.random() * 100}%`,
-              transform: `rotate(${Math.random() * 360}deg) scale(${Math.random() * 2 + 1})`,
-              color: primaryColor
-            }}
-          >
-            <Heart fill="currentColor" size={80} />
-          </div>
-        ))}
-      </div>
-
-      <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px', width: '100%', height: '100%' }}>
-        {/* Header / Hero */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', marginTop: '40px' }}>
-          <div style={{ padding: '30px', borderRadius: '50%', border: '6px solid white', backgroundColor: 'rgba(255, 255, 255, 0.2)', boxShadow: '0 15px 30px rgba(0,0,0,0.1)' }}>
-            <Heart size={100} style={{ color: primaryColor }} fill="currentColor" />
-          </div>
-          <h1 style={{ fontSize: '90px', lineHeight: 1.1, color: primaryColor, fontWeight: 'bold', margin: 0, textShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-            {currentEvent.label} Surprise
-          </h1>
-          <p style={{ fontSize: '44px', fontWeight: 'bold', opacity: 0.8, margin: 0 }}>For {config.GIRLFRIEND_NAME}</p>
-        </div>
-
-        {/* Love Letter Snippet */}
-        <div style={{ padding: '40px 50px', borderRadius: '50px', backgroundColor: 'rgba(255, 255, 255, 0.2)', width: '100%', border: '3px solid rgba(255, 255, 255, 0.4)', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>
-           <p style={{ fontSize: '30px', fontStyle: 'italic', lineHeight: 1.5, margin: 0 }}>
-             "{config.LOVE_LETTER.length > 250 ? config.LOVE_LETTER.substring(0, 250) + '...' : config.LOVE_LETTER}"
-           </p>
-        </div>
-
-        {/* Reasons Section - Top 3 */}
-        <div style={{ width: '100%', textAlign: 'left', padding: '0 20px' }}>
-          <h3 style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '25px', color: primaryColor, textTransform: 'uppercase', letterSpacing: '3px', borderBottom: `3px solid ${primaryColor}`, paddingBottom: '10px', display: 'inline-block' }}>Why I Love You</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
-            {config.REASONS_TO_LOVE.slice(0, 3).map((reason: any, i: number) => (
-              <div key={i} style={{ display: 'flex', gap: '20px', alignItems: 'center', padding: '20px', borderRadius: '25px', backgroundColor: 'rgba(255, 255, 255, 0.15)', border: '2px solid rgba(255, 255, 255, 0.2)' }}>
-                <div style={{ fontSize: '40px' }}>{reason.icon}</div>
-                <p style={{ fontSize: '30px', margin: 0, fontWeight: 600 }}>{reason.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Timeline Section - Top 2 */}
-        <div style={{ width: '100%', textAlign: 'left', padding: '0 20px' }}>
-          <h3 style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '25px', color: primaryColor, textTransform: 'uppercase', letterSpacing: '3px', borderBottom: `3px solid ${primaryColor}`, paddingBottom: '10px', display: 'inline-block' }}>Our Journey</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-            {config.TIMELINE.slice(0, 2).map((item: any, i: number) => (
-              <div key={i} style={{ borderLeft: `6px solid ${primaryColor}`, paddingLeft: '30px', position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '-13px', top: '0', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'white', border: `4px solid ${primaryColor}` }} />
-                <p style={{ fontSize: '24px', fontWeight: 'bold', color: primaryColor, margin: '0 0 5px 0', textTransform: 'uppercase' }}>{item.date}</p>
-                <p style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 5px 0' }}>{item.event}</p>
-                <p style={{ fontSize: '26px', opacity: 0.8, margin: 0, lineHeight: 1.3 }}>{item.description.length > 80 ? item.description.substring(0, 80) + '...' : item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Photos Section - Top 4 */}
-        <div style={{ width: '100%', padding: '0 20px' }}>
-          <h3 style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '25px', color: primaryColor, textTransform: 'uppercase', letterSpacing: '3px', borderBottom: `3px solid ${primaryColor}`, paddingBottom: '10px', display: 'inline-block' }}>Memories</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-            {config.PHOTOS.slice(0, 4).map((photo: any, i: number) => (
-              <div key={i} style={{ aspectRatio: '1', borderRadius: '30px', overflow: 'hidden', border: '6px solid white', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
-                <img 
-                  src={photo.url} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{ marginTop: 'auto', marginBottom: '60px', padding: '40px', borderTop: '3px solid rgba(255, 255, 255, 0.3)', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-           <p style={{ fontSize: '38px', fontWeight: 'bold', color: primaryColor }}>Scan to see the full surprise!</p>
-           <p style={{ fontSize: '28px', opacity: 0.7, fontStyle: 'italic' }}>Created with love by {config.YOUR_NAME || 'Your Love'}</p>
-           <div style={{ width: '120px', height: '8px', backgroundColor: primaryColor, margin: '20px auto 0', borderRadius: '10px' }} />
-        </div>
+    <div style={containerStyle}>
+      {renderDecorations()}
+      <div style={{ position: 'relative', zIndex: 10, height: '100%' }}>
+        {renderLayout()}
       </div>
     </div>
   );
@@ -1294,11 +2015,13 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [captureTemplateId, setCaptureTemplateId] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasSParam, setHasSParam] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
+  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1436,13 +2159,17 @@ export default function App() {
 
   const storyRef = useRef<HTMLDivElement>(null);
 
-  const handleDownloadStory = async () => {
+  const handleDownloadStory = async (templateId: number = 0) => {
     if (!storyRef.current) return;
     
-    toast.info('Generating Instagram Story card...');
-    
     try {
-      // Temporarily move the hidden card into view but keep it invisible to ensure full rendering
+      toast.loading('Generating your Instagram Story card...', { id: 'story-gen' });
+      
+      setCaptureTemplateId(templateId);
+      
+      // Wait for re-render
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const originalStyle = storyRef.current.style.cssText;
       storyRef.current.style.position = 'fixed';
       storyRef.current.style.left = '0';
@@ -1477,14 +2204,14 @@ export default function App() {
       storyRef.current.style.cssText = originalStyle;
       
       const link = document.createElement('a');
-      link.download = `IG_Story_${config.GIRLFRIEND_NAME}.png`;
+      link.download = `IG_Story_${config.GIRLFRIEND_NAME}_Template_${templateId}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
       
-      toast.success('Instagram Story card ready! ❤️');
+      toast.success('Instagram Story card ready! ❤️', { id: 'story-gen' });
     } catch (error) {
       console.error('Story generation error:', error);
-      toast.error('Failed to generate Story card.');
+      toast.error('Failed to generate Story card.', { id: 'story-gen' });
     }
   };
 
@@ -1585,7 +2312,7 @@ export default function App() {
       {/* Hidden Story Card for Capture */}
       <div className="fixed -left-[2000px] top-0 pointer-events-none">
         <div ref={storyRef}>
-          <StoryCard config={config} />
+          <StoryCard config={config} templateId={captureTemplateId} />
         </div>
       </div>
 
@@ -1597,8 +2324,69 @@ export default function App() {
         )}
       >
         {/* Hero Section */}
-        {config.LAYOUT === 'editorial' || config.LAYOUT === 'split' ? (
+        {config.LAYOUT === 'modern-split' ? (
+          <section className="relative min-h-screen grid grid-cols-1 md:grid-cols-2 bg-[#f5f5f4] overflow-hidden">
+            <div className="flex flex-col justify-center p-8 md:p-24 border-b md:border-b-0 md:border-r border-black/10">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <p className="text-romantic-pink font-mono text-xs md:text-sm tracking-[0.4em] uppercase mb-4 md:mb-8">// Special_Edition_2026</p>
+                <h1 className="text-6xl sm:text-7xl md:text-[10rem] font-heading leading-[0.85] tracking-tighter mb-8 md:mb-12 break-words">
+                  {config.GIRLFRIEND_NAME.toUpperCase()}
+                </h1>
+                <div className="max-w-md text-lg md:text-xl text-gray-500 italic mb-8 md:mb-12 leading-relaxed">
+                  <ReactMarkdown>{config.LOVE_LETTER.split('\n')[0]}</ReactMarkdown>
+                </div>
+                <div className="flex flex-wrap items-center gap-6 md:gap-8">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border border-black/10 flex items-center justify-center text-[10px] font-bold uppercase tracking-widest">
+                    Forever
+                  </div>
+                  <div className="hidden sm:block h-px w-16 md:w-24 bg-black/10" />
+                  <div className="text-xs md:text-sm font-bold uppercase tracking-widest">By {config.YOUR_NAME}</div>
+                </div>
+              </motion.div>
+            </div>
+            <div className="relative h-[60vh] md:h-full">
+              <img 
+                src={config.GIRLFRIEND_PHOTO || config.PHOTOS[0].url} 
+                className="w-full h-full object-cover"
+                alt="Hero"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-romantic-pink/10 mix-blend-overlay" />
+              <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 glass p-4 md:p-8 rounded-2xl md:rounded-3xl border border-white/20 backdrop-blur-2xl">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                   <div className="flex gap-2 md:gap-4 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
+                     {config.PHOTOS.slice(0, 3).map((p: any, i: number) => (
+                       <div key={i} className="w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden border-2 border-white/50">
+                         <img src={p.url} className="w-full h-full object-cover" alt="Thumb" />
+                       </div>
+                     ))}
+                   </div>
+                   <div className="text-center sm:text-right w-full sm:w-auto">
+                     <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Captured</p>
+                     <p className="text-white font-mono text-sm md:text-base">{dateStr}</p>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : config.LAYOUT === 'editorial' || config.LAYOUT === 'split' ? (
           <section className="relative min-h-screen flex items-center px-6 md:px-20 overflow-hidden">
+            {/* Background Image */}
+            {config.HERO_IMAGE && (
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src={config.HERO_IMAGE} 
+                  alt="Background" 
+                  className="w-full h-full object-cover opacity-20 blur-sm"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-romantic-bg via-romantic-bg/40 to-transparent" />
+              </div>
+            )}
             <div className="grid md:grid-cols-2 gap-12 items-center z-10 w-full">
               <motion.div
                 {...ANIMATION_PRESETS.StaggerContainer}
@@ -1620,12 +2408,12 @@ export default function App() {
                 >
                   {titlePrefix} <br /> {config.GIRLFRIEND_NAME}!
                 </motion.h1>
-                <motion.p 
+                <motion.div 
                   variants={ANIMATION_PRESETS.StaggerItem}
-                  className="text-xl text-gray-600 mb-10 italic max-w-md"
+                  className="text-xl text-gray-600 mb-10 italic max-w-md markdown-content"
                 >
-                  "{config.LOVE_LETTER.split('\n')[0].substring(0, 100)}..."
-                </motion.p>
+                  <ReactMarkdown>{"\"" + config.LOVE_LETTER.split('\n')[0].substring(0, 100) + "...\""}</ReactMarkdown>
+                </motion.div>
                 
                 <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="scale-90 origin-left mb-10">
                   <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
@@ -1653,7 +2441,7 @@ export default function App() {
               >
                 <div className="relative aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white/50">
                   <img 
-                    src={config.PHOTOS[0].url} 
+                    src={config.GIRLFRIEND_PHOTO || config.PHOTOS[0].url} 
                     alt="Hero" 
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
@@ -1757,7 +2545,7 @@ export default function App() {
         )}>
           <ParallaxSection offset={30}>
             <motion.div 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
               whileInView="animate"
               viewport={{ once: true }}
               className={cn(
@@ -1787,6 +2575,11 @@ export default function App() {
           </ParallaxSection>
         </section>
 
+        {/* Stats Section */}
+        {(config.LAYOUT === 'love-stats' || config.LAYOUT === 'modern-split') && (
+          <StatsSection config={config} />
+        )}
+
         {/* Photo Gallery */}
         <section className={cn(
           "py-20",
@@ -1794,7 +2587,7 @@ export default function App() {
         )}>
           <div className="container mx-auto px-4">
             <motion.h2 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
               whileInView="animate"
               viewport={{ once: true }}
               className={cn(
@@ -1962,7 +2755,7 @@ export default function App() {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto">
             <motion.h2 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
               whileInView="animate"
               viewport={{ once: true }}
               className={cn(
@@ -1973,7 +2766,7 @@ export default function App() {
               A Special Memory
             </motion.h2>
             <motion.div 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
               whileInView="animate"
               viewport={{ once: true }}
               className={cn(
@@ -1998,7 +2791,7 @@ export default function App() {
         {/* Fun Section */}
         <section className="py-20 text-center px-6">
           <motion.div 
-            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
             whileInView="animate"
             viewport={{ once: true }}
             className={cn(
@@ -2011,7 +2804,7 @@ export default function App() {
             
             <div className="flex flex-wrap items-center justify-center gap-6">
               <motion.button
-                {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
+                {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey] as any}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
@@ -2045,7 +2838,7 @@ export default function App() {
         {/* Surprise Section */}
         <section className="py-20 text-center">
           <motion.button
-            {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
+            {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey] as any}
             whileInView="animate"
             viewport={{ once: true }}
             whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
@@ -2070,7 +2863,7 @@ export default function App() {
           config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-gradient-to-t from-romantic-pink/20 to-transparent"
         )}>
           <motion.div
-            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
             whileInView="animate"
             viewport={{ once: true }}
             className={cn(config.LAYOUT === 'minimal' ? "max-w-4xl mx-auto" : "")}

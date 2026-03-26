@@ -84,3 +84,17 @@
     }
   }
 }
+
+/* Markdown Styling */
+.markdown-content p {
+  margin: 0;
+  display: inline;
+}
+
+.markdown-content strong {
+  font-weight: bold;
+}
+
+.markdown-content em {
+  font-style: italic;
+}

@@ -55,6 +55,15 @@ Anil`,
     { url: "https://picsum.photos/seed/love6/800/1000", caption: "Forever memories" }
   ],
 
+  HERO_IMAGE: "https://picsum.photos/seed/romantic/1920/1080",
+  GIRLFRIEND_PHOTO: "https://picsum.photos/seed/girl/400/400",
+  STATS: {
+    DAYS_TOGETHER: 365,
+    PHOTOS_SHARED: 1240,
+    DATE_NIGHTS: 52,
+    LOVE_SCORE: 100
+  },
+
   MUSIC_URL: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Replace with a real romantic instrumental URL
   VIDEO_URL: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Replace with your memory video
   
@@ -80,7 +89,7 @@ Anil`,
     background: "#fff5f5",
     text: "#4a4a4a"
   },
-  LAYOUT: "classic",
+  LAYOUT: "classic", // Options: classic, minimal, editorial, split, modern-split, love-stats
   CONFETTI: {
     particleCount: 150,
     spread: 70,

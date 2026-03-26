@@ -61,6 +61,14 @@ Anil`,
     SECTIONS: "SlideUp",
     BUTTONS: "Bounce",
     CARDS: "Zoom"
+  },
+
+  THEME: {
+    primary: "#ff6b6b",
+    secondary: "#f06292",
+    accent: "#ff8e8e",
+    background: "#fff5f5",
+    text: "#4a4a4a"
   }
 };
 

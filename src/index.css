@@ -5,14 +5,17 @@
   --font-heading: "Dancing Script", cursive;
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   
-  --color-romantic-pink: #ff85a2;
-  --color-romantic-purple: #a78bfa;
+  --color-romantic-pink: var(--romantic-pink, #ff85a2);
+  --color-romantic-purple: var(--romantic-purple, #a78bfa);
+  --color-romantic-accent: var(--romantic-accent, #ff8e8e);
   --color-romantic-gold: #d4af37;
 }
 
 @layer base {
   body {
-    @apply bg-[#fff5f7] text-gray-800 font-sans selection:bg-romantic-pink/30;
+    background-color: var(--romantic-bg, #fff5f7);
+    color: var(--romantic-text, #4a4a4a);
+    @apply font-sans selection:bg-romantic-pink/30;
   }
 }
 
@@ -46,4 +49,38 @@
   background: white;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
   animation: sparkle 2s infinite;
+}
+
+/* Cinematic & Print Utilities */
+@layer utilities {
+  .cinematic-mode .fixed.bottom-8.right-8,
+  .cinematic-mode .fixed.top-8.right-8,
+  .cinematic-mode .fixed.top-8.left-8 {
+    display: none !important;
+  }
+
+  @media print {
+    .fixed.bottom-8.right-8,
+    .fixed.top-8.right-8,
+    .fixed.top-8.left-8,
+    .no-print {
+      display: none !important;
+    }
+    
+    body {
+      background: white !important;
+      -webkit-print-color-adjust: exact;
+    }
+    
+    section {
+      page-break-inside: avoid;
+      break-inside: avoid;
+      margin-bottom: 2rem;
+    }
+    
+    .glass {
+      background: white !important;
+      border: 1px solid #eee !important;
+    }
+  }
 }

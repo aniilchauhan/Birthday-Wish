@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2 } from 'lucide-react';
+import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
@@ -12,6 +12,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
 import { BIRTHDAY_CONFIG, ANIMATION_PRESETS } from './constants';
+import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
 
 type AnimationKey = keyof typeof ANIMATION_PRESETS;
@@ -51,7 +52,14 @@ const decodeConfig = (base64: string) => {
 
 // --- Components ---
 
-const Customizer = ({ config, onSave, onClose }: { config: any, onSave: (newConfig: any) => void, onClose: () => void }) => {
+const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, onEnterCinematicMode }: { 
+  config: any, 
+  onSave: (newConfig: any) => void, 
+  onClose: () => void,
+  onDownloadHTML: () => void,
+  onDownloadPDF: () => void,
+  onEnterCinematicMode: () => void
+}) => {
   const [formData, setFormData] = useState(config);
 
   const handleChange = (field: string, value: any) => {
@@ -88,6 +96,81 @@ const Customizer = ({ config, onSave, onClose }: { config: any, onSave: (newConf
         </div>
 
         <div className="p-8 space-y-8">
+          {/* Templates Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Layout size={18} className="text-romantic-pink" /> Choose a Template
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {TEMPLATES.map((template) => (
+                <button
+                  key={template.id}
+                  onClick={() => {
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      ...template.config,
+                      // We can also add unique themes here if we had a theme system
+                    }));
+                    toast.success(`Applied ${template.name} template!`);
+                  }}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all group relative",
+                    formData.THEME.primary === template.config.THEME.primary 
+                      ? "border-romantic-pink bg-romantic-pink/5 shadow-inner" 
+                      : "border-gray-100 hover:border-romantic-pink/30 hover:bg-gray-50"
+                  )}
+                  title={template.description}
+                >
+                  <div className={cn(
+                    "p-2 rounded-xl transition-colors",
+                    formData.THEME.primary === template.config.THEME.primary 
+                      ? "bg-romantic-pink text-white" 
+                      : "bg-gray-100 text-gray-400 group-hover:bg-romantic-pink/10 group-hover:text-romantic-pink"
+                  )}>
+                    <template.icon size={20} />
+                  </div>
+                  <span className="text-[10px] font-bold text-center leading-tight">{template.name}</span>
+                  {formData.THEME.primary === template.config.THEME.primary && (
+                    <motion.div 
+                      layoutId="active-template"
+                      className="absolute -top-1 -right-1 bg-romantic-pink text-white rounded-full p-0.5 shadow-sm"
+                    >
+                      <Heart size={8} fill="currentColor" />
+                    </motion.div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Theme Colors */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Plus size={18} className="text-romantic-pink" /> Theme Colors
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {Object.entries(formData.THEME).map(([key, value]) => (
+                <div key={key} className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">{key}</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color"
+                      value={value as string}
+                      onChange={(e) => handleChange('THEME', { ...formData.THEME, [key]: e.target.value })}
+                      className="w-10 h-10 rounded-lg cursor-pointer border-none"
+                    />
+                    <input 
+                      type="text"
+                      value={value as string}
+                      onChange={(e) => handleChange('THEME', { ...formData.THEME, [key]: e.target.value })}
+                      className="flex-1 px-3 py-1.5 text-xs rounded-lg border outline-none focus:border-romantic-pink"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Basic Info */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -333,14 +416,162 @@ const Customizer = ({ config, onSave, onClose }: { config: any, onSave: (newConf
             )}
           </div>
 
-          <div className="pt-4">
+          {/* Export Options */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Download size={18} className="text-romantic-pink" /> Export & Download
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button 
+                onClick={onDownloadHTML}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
+              >
+                <FileCode size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-gray-700">Save as HTML</span>
+                <span className="text-[10px] text-gray-400 mt-1">Offline Shortcut</span>
+              </button>
+              <button 
+                onClick={onDownloadPDF}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
+              >
+                <FileText size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-gray-700">Save as PDF</span>
+                <span className="text-[10px] text-gray-400 mt-1">Printable Keepsake</span>
+              </button>
+              <button 
+                onClick={onEnterCinematicMode}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
+              >
+                <Video size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-gray-700">Record Video</span>
+                <span className="text-[10px] text-gray-400 mt-1">Cinematic Mode</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-4 space-y-3">
             <button 
               onClick={() => onSave(formData)}
               className="w-full py-4 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
             >
               <Save size={20} /> Save & Apply
             </button>
+            <button 
+              onClick={() => setFormData(BIRTHDAY_CONFIG)}
+              className="w-full py-3 rounded-full border-2 border-gray-100 text-gray-400 font-bold hover:bg-gray-50 transition-all text-sm"
+            >
+              Reset to Default
+            </button>
           </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onEnterCinematicMode }: { 
+  config: any, 
+  onClose: () => void,
+  onDownloadHTML: () => void,
+  onDownloadPDF: () => void,
+  onEnterCinematicMode: () => void
+}) => {
+  const handleCopyLink = async () => {
+    const encoded = encodeConfig(config);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
+    
+    const shareData = {
+      title: 'A Special Surprise ❤️',
+      text: `I made this special birthday website for ${config.GIRLFRIEND_NAME}! Check it out!`,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Unique link copied! ❤️');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden"
+      >
+        <div className="p-8 text-center">
+          <div className="inline-block p-4 bg-romantic-pink/10 rounded-full mb-4">
+            <Share2 size={32} className="text-romantic-pink" />
+          </div>
+          <h2 className="text-2xl font-heading text-romantic-pink mb-2">Share the Love</h2>
+          <p className="text-sm text-gray-500 mb-8 italic">Choose how you want to share this special surprise ❤️</p>
+          
+          <div className="grid grid-cols-1 gap-4">
+            <button 
+              onClick={handleCopyLink}
+              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <Share2 size={24} className="text-romantic-pink" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800">Share Link</p>
+                <p className="text-xs text-gray-400">Send the live website link</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={onDownloadHTML}
+              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <FileCode size={24} className="text-romantic-pink" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800">Save as HTML</p>
+                <p className="text-xs text-gray-400">Download offline shortcut</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={onDownloadPDF}
+              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <FileText size={24} className="text-romantic-pink" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800">Save as PDF</p>
+                <p className="text-xs text-gray-400">Printable keepsake card</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={onEnterCinematicMode}
+              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <Video size={24} className="text-romantic-pink" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800">Record Video</p>
+                <p className="text-xs text-gray-400">Enter Cinematic Mode</p>
+              </div>
+            </button>
+          </div>
+
+          <button 
+            onClick={onClose}
+            className="mt-8 w-full py-3 rounded-full border-2 border-gray-100 text-gray-400 font-bold hover:bg-gray-50 transition-all"
+          >
+            Close
+          </button>
         </div>
       </motion.div>
     </div>
@@ -548,7 +779,7 @@ const PasswordLock = ({ password, onUnlock }: { password: string, onUnlock: () =
   );
 };
 
-const Countdown = ({ targetDate }: { targetDate: string }) => {
+const Countdown = ({ targetDate, config }: { targetDate: string, config: any }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -563,7 +794,7 @@ const Countdown = ({ targetDate }: { targetDate: string }) => {
           particleCount: 150,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#ff85a2', '#a78bfa', '#ffffff']
+          colors: [config.THEME.primary, config.THEME.secondary, '#ffffff']
         });
       } else {
         setTimeLeft({
@@ -720,6 +951,7 @@ export default function App() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasSParam, setHasSParam] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
@@ -758,7 +990,7 @@ export default function App() {
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#ff85a2', '#a78bfa', '#ffd700']
+      colors: [config.THEME.primary, config.THEME.secondary, '#ffffff']
     });
   };
 
@@ -779,26 +1011,74 @@ export default function App() {
     }
   };
 
-  const handleShare = async () => {
-    const encoded = encodeConfig(config);
-    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
-    
-    const shareData = {
-      title: 'A Special Surprise ❤️',
-      text: `I made this special birthday website for ${config.GIRLFRIEND_NAME}! Check it out!`,
-      url: shareUrl,
-    };
+  const handleDownloadHTML = () => {
+    const currentUrl = window.location.href;
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Birthday Surprise for ${config.GIRLFRIEND_NAME}</title>
+        <meta http-equiv="refresh" content="0; url=${currentUrl}">
+        <style>
+          body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: ${config.THEME.background}; }
+          .card { text-align: center; padding: 2rem; background: white; border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; }
+          h1 { color: ${config.THEME.primary}; margin-bottom: 1rem; font-size: 1.5rem; }
+          p { color: ${config.THEME.text}; line-height: 1.6; opacity: 0.8; }
+          a { color: ${config.THEME.primary}; text-decoration: none; font-weight: bold; border-bottom: 2px solid ${config.THEME.primary}; }
+          .heart { color: ${config.THEME.primary}; font-size: 3rem; margin-bottom: 1rem; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="heart">❤️</div>
+          <h1>Your Surprise is Ready!</h1>
+          <p>This file contains the link to your personalized birthday surprise for <strong>${config.GIRLFRIEND_NAME}</strong>.</p>
+          <p>If you are not redirected automatically, <a href="${currentUrl}">click here to open it</a>.</p>
+        </div>
+      </body>
+      </html>
+    `;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `surprise-${config.GIRLFRIEND_NAME.toLowerCase()}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('HTML shortcut downloaded!');
+  };
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success('Unique link copied! ❤️');
-      }
-    } catch (err) {
-      console.error('Error sharing:', err);
-    }
+  const handleDownloadPDF = () => {
+    toast.info('Preparing PDF... Use "Save as PDF" in the print dialog.');
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
+  const handleEnterCinematicMode = () => {
+    setIsCustomizing(false);
+    setIsShareModalOpen(false);
+    toast.info('Cinematic Mode: UI hidden for 30s. Use your screen recorder now!', {
+      duration: 5000,
+    });
+    document.body.classList.add('cinematic-mode');
+    setTimeout(() => {
+      document.body.classList.remove('cinematic-mode');
+    }, 30000);
+  };
+
+  useEffect(() => {
+    // Apply theme colors
+    const root = document.documentElement;
+    root.style.setProperty('--romantic-pink', config.THEME.primary);
+    root.style.setProperty('--romantic-purple', config.THEME.secondary);
+    root.style.setProperty('--romantic-accent', config.THEME.accent);
+    root.style.setProperty('--romantic-bg', config.THEME.background);
+    root.style.setProperty('--romantic-text', config.THEME.text);
+  }, [config.THEME]);
+
+  const handleShare = () => {
+    setIsShareModalOpen(true);
   };
 
   const handleSaveConfig = (newConfig: any) => {
@@ -826,7 +1106,7 @@ export default function App() {
       {/* Background Music */}
       <audio ref={audioRef} src={config.MUSIC_URL} loop />
       
-      <div className="fixed top-6 right-6 z-40 flex gap-3">
+      <div className="fixed top-6 right-6 z-40 flex gap-3 no-print">
         <button 
           onClick={() => setIsCustomizing(true)}
           className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
@@ -848,11 +1128,24 @@ export default function App() {
             config={config} 
             onSave={handleSaveConfig} 
             onClose={() => setIsCustomizing(false)} 
+            onDownloadHTML={handleDownloadHTML}
+            onDownloadPDF={handleDownloadPDF}
+            onEnterCinematicMode={handleEnterCinematicMode}
+          />
+        )}
+        {isShareModalOpen && (
+          <ShareModal 
+            config={config} 
+            onClose={() => setIsShareModalOpen(false)} 
+            onDownloadHTML={handleDownloadHTML}
+            onDownloadPDF={handleDownloadPDF}
+            onEnterCinematicMode={handleEnterCinematicMode}
           />
         )}
       </AnimatePresence>
 
-      {/* Hero Section */}
+      <div>
+        {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
         <motion.div
           {...ANIMATION_PRESETS[config.ANIMATIONS.HERO_TITLE as AnimationKey]}
@@ -875,7 +1168,7 @@ export default function App() {
             "This is something special just for you, my love..."
           </motion.p>
           
-          <Countdown targetDate={config.BIRTHDAY_DATE} />
+          <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
 
           <motion.button
             {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
@@ -888,7 +1181,7 @@ export default function App() {
           </motion.button>
         </motion.div>
         
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#fff5f7]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-romantic-bg" />
       </section>
 
       {/* Love Letter Section */}
@@ -1060,7 +1353,10 @@ export default function App() {
               whileTap={{ scale: 0.9 }}
               onClick={() => {
                 confetti({ particleCount: 200, spread: 100 });
-                alert("I KNEW IT! I LOVE YOU TOO! ❤️❤️❤️");
+                toast.success("I KNEW IT! I LOVE YOU TOO! ❤️❤️❤️", {
+                  duration: 5000,
+                  icon: '❤️'
+                });
               }}
               className="px-10 py-4 rounded-full bg-romantic-pink text-white font-bold shadow-xl"
             >
@@ -1126,7 +1422,7 @@ export default function App() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleShare}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-romantic-pink text-white font-medium shadow-lg hover:shadow-romantic-pink/50 transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-romantic-pink text-white font-medium shadow-lg hover:shadow-romantic-pink/50 transition-all no-print"
           >
             <Share2 size={18} /> Share this Surprise
           </motion.button>
@@ -1137,6 +1433,7 @@ export default function App() {
         </div>
         <p>© 2026 • For My One and Only</p>
       </footer>
+      </div>
     </div>
   );
 }

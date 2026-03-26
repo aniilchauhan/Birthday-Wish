@@ -1,0 +1,49 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-heading: "Dancing Script", cursive;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-romantic-pink: #ff85a2;
+  --color-romantic-purple: #a78bfa;
+  --color-romantic-gold: #d4af37;
+}
+
+@layer base {
+  body {
+    @apply bg-[#fff5f7] text-gray-800 font-sans selection:bg-romantic-pink/30;
+  }
+}
+
+.glass {
+  @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-romantic-pink to-romantic-purple;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: white;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: sparkle 2s infinite;
+}

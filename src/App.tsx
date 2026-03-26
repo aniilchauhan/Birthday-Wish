@@ -1204,51 +1204,168 @@ const LoadingScreen = () => {
   );
 };
 
-const PasswordLock = ({ password, onUnlock }: { password: string, onUnlock: () => void }) => {
+const PasswordLock = ({ password, hint, onUnlock }: { password: string, hint?: string, onUnlock: () => void }) => {
   const [inputPassword, setInputPassword] = useState('');
   const [error, setError] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const MAX_ATTEMPTS = 3;
+  const LOCKOUT_SECONDS = 30;
+
+  useEffect(() => {
+    if (!lockedUntil) return;
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockedUntil(null);
+        setAttempts(0);
+        setSecondsLeft(0);
+      } else {
+        setSecondsLeft(remaining);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [lockedUntil]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (lockedUntil) return;
     if (inputPassword.toLowerCase() === password.toLowerCase()) {
+      confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 }, colors: ['#ff6b6b', '#f06292', '#ffffff'] });
       onUnlock();
     } else {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
       setError(true);
-      setTimeout(() => setError(false), 500);
+      setInputPassword('');
+      setTimeout(() => setError(false), 600);
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const lockTime = Date.now() + LOCKOUT_SECONDS * 1000;
+        setLockedUntil(lockTime);
+        setSecondsLeft(LOCKOUT_SECONDS);
+        toast.error(`Too many wrong attempts! Locked for ${LOCKOUT_SECONDS} seconds. 😢`);
+      } else {
+        toast.error(`Wrong password! ${MAX_ATTEMPTS - newAttempts} attempt${MAX_ATTEMPTS - newAttempts !== 1 ? 's' : ''} remaining.`);
+      }
     }
   };
 
+  const isLocked = !!lockedUntil;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-romantic-pink/20 to-romantic-purple/20 backdrop-blur-xl p-4 overflow-hidden">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="glass p-6 md:p-8 rounded-2xl md:rounded-3xl w-full max-w-sm text-center"
-      >
-        <Heart className="w-12 h-12 md:w-16 md:h-16 text-romantic-pink mx-auto mb-4 md:mb-6 animate-pulse" fill="currentColor" />
-        <h2 className="text-2xl md:text-3xl font-heading mb-1 md:mb-2 text-gray-800">Unlock My Heart</h2>
-        <p className="text-xs md:text-sm text-gray-500 mb-4 md:mb-6 italic">Hint: Your name ❤️</p>
-        
-        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
-          <motion.input
-            animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
-            transition={{ duration: 0.4 }}
-            type="password"
-            value={inputPassword}
-            onChange={(e) => setInputPassword(e.target.value)}
-            placeholder="Enter password..."
-            className={cn(
-              "w-full px-5 py-2.5 md:px-6 md:py-3 rounded-full bg-white/50 border-2 outline-none transition-all text-center text-sm md:text-base",
-              error ? "border-red-400" : "border-romantic-pink/30 focus:border-romantic-pink"
-            )}
-          />
-          <button 
-            type="submit"
-            className="w-full py-2.5 md:py-3 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-semibold shadow-lg hover:shadow-romantic-pink/50 transition-all active:scale-95 text-sm md:text-base"
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(135deg, #ffe4e8 0%, #f3e0f7 50%, #e0e8ff 100%)' }}>
+      {/* Floating hearts background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(12)].map((_, i) => (
+          <motion.div key={i}
+            initial={{ y: '110%', x: `${Math.random() * 100}%`, opacity: 0 }}
+            animate={{ y: '-10%', opacity: [0, 0.4, 0] }}
+            transition={{ duration: 6 + Math.random() * 6, repeat: Infinity, delay: Math.random() * 5, ease: 'linear' }}
+            className="absolute text-romantic-pink/30"
           >
-            Unlock
+            <Heart fill="currentColor" size={16 + Math.random() * 24} />
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-sm mx-4"
+      >
+        <div className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/60 p-8 text-center">
+          {/* Icon */}
+          <motion.div
+            animate={{ scale: [1, 1.12, 1], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            className="inline-block mb-6"
+          >
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-romantic-pink to-romantic-purple flex items-center justify-center shadow-xl shadow-romantic-pink/30 mx-auto">
+              <Heart className="w-10 h-10 text-white" fill="currentColor" />
+            </div>
+          </motion.div>
+
+          <h2 className="text-3xl font-heading text-gray-800 mb-1">Unlock My Heart 🔐</h2>
+          <p className="text-sm text-gray-400 mb-6">Enter the secret password to open your surprise</p>
+
+          {/* Hint toggle */}
+          <button
+            type="button"
+            onClick={() => setShowHint(!showHint)}
+            className="text-xs text-romantic-pink font-semibold mb-4 inline-flex items-center gap-1 hover:underline"
+          >
+            💭 {showHint ? 'Hide hint' : 'Need a hint?'}
           </button>
-        </form>
+          <AnimatePresence>
+            {showHint && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 overflow-hidden"
+              >
+                <p className="text-sm text-gray-600 italic bg-romantic-pink/10 rounded-2xl px-4 py-2 border border-romantic-pink/20">
+                  {hint || 'Think of your own name 💭'}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Lockout state */}
+          {isLocked ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-4"
+            >
+              <div className="w-20 h-20 mx-auto rounded-full border-4 border-red-200 flex items-center justify-center">
+                <motion.span
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                  className="text-3xl font-bold text-red-400"
+                >
+                  {secondsLeft}
+                </motion.span>
+              </div>
+              <p className="text-sm text-red-400 font-semibold">Too many attempts! 😢</p>
+              <p className="text-xs text-gray-400">Try again in <strong>{secondsLeft}s</strong></p>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <motion.input
+                animate={error ? { x: [-12, 12, -12, 12, -6, 6, 0] } : {}}
+                transition={{ duration: 0.5 }}
+                type="password"
+                value={inputPassword}
+                onChange={(e) => setInputPassword(e.target.value)}
+                placeholder="Enter your secret..."
+                autoFocus
+                className={cn(
+                  "w-full px-6 py-3 rounded-full bg-white/80 border-2 outline-none transition-all text-center text-base tracking-widest",
+                  error ? "border-red-400 bg-red-50 placeholder-red-300" : "border-romantic-pink/30 focus:border-romantic-pink"
+                )}
+              />
+              {attempts > 0 && !isLocked && (
+                <p className="text-xs text-orange-400">
+                  {MAX_ATTEMPTS - attempts} attempt{MAX_ATTEMPTS - attempts !== 1 ? 's' : ''} remaining
+                </p>
+              )}
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                className="w-full py-3.5 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-lg shadow-romantic-pink/30 transition-all"
+              >
+                Open My Surprise 💝
+              </motion.button>
+            </form>
+          )}
+
+          <p className="text-[10px] text-gray-300 mt-6">Made with ❤️ just for you</p>
+        </div>
       </motion.div>
     </div>
   );
@@ -2007,6 +2124,674 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
   );
 };
 
+// --- Feature 2: Now Playing Widget ---
+const NowPlayingWidget = ({ config, isPlaying, onToggle }: { config: any, isPlaying: boolean, onToggle: () => void }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 60 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1, duration: 0.5 }}
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2.5 rounded-full shadow-2xl border border-white/30 backdrop-blur-xl"
+      style={{ background: `linear-gradient(135deg, ${config.THEME?.primary}22, ${config.THEME?.secondary}22)`, borderColor: `${config.THEME?.primary}33` }}
+    >
+      {/* Vinyl record */}
+      <motion.div
+        animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
+        transition={isPlaying ? { duration: 3, repeat: Infinity, ease: 'linear' } : {}}
+        className="w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+        style={{ borderColor: config.THEME?.primary, background: `radial-gradient(circle at 50%, #333 20%, ${config.THEME?.primary}55 60%, #222 100%)` }}
+      >
+        <div className="w-2 h-2 rounded-full bg-white/80" />
+      </motion.div>
+
+      {/* Song info */}
+      <div className="flex flex-col min-w-0 max-w-[140px]">
+        <p className="text-xs font-bold text-gray-800 truncate">{config.SONG_NAME || 'Our Song'}</p>
+        <p className="text-[10px] text-gray-500 truncate">{config.SONG_ARTIST || 'Unknown Artist'}</p>
+      </div>
+
+      {/* Play / Pause button */}
+      <button
+        onClick={onToggle}
+        className="w-8 h-8 rounded-full flex items-center justify-center text-white flex-shrink-0 shadow-md active:scale-90 transition-transform"
+        style={{ background: `linear-gradient(135deg, ${config.THEME?.primary}, ${config.THEME?.secondary})` }}
+      >
+        {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+      </button>
+
+      {/* Equalizer bars when playing */}
+      {isPlaying && (
+        <div className="flex items-end gap-0.5 h-5 flex-shrink-0">
+          {[1, 2, 3, 2].map((h, i) => (
+            <motion.div key={i}
+              animate={{ scaleY: [h * 0.5, h, h * 0.3, h * 0.8, h * 0.5] }}
+              transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+              className="w-1 rounded-full origin-bottom"
+              style={{ height: `${h * 6}px`, backgroundColor: config.THEME?.primary }}
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
+// --- Feature 3: Surprise Envelopes ---
+const SurpriseEnvelopesSection = ({ config }: { config: any }) => {
+  const envelopes = config.SURPRISE_ENVELOPES || [];
+  const [openedIndex, setOpenedIndex] = useState<number | null>(null);
+  const [revealedAll, setRevealedAll] = useState(false);
+
+  if (!envelopes.length) return null;
+
+  const handleRevealAll = () => {
+    setRevealedAll(true);
+    confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 }, colors: [config.THEME.primary, config.THEME.secondary, '#ffffff'] });
+    toast.success('All surprises revealed! 🎉');
+  };
+
+  return (
+    <section className="py-10 md:py-14 px-6" style={{ background: `linear-gradient(180deg, ${config.THEME.background}, ${config.THEME.primary}11)` }}>
+      <div className="max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="text-center mb-8"
+        >
+          <div className="inline-block p-4 rounded-full mb-4" style={{ background: `${config.THEME.primary}15` }}>
+            <span className="text-4xl">💌</span>
+          </div>
+          <h2 className="text-4xl font-heading mb-2" style={{ color: config.THEME.primary }}>Secret Surprises</h2>
+          <p className="text-gray-500 text-sm">Tap each envelope to reveal a special message</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          {envelopes.map((env: any, i: number) => {
+            const isOpen = openedIndex === i || revealedAll;
+            return (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.15, duration: 0.4 }}
+                onClick={() => setOpenedIndex(isOpen && !revealedAll ? null : i)}
+                className="cursor-pointer relative group rounded-3xl overflow-hidden shadow-xl border border-white/40 min-h-[200px] flex flex-col"
+                style={{ background: `linear-gradient(135deg, ${config.THEME.primary}22, ${config.THEME.secondary}22)` }}
+              >
+                {/* Closed state */}
+                <AnimatePresence mode="wait">
+                  {!isOpen ? (
+                    <motion.div key="closed" initial={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="flex flex-col items-center justify-center h-full p-6 text-center flex-1"
+                    >
+                      <motion.span animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}
+                        className="text-5xl mb-3">{env.emoji || '💌'}</motion.span>
+                      <p className="font-bold text-sm" style={{ color: config.THEME.primary }}>{env.title}</p>
+                      <p className="text-xs text-gray-400 mt-2">Tap to open ✨</p>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="open"
+                      initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                      className="flex flex-col items-center justify-center h-full p-6 text-center flex-1"
+                      style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+                    >
+                      <p className="text-white text-sm leading-relaxed">{env.message}</p>
+                      <p className="text-white/60 text-xs mt-4">— {config.YOUR_NAME} 💕</p>
+                      <p className="text-white/40 text-[10px] mt-2">Tap to close</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {!revealedAll && (
+          <div className="text-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+              onClick={handleRevealAll}
+              className="px-8 py-3 rounded-full text-white font-bold shadow-xl transition-all"
+              style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+            >
+              🎉 Reveal All Surprises
+            </motion.button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 4: Birthday Candles ---
+const BirthdayCandlesSection = ({ config }: { config: any }) => {
+  const CANDLE_COUNT = 24;
+  const [blownOut, setBlownOut] = useState<boolean[]>(Array(CANDLE_COUNT).fill(false));
+  const [allOut, setAllOut] = useState(false);
+
+  const blowCandle = (i: number) => {
+    if (blownOut[i] || allOut) return;
+    const next = [...blownOut];
+    next[i] = true;
+    setBlownOut(next);
+    if (next.every(Boolean)) {
+      setAllOut(true);
+      confetti({ particleCount: 300, spread: 160, origin: { y: 0.4 }, colors: [config.THEME.primary, config.THEME.secondary, '#ffd700', '#ffffff'] });
+      toast.success("🎂 All candles blown! Make a wish! 🌟");
+    }
+  };
+
+  const blowAll = () => {
+    setBlownOut(Array(CANDLE_COUNT).fill(true));
+    setAllOut(true);
+    confetti({ particleCount: 400, spread: 180, origin: { y: 0.4 }, colors: [config.THEME.primary, config.THEME.secondary, '#ffd700', '#ffffff'] });
+    toast.success("🎂 Wish granted! 🌟");
+  };
+
+  const reset = () => { setBlownOut(Array(CANDLE_COUNT).fill(false)); setAllOut(false); };
+  const remaining = blownOut.filter(Boolean).length;
+
+  return (
+    <section className="py-16 md:py-20 px-6 text-center overflow-hidden" style={{ background: `linear-gradient(180deg, #1a0a0a 0%, #2d0e0e 100%)` }}>
+      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-8">
+        <h2 className="text-4xl font-heading text-white mb-2">🎂 Blow Out the Candles!</h2>
+        <p className="text-gray-400 text-sm">{allOut ? "🌟 You made a wish! 🌟" : `${CANDLE_COUNT - remaining} candles left — click to blow them out!`}</p>
+      </motion.div>
+
+      {/* Cake base */}
+      <div className="max-w-xl mx-auto mb-8">
+        <div className="relative mx-auto" style={{ width: 'min(340px, 90vw)' }}>
+          {/* Candles grid */}
+          <div className="grid grid-cols-8 gap-1.5 mb-2 justify-items-center">
+            {Array.from({ length: CANDLE_COUNT }).map((_, i) => (
+              <motion.div key={i}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => blowCandle(i)}
+                className="cursor-pointer flex flex-col items-center"
+                title={blownOut[i] ? "Blown out!" : "Click to blow!"}
+              >
+                {/* Flame */}
+                <AnimatePresence>
+                  {!blownOut[i] && (
+                    <motion.div
+                      initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 0.9, 1.1, 1], y: [0, -2, 0] }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ duration: 0.8, repeat: Infinity }}
+                      className="text-xs mb-0.5"
+                    >🔥</motion.div>
+                  )}
+                </AnimatePresence>
+                {blownOut[i] && <div className="text-xs mb-0.5 opacity-20">💨</div>}
+                {/* Wax */}
+                <div className="rounded-t-full rounded-b-sm"
+                  style={{ width: 8, height: 22, background: blownOut[i] ? '#aaa' : `linear-gradient(${config.THEME.primary}, ${config.THEME.secondary})`, transition: 'background 0.3s' }}
+                />
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Cake tiers */}
+          <div className="relative" style={{ background: 'linear-gradient(135deg, #f9c3cc, #f7a8b6)', borderRadius: '0 0 2rem 2rem', padding: '20px 30px 24px', border: '3px solid rgba(255,255,255,0.3)' }}>
+            <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
+            <p className="text-white font-heading text-xl drop-shadow">Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mt-4 bg-white/10 rounded-full h-2 overflow-hidden">
+            <motion.div
+              animate={{ width: `${(remaining / CANDLE_COUNT) * 100}%` }}
+              className="h-full rounded-full"
+              style={{ background: `linear-gradient(90deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+            />
+          </div>
+          <p className="text-gray-400 text-xs mt-1">{remaining}/{CANDLE_COUNT} blown out</p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-3 flex-wrap">
+        {!allOut && (
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            onClick={blowAll}
+            className="px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-xl"
+            style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+          >💨 Blow All Out</motion.button>
+        )}
+        <button onClick={reset} className="px-6 py-2.5 rounded-full border border-white/20 text-white text-sm font-bold hover:bg-white/10 transition-colors">
+          🕯️ Relight Candles
+        </button>
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 5: Polaroid Wall ---
+const PolaroidWallSection = ({ config }: { config: any }) => {
+  const photos = config.PHOTOS || [];
+  if (!photos.length) return null;
+
+  const rotations = [-6, 4, -3, 7, -5, 3, -8, 5, -2, 6];
+  return (
+    <section className="py-10 md:py-14 px-6" style={{ background: '#ede8df' }}>
+      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8">
+        <div className="inline-block p-4 rounded-full bg-amber-100 mb-4">
+          <Camera size={32} className="text-amber-600" />
+        </div>
+        <h2 className="text-4xl font-heading mb-2 text-amber-900">Our Memory Wall 📸</h2>
+        <p className="text-amber-700/60 text-sm italic">Every picture tells our story</p>
+      </motion.div>
+
+      <div className="max-w-5xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+          {photos.map((photo: any, i: number) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ rotate: 0, scale: 1.08, zIndex: 50 }}
+              transition={{ delay: i * 0.1, type: 'spring', stiffness: 200 }}
+              style={{ rotate: rotations[i % rotations.length] }}
+              className="cursor-pointer bg-white shadow-xl flex flex-col group relative"
+              title={photo.caption}
+            >
+              {/* Tape effect */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-5 bg-yellow-200/70 border border-yellow-300/50 rotated backdrop-blur-sm z-10 group-hover:bg-yellow-100 transition-colors" style={{ rotate: '-2deg' }} />
+              <div className="overflow-hidden" style={{ width: 'min(180px, 45vw)', height: 'min(160px, 40vw)' }}>
+                <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <div className="p-3 pb-4 text-center">
+                <p className="text-xs text-gray-600 font-medium" style={{ fontFamily: "'Dancing Script', cursive" }}>{photo.caption}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 6: Star Map Section ---
+const StarMapSection = ({ config }: { config: any }) => {
+  if (!config.STAR_MAP?.show) return null;
+
+  // Draw a simple SVG star map
+  const stars = Array.from({ length: 120 }, (_, i) => ({
+    x: (Math.sin(i * 2.4) * 0.5 + 0.5) * 100,
+    y: (Math.cos(i * 1.7) * 0.5 + 0.5) * 100,
+    r: 0.3 + (i % 5) * 0.25,
+    opacity: 0.3 + (i % 3) * 0.25,
+  }));
+
+  // Fake constellation lines for visual
+  const constellationLines = [
+    [0, 12], [12, 24], [24, 36], [36, 48], [48, 0], [24, 60], [60, 72],
+  ];
+
+  return (
+    <section className="py-16 md:py-24 px-6 bg-[#060d1f]">
+      <div className="max-w-2xl mx-auto text-center">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
+          <div className="text-5xl mb-4">🌌</div>
+          <h2 className="text-4xl font-heading text-white mb-2">{config.STAR_MAP.title || 'The Sky When We Met'}</h2>
+          <p className="text-gray-400 text-sm">{config.STAR_MAP.date} · {config.STAR_MAP.location}</p>
+          <p className="text-gray-500 text-xs mt-2 italic">{config.STAR_MAP.description}</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+          className="relative mx-auto rounded-full overflow-hidden border-2 border-white/10 shadow-2xl shadow-blue-500/20"
+          style={{ width: 'min(360px, 90vw)', height: 'min(360px, 90vw)', background: 'radial-gradient(circle at 50%, #0a1628, #060d1f)' }}
+        >
+          <svg width="100%" height="100%" viewBox="0 0 100 100" className="absolute inset-0">
+            {/* Constellation lines */}
+            {constellationLines.map(([a, b], i) => (
+              <line key={i}
+                x1={stars[a].x} y1={stars[a].y} x2={stars[b].x} y2={stars[b].y}
+                stroke="rgba(255,255,255,0.08)" strokeWidth="0.3"
+              />
+            ))}
+            {/* Stars */}
+            {stars.map((s, i) => (
+              <motion.circle key={i}
+                cx={s.x} cy={s.y} r={s.r}
+                fill="white"
+                animate={{ opacity: [s.opacity, s.opacity * 0.4, s.opacity] }}
+                transition={{ duration: 1.5 + (i % 5) * 0.5, repeat: Infinity, delay: (i % 7) * 0.2 }}
+              />
+            ))}
+          </svg>
+          {/* Center bloom */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-20 h-20 rounded-full opacity-30" style={{ background: config.THEME.primary, filter: 'blur(24px)' }} />
+          </div>
+          {/* Date badge */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
+            <span className="text-[10px] text-white/40 tracking-widest uppercase">{config.STAR_MAP.date}</span>
+          </div>
+        </motion.div>
+
+        <p className="text-gray-500 text-xs mt-6 italic">✨ Stars shimmer like our love — infinite and timeless</p>
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 7: Guestbook ---
+const GuestbookSection = ({ config }: { config: any }) => {
+  if (!config.GUESTBOOK?.enabled) return null;
+  const [messages, setMessages] = useState<{ name: string; text: string; time: string }[]>(() => {
+    try { return JSON.parse(localStorage.getItem('guestbook_messages') || '[]'); } catch { return []; }
+  });
+  const [name, setName] = useState('');
+  const [text, setText] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !text.trim()) return;
+    const msg = { name: name.trim(), text: text.trim(), time: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) };
+    const newMessages = [msg, ...messages];
+    setMessages(newMessages);
+    localStorage.setItem('guestbook_messages', JSON.stringify(newMessages));
+    setSubmitted(true);
+    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+    toast.success("Message saved! 💌");
+    setName(''); setText('');
+    setTimeout(() => setSubmitted(false), 3000);
+  };
+
+  return (
+    <section className="py-10 md:py-14 px-6" style={{ background: 'linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%)' }}>
+      <div className="max-w-2xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+          <div className="inline-block p-4 rounded-full mb-4" style={{ background: `${config.THEME.primary}15` }}>
+            <MessageCircle size={32} style={{ color: config.THEME.primary }} />
+          </div>
+          <h2 className="text-4xl font-heading mb-2" style={{ color: config.THEME.primary }}>{config.GUESTBOOK?.title || 'Leave a Message 💌'}</h2>
+          <p className="text-gray-500 text-sm">Write something sweet — it'll be saved here ❤️</p>
+        </motion.div>
+
+        {/* Form */}
+        <motion.form onSubmit={handleSubmit}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+          className="glass rounded-3xl p-6 mb-8 shadow-xl border border-white/50"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <input value={name} onChange={e => setName(e.target.value)} required
+              placeholder="Your name..." maxLength={50}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-romantic-pink text-sm"
+            />
+            <div className="text-xs text-gray-400 flex items-center">(This message will be visible to everyone who opens this page)</div>
+          </div>
+          <textarea value={text} onChange={e => setText(e.target.value)} required
+            placeholder={config.GUESTBOOK?.placeholder || 'Write something sweet here...'} rows={3} maxLength={300}
+            className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none focus:border-romantic-pink resize-none text-sm mb-4"
+          />
+          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="w-full py-3 rounded-full text-white font-bold shadow-lg"
+            style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+          >
+            {submitted ? '✅ Saved!' : '💌 Leave My Message'}
+          </motion.button>
+        </motion.form>
+
+        {/* Messages list */}
+        {messages.length > 0 && (
+          <div className="space-y-4">
+            {messages.map((msg, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
+                className="glass rounded-2xl p-4 border border-white/50"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}>
+                    {msg.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-800">{msg.name}</p>
+                    <p className="text-xs text-gray-400">{msg.time}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 italic">"{msg.text}"</p>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 8: Enhanced Countdown with Days-Since-Met + Milestones ---
+const DaysSinceSection = ({ config }: { config: any }) => {
+  const firstMetDate = config.STATS?.FIRST_MET_DATE;
+  if (!firstMetDate) return null;
+
+  const metDate = new Date(firstMetDate);
+  const now = new Date();
+  const daysSince = Math.floor((now.getTime() - metDate.getTime()) / (1000 * 60 * 60 * 24));
+  const hoursTogether = daysSince * 24;
+  const milestones = [100, 200, 365, 500, 730, 1000];
+  const nextMilestone = milestones.find(m => m > daysSince);
+  const daysToNext = nextMilestone ? nextMilestone - daysSince : null;
+  const [counter, setCounter] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCounter(prev => { if (prev < daysSince) return prev + Math.ceil(daysSince / 60); return daysSince; });
+    }, 30);
+    return () => clearInterval(timer);
+  }, [daysSince]);
+
+  return (
+    <section className="py-8 px-6" style={{ background: `linear-gradient(135deg, ${config.THEME.primary}0d, ${config.THEME.secondary}0d)` }}>
+      <div className="max-w-2xl mx-auto text-center">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
+          <p className="text-sm uppercase tracking-widest mb-2 font-mono" style={{ color: config.THEME.primary }}>// Since We First Met</p>
+          <div className="text-7xl md:text-9xl font-bold mb-2 tabular-nums" style={{ color: config.THEME.primary }}>
+            {Math.min(counter, daysSince).toLocaleString()}
+          </div>
+          <p className="text-2xl font-heading text-gray-600 mb-4">days of us 💕</p>
+          <p className="text-sm text-gray-400">{hoursTogether.toLocaleString()} hours · {(daysSince * 24 * 60).toLocaleString()} minutes of memories</p>
+
+          {daysToNext && nextMilestone && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+              className="mt-6 inline-block px-6 py-3 rounded-full text-sm font-bold text-white shadow-lg"
+              style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+            >
+              🎯 Only {daysToNext} days to {nextMilestone.toLocaleString()} day milestone!
+            </motion.div>
+          )}
+          {daysSince === 1000 && (
+            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1 }}
+              className="mt-4 text-4xl">🎊 1000 Days Together! 🎊</motion.div>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 9: Wish List Section ---
+const WishListSection = ({ config }: { config: any }) => {
+  const wishList = config.WISH_LIST || [];
+  const [items, setItems] = useState(wishList);
+  if (!items.length) return null;
+
+  const toggleGifted = (i: number) => {
+    const updated = [...items];
+    updated[i] = { ...updated[i], gifted: !updated[i].gifted };
+    setItems(updated);
+    if (updated[i].gifted) {
+      confetti({ particleCount: 60, spread: 50, origin: { y: 0.7 } });
+      toast.success("🎀 Gifted! So sweet!");
+    }
+  };
+
+  const allGifted = items.every((i: any) => i.gifted);
+
+  return (
+    <section className="py-10 md:py-14 px-6" style={{ background: 'linear-gradient(135deg, #ffe4e8 0%, #f3d9fa 100%)' }}>
+      <div className="max-w-xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+          <div className="inline-block p-4 rounded-full mb-4" style={{ background: `${config.THEME.primary}15` }}>
+            <Gift size={32} style={{ color: config.THEME.primary }} />
+          </div>
+          <h2 className="text-4xl font-heading mb-2" style={{ color: config.THEME.primary }}>Gift Ideas 🎁</h2>
+          <p className="text-gray-500 text-sm">Things that'll make {config.GIRLFRIEND_NAME} smile</p>
+        </motion.div>
+
+        <div className="space-y-3">
+          {items.map((item: any, i: number) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.08 }}
+              onClick={() => toggleGifted(i)}
+              className="cursor-pointer glass rounded-2xl p-4 flex items-center gap-4 border border-white/50 group hover:shadow-lg transition-all"
+            >
+              <span className="text-2xl flex-shrink-0">{item.emoji}</span>
+              <p className={`flex-1 text-sm font-medium transition-all ${item.gifted ? 'line-through text-gray-300' : 'text-gray-700'}`}>
+                {item.item}
+              </p>
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${item.gifted ? 'bg-green-400 border-green-400' : 'border-gray-200 group-hover:border-romantic-pink'}`}>
+                {item.gifted && <span className="text-white text-xs font-bold">✓</span>}
+              </div>
+              {item.gifted && <span className="text-xs text-green-500 font-bold flex-shrink-0">🎀 Gifted!</span>}
+            </motion.div>
+          ))}
+        </div>
+
+        {allGifted && (
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+            className="mt-6 text-center p-6 rounded-3xl text-white shadow-xl"
+            style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+          >
+            <p className="text-2xl font-heading">🎉 All gifts given!</p>
+            <p className="text-sm opacity-80 mt-1">You're the best! {config.GIRLFRIEND_NAME} is so lucky 💕</p>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+// --- Feature 11: QR Code Share Modal (appended to ShareModal) ---
+const QRCodeModal = ({ url, onClose, config }: { url: string, onClose: () => void, config: any }) => {
+  const size = 200;
+  // Simple QR-like visual using SVG (just decorative; real QR uses a library)
+  // We'll display the link prominently and a WhatsApp button
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(`I made something special for you! 💝 Open this surprise: ${url}`)}`;
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-3xl w-full max-w-sm p-7 shadow-2xl text-center"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"><X size={18} /></button>
+        <h2 className="text-xl font-heading mb-1" style={{ color: config.THEME.primary }}>Share the Surprise 💝</h2>
+        <p className="text-xs text-gray-400 mb-5">Send directly via WhatsApp or copy the link</p>
+
+        {/* Decorative "QR" box */}
+        <div className="w-36 h-36 mx-auto mb-5 rounded-2xl border-4 flex items-center justify-center bg-gray-50"
+          style={{ borderColor: config.THEME.primary }}>
+          <div className="text-4xl">❤️</div>
+        </div>
+
+        <div className="bg-gray-50 rounded-2xl p-3 mb-4 text-left">
+          <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Your special link</p>
+          <p className="text-xs text-gray-600 break-all font-mono">{url.substring(0, 60)}...</p>
+        </div>
+
+        <div className="space-y-2">
+          <a href={waUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-full text-white font-bold shadow-lg"
+            style={{ background: '#25D366' }}
+          >
+            <span className="text-lg">📱</span> Send via WhatsApp
+          </a>
+          <button onClick={() => { navigator.clipboard.writeText(url); toast.success('Link copied! 🔗'); }}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-full font-bold border-2 border-gray-100 text-gray-600 hover:bg-gray-50 transition-colors text-sm"
+          >
+            <Share2 size={16} /> Copy Link
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// --- Feature 14: Scheduled Reveal / Time Lock Screen ---
+const TimeLockScreen = ({ config }: { config: any }) => {
+  const reveal = config.SCHEDULED_REVEAL;
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    const update = () => {
+      const now = new Date().getTime();
+      const target = new Date(reveal.revealAt).getTime();
+      const diff = target - now;
+      if (diff <= 0) {
+        setUnlocked(true);
+        confetti({ particleCount: 300, spread: 160, origin: { y: 0.4 } });
+        return;
+      }
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      });
+    };
+    update();
+    timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [reveal.revealAt]);
+
+  if (unlocked) return null; // Let main site show
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+      style={{ background: `radial-gradient(circle at 50% 50%, ${config.THEME.primary}22, #050505)` }}>
+      {/* Stars */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(60)].map((_, i) => (
+          <motion.div key={i}
+            animate={{ opacity: [0.1, 0.8, 0.1] }}
+            transition={{ duration: 1 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 3 }}
+            className="absolute w-1 h-1 bg-white rounded-full"
+            style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+          />
+        ))}
+      </div>
+
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+        className="relative z-10 text-center max-w-md mx-4"
+      >
+        <motion.div animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }} transition={{ duration: 3, repeat: Infinity }}
+          className="text-6xl mb-6">🎁</motion.div>
+
+        <h1 className="text-4xl font-heading text-white mb-2">{reveal.lockMessage || 'Something special is coming... 🌟'}</h1>
+        <p className="text-gray-400 mb-8 text-sm italic">{reveal.lockSubMessage}</p>
+
+        <div className="grid grid-cols-4 gap-3 mb-8">
+          {Object.entries(timeLeft).map(([unit, val]) => (
+            <div key={unit} className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+              <motion.div key={val} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                className="text-3xl font-bold text-white">{String(val).padStart(2, '0')}</motion.div>
+              <div className="text-[10px] text-gray-400 uppercase tracking-widest">{unit}</div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-gray-500 text-xs">Made with ❤️ by {config.YOUR_NAME}</p>
+      </motion.div>
+    </div>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
@@ -2258,7 +3043,15 @@ export default function App() {
     if (!hasSParam) {
       return <WelcomeScreen onStart={handleStart} />;
     }
-    return <PasswordLock password={config.PASSWORD} onUnlock={() => setIsUnlocked(true)} />;
+    return <PasswordLock password={config.PASSWORD} hint={config.PASSWORD_HINT} onUnlock={() => setIsUnlocked(true)} />;
+  }
+
+  // Feature 14: Time Lock / Scheduled Reveal
+  if (config.SCHEDULED_REVEAL?.enabled) {
+    const revealAt = new Date(config.SCHEDULED_REVEAL.revealAt).getTime();
+    if (Date.now() < revealAt) {
+      return <TimeLockScreen config={config} />;
+    }
   }
 
   return (
@@ -2266,6 +3059,9 @@ export default function App() {
       <Toaster position="bottom-center" richColors />
       <FloatingHearts />
       
+      {/* Feature 2: Now Playing Widget */}
+      {config.MUSIC_URL && <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />}
+
       {/* Background Music */}
       <audio ref={audioRef} src={config.MUSIC_URL} loop />
       
@@ -2836,7 +3632,7 @@ export default function App() {
         </section>
 
         {/* Surprise Section */}
-        <section className="py-20 text-center">
+        <section className="py-10 text-center">
           <motion.button
             {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey] as any}
             whileInView="animate"
@@ -2857,9 +3653,30 @@ export default function App() {
           </motion.button>
         </section>
 
+        {/* Feature 8: Days Since We Met Counter */}
+        <DaysSinceSection config={config} />
+
+        {/* Feature 4: Birthday Candles (only for birthday event type) */}
+        {config.EVENT_TYPE === 'birthday' && <BirthdayCandlesSection config={config} />}
+
+        {/* Feature 3: Surprise Envelopes */}
+        <SurpriseEnvelopesSection config={config} />
+
+        {/* Feature 5: Polaroid Memory Wall */}
+        <PolaroidWallSection config={config} />
+
+        {/* Feature 6: Star Map */}
+        <StarMapSection config={config} />
+
+        {/* Feature 9: Wish List */}
+        <WishListSection config={config} />
+
+        {/* Feature 7: Guestbook */}
+        <GuestbookSection config={config} />
+
         {/* Final Note */}
         <section className={cn(
-          "py-40 text-center px-6",
+          "py-24 text-center px-6",
           config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-gradient-to-t from-romantic-pink/20 to-transparent"
         )}>
           <motion.div

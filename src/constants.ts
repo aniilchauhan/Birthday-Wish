@@ -16,9 +16,18 @@ export const BIRTHDAY_CONFIG = {
   EVENT_TYPE: "birthday",
   GIRLFRIEND_NAME: "Sarah", // Change this to her name
   PASSWORD: "Sarah", // The password to unlock the site
+  PASSWORD_HINT: "Think of your own name 💭", // Hint shown on password screen
   BIRTHDAY_DATE: "2026-04-15T00:00:00", // YYYY-MM-DDTHH:mm:ss
   YOUR_NAME: "Anil",
-  
+
+  // Feature: Scheduled Reveal / Time-Lock
+  SCHEDULED_REVEAL: {
+    enabled: false,
+    revealAt: "2026-04-15T00:00:00", // Exact datetime to unlock
+    lockMessage: "Something special is waiting for you... 🎁",
+    lockSubMessage: "It will be revealed on your birthday!"
+  },
+
   LOVE_LETTER: `My Dearest Sarah,
 
 From the moment I first saw you, I knew my life would never be the same. Your smile lights up my darkest days, and your kindness makes me want to be a better man.
@@ -29,6 +38,13 @@ Happy Birthday, my love. May your day be as beautiful and radiant as you are.
 
 Forever Yours,
 Anil`,
+
+  // Feature: Multiple Surprise Envelopes
+  SURPRISE_ENVELOPES: [
+    { emoji: "💌", title: "The Day We Met", message: "I remember the exact moment I first saw you. My heart skipped a beat and I knew you were someone special." },
+    { emoji: "🌹", title: "What I Love About You", message: "Everything. Your laugh, your kindness, the way you light up a room without even trying." },
+    { emoji: "🌟", title: "My Promise To You", message: "I promise to always be there for you, to make you laugh, and to love you more every single day." }
+  ],
 
   REASONS_TO_LOVE: [
     { icon: "😊", text: "Your infectious smile that brightens my world." },
@@ -59,14 +75,42 @@ Anil`,
   GIRLFRIEND_PHOTO: "https://picsum.photos/seed/girl/400/400",
   STATS: {
     DAYS_TOGETHER: 365,
+    DAYS_SINCE_MET: 400, // Total days since first meeting
     PHOTOS_SHARED: 1240,
     DATE_NIGHTS: 52,
-    LOVE_SCORE: 100
+    LOVE_SCORE: 100,
+    FIRST_MET_DATE: "2023-06-12" // YYYY-MM-DD format
   },
 
   MUSIC_URL: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Replace with a real romantic instrumental URL
+  SONG_NAME: "Our Song", // Display name for now-playing widget
+  SONG_ARTIST: "Unknown Artist", // Artist name for now-playing widget
   VIDEO_URL: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Replace with your memory video
-  
+
+  // Feature: Wish List / Gift Ideas
+  WISH_LIST: [
+    { emoji: "💐", item: "A bouquet of her favourite flowers", gifted: false },
+    { emoji: "🍫", item: "Belgian chocolates", gifted: true },
+    { emoji: "📖", item: "Her favourite book", gifted: false },
+    { emoji: "💍", item: "A surprise she won't expect", gifted: false }
+  ],
+
+  // Feature: Star Map
+  STAR_MAP: {
+    show: false,
+    date: "2023-06-12", // Date of first meeting
+    location: "Mumbai, India",
+    title: "The Sky When We Met",
+    description: "This is how the stars aligned the night we first met."
+  },
+
+  // Feature: Guestbook
+  GUESTBOOK: {
+    enabled: true,
+    title: "Leave Me a Message 💌",
+    placeholder: "Write something sweet here..."
+  },
+
   MAP_CONFIG: {
     show: false,
     title: "Our Special Place",
@@ -89,6 +133,7 @@ Anil`,
     background: "#fff5f5",
     text: "#4a4a4a"
   },
+  FONT_FAMILY: "'Playfair Display', serif", // Custom font
   LAYOUT: "classic", // Options: classic, minimal, editorial, split, modern-split, love-stats
   CONFETTI: {
     particleCount: 150,

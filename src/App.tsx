@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
@@ -11,7 +13,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
-import { BIRTHDAY_CONFIG, ANIMATION_PRESETS } from './constants';
+import { BIRTHDAY_CONFIG, ANIMATION_PRESETS, EVENT_TYPES } from './constants';
 import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
 
@@ -52,12 +54,13 @@ const decodeConfig = (base64: string) => {
 
 // --- Components ---
 
-const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, onEnterCinematicMode }: { 
+const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: { 
   config: any, 
   onSave: (newConfig: any) => void, 
   onClose: () => void,
   onDownloadHTML: () => void,
   onDownloadPDF: () => void,
+  onDownloadStory: () => void,
   onEnterCinematicMode: () => void
 }) => {
   const [formData, setFormData] = useState(config);
@@ -156,17 +159,127 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                     <input 
                       type="color"
                       value={value as string}
-                      onChange={(e) => handleChange('THEME', { ...formData.THEME, [key]: e.target.value })}
+                      onChange={(e) => {
+                        const newTheme = { ...formData.THEME, [key]: e.target.value };
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          THEME: newTheme,
+                          CONFETTI: {
+                            ...prev.CONFETTI,
+                            colors: [newTheme.primary, newTheme.secondary, '#ffffff']
+                          }
+                        }));
+                      }}
                       className="w-10 h-10 rounded-lg cursor-pointer border-none"
                     />
                     <input 
                       type="text"
                       value={value as string}
-                      onChange={(e) => handleChange('THEME', { ...formData.THEME, [key]: e.target.value })}
+                      onChange={(e) => {
+                        const newTheme = { ...formData.THEME, [key]: e.target.value };
+                        setFormData((prev: any) => ({
+                          ...prev,
+                          THEME: newTheme,
+                          CONFETTI: {
+                            ...prev.CONFETTI,
+                            colors: [newTheme.primary, newTheme.secondary, '#ffffff']
+                          }
+                        }));
+                      }}
                       className="flex-1 px-3 py-1.5 text-xs rounded-lg border outline-none focus:border-romantic-pink"
                     />
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Confetti Customization */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Zap size={18} className="text-romantic-pink" /> Confetti Effects
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-2xl">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-gray-500 uppercase">Particle Count</label>
+                  <span className="text-xs font-bold text-romantic-pink">{formData.CONFETTI?.particleCount || 150}</span>
+                </div>
+                <input 
+                  type="range"
+                  min="50"
+                  max="500"
+                  step="10"
+                  value={formData.CONFETTI?.particleCount || 150}
+                  onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, particleCount: parseInt(e.target.value) })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                />
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-gray-500 uppercase">Density Multiplier</label>
+                  <span className="text-xs font-bold text-romantic-pink">{formData.CONFETTI?.density || 1}x</span>
+                </div>
+                <input 
+                  type="range"
+                  min="0.5"
+                  max="3"
+                  step="0.1"
+                  value={formData.CONFETTI?.density || 1}
+                  onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, density: parseFloat(e.target.value) })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                />
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-gray-500 uppercase">Spread Angle</label>
+                  <span className="text-xs font-bold text-romantic-pink">{formData.CONFETTI?.spread || 70}°</span>
+                </div>
+                <input 
+                  type="range"
+                  min="30"
+                  max="360"
+                  step="10"
+                  value={formData.CONFETTI?.spread || 70}
+                  onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, spread: parseInt(e.target.value) })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                />
+              </div>
+              <div className="flex items-center justify-center">
+                <button 
+                  onClick={() => confetti({
+                    particleCount: Math.floor((formData.CONFETTI?.particleCount || 150) * (formData.CONFETTI?.density || 1)),
+                    spread: formData.CONFETTI?.spread || 70,
+                    colors: formData.CONFETTI?.colors || [formData.THEME.primary, formData.THEME.secondary, '#ffffff']
+                  })}
+                  className="px-6 py-2 rounded-full bg-white border-2 border-romantic-pink text-romantic-pink text-xs font-bold hover:bg-romantic-pink hover:text-white transition-all shadow-sm"
+                >
+                  Test Confetti 🎉
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Event Type Selection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Calendar size={18} className="text-romantic-pink" /> Event Type
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {EVENT_TYPES.map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => handleChange('EVENT_TYPE', type.id)}
+                  className={cn(
+                    "p-3 rounded-2xl border-2 text-left transition-all flex flex-col items-center justify-center gap-1 group",
+                    formData.EVENT_TYPE === type.id 
+                      ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink shadow-md" 
+                      : "border-gray-100 hover:border-gray-200 text-gray-600 bg-white"
+                  )}
+                >
+                  <span className="text-2xl group-hover:scale-110 transition-transform">{type.icon}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-tighter text-center">{type.label}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -178,11 +291,12 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Her Name</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">Recipient Name</label>
                 <input 
                   value={formData.GIRLFRIEND_NAME} 
                   onChange={(e) => handleChange('GIRLFRIEND_NAME', e.target.value)}
                   className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
+                  placeholder="Enter name..."
                 />
               </div>
               <div className="space-y-1">
@@ -191,6 +305,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   value={formData.YOUR_NAME} 
                   onChange={(e) => handleChange('YOUR_NAME', e.target.value)}
                   className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
+                  placeholder="Your name..."
                 />
               </div>
               <div className="space-y-1">
@@ -199,10 +314,11 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   value={formData.PASSWORD} 
                   onChange={(e) => handleChange('PASSWORD', e.target.value)}
                   className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
+                  placeholder="Secret password..."
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Birthday Date (ISO)</label>
+                <label className="text-xs font-bold text-gray-400 uppercase">Event Date & Time</label>
                 <input 
                   type="datetime-local"
                   value={formData.BIRTHDAY_DATE.slice(0, 16)} 
@@ -431,6 +547,14 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                 <span className="text-[10px] text-gray-400 mt-1">Offline Shortcut</span>
               </button>
               <button 
+                onClick={onDownloadStory}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
+              >
+                <Camera size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-gray-700">IG Story</span>
+                <span className="text-[10px] text-gray-400 mt-1">9:16 Share Card</span>
+              </button>
+              <button 
                 onClick={onDownloadPDF}
                 className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
               >
@@ -469,20 +593,24 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
   );
 };
 
-const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onEnterCinematicMode }: { 
+const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: { 
   config: any, 
   onClose: () => void,
   onDownloadHTML: () => void,
   onDownloadPDF: () => void,
+  onDownloadStory: () => void,
   onEnterCinematicMode: () => void
 }) => {
+  const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
+  const [showStoryPreview, setShowStoryPreview] = useState(false);
+
   const handleCopyLink = async () => {
     const encoded = encodeConfig(config);
     const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
     
     const shareData = {
       title: 'A Special Surprise ❤️',
-      text: `I made this special birthday website for ${config.GIRLFRIEND_NAME}! Check it out!`,
+      text: `I made this special ${currentEvent.label.toLowerCase()} surprise for ${config.GIRLFRIEND_NAME}! Check it out!`,
       url: shareUrl,
     };
 
@@ -498,44 +626,122 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onEnterCin
     }
   };
 
+  if (showStoryPreview) {
+    return (
+      <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative w-full max-w-lg flex flex-col items-center gap-4 md:gap-6 my-auto"
+        >
+          <div className="absolute -top-12 right-0 flex gap-4">
+            <button 
+              onClick={() => setShowStoryPreview(false)}
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="text-center text-white">
+            <h3 className="text-lg md:text-xl font-heading">Story Preview</h3>
+            <p className="text-[10px] md:text-xs opacity-60">This is how your story will look</p>
+          </div>
+
+          {/* Scaled Preview of StoryCard - Responsive sizing */}
+          <div 
+            className="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-2 md:border-4 border-white/20 bg-white/5"
+            style={{ 
+              width: 'min(260px, 75vw)', 
+              height: 'min(462px, 133vw)', // 9:16 ratio
+              position: 'relative'
+            }}
+          >
+            <div style={{ transform: `scale(${Math.min(260, window.innerWidth * 0.75) / 1080})`, transformOrigin: 'top left', width: '1080px', height: '1920px' }}>
+              <StoryCard config={config} />
+            </div>
+          </div>
+
+          <div className="flex flex-col w-full gap-2 md:gap-3">
+            <button 
+              onClick={() => {
+                onDownloadStory();
+                setShowStoryPreview(false);
+              }}
+              className="w-full py-3 md:py-4 bg-romantic-pink text-white rounded-xl md:rounded-2xl font-bold shadow-lg hover:bg-romantic-pink/90 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+            >
+              <Download size={18} /> Download Image
+            </button>
+            <button 
+              onClick={() => setShowStoryPreview(false)}
+              className="w-full py-3 md:py-4 bg-white/10 text-white rounded-xl md:rounded-2xl font-bold hover:bg-white/20 transition-all text-sm md:text-base"
+            >
+              Go Back
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden"
+        className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden my-auto relative"
       >
-        <div className="p-8 text-center">
-          <div className="inline-block p-4 bg-romantic-pink/10 rounded-full mb-4">
-            <Share2 size={32} className="text-romantic-pink" />
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="p-6 md:p-8 text-center">
+          <div className="inline-block p-3 md:p-4 bg-romantic-pink/10 rounded-full mb-4">
+            <Share2 size={28} className="text-romantic-pink md:w-8 md:h-8" />
           </div>
-          <h2 className="text-2xl font-heading text-romantic-pink mb-2">Share the Love</h2>
-          <p className="text-sm text-gray-500 mb-8 italic">Choose how you want to share this special surprise ❤️</p>
+          <h2 className="text-xl md:text-2xl font-heading text-romantic-pink mb-2">Share the Love</h2>
+          <p className="text-xs md:text-sm text-gray-500 mb-6 md:mb-8 italic">Choose how you want to share this special surprise ❤️</p>
           
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-3 md:gap-4">
             <button 
               onClick={handleCopyLink}
-              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
-              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <Share2 size={24} className="text-romantic-pink" />
+              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <Share2 size={20} className="text-romantic-pink md:w-6 md:h-6" />
               </div>
               <div>
-                <p className="font-bold text-gray-800">Share Link</p>
-                <p className="text-xs text-gray-400">Send the live website link</p>
+                <p className="font-bold text-gray-800 text-sm md:text-base">Share Link</p>
+                <p className="text-[10px] md:text-xs text-gray-400">Send the live website link</p>
               </div>
             </button>
 
             <button 
               onClick={onDownloadHTML}
-              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
-              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <FileCode size={24} className="text-romantic-pink" />
+              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <FileCode size={20} className="text-romantic-pink md:w-6 md:h-6" />
               </div>
               <div>
-                <p className="font-bold text-gray-800">Save as HTML</p>
-                <p className="text-xs text-gray-400">Download offline shortcut</p>
+                <p className="font-bold text-gray-800 text-sm md:text-base">Save as HTML</p>
+                <p className="text-[10px] md:text-xs text-gray-400">Download offline shortcut</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => setShowStoryPreview(true)}
+              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <Camera size={20} className="text-romantic-pink md:w-6 md:h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm md:text-base">Instagram Story</p>
+                <p className="text-[10px] md:text-xs text-gray-400">Preview & generate card</p>
               </div>
             </button>
 
@@ -782,19 +988,21 @@ const PasswordLock = ({ password, onUnlock }: { password: string, onUnlock: () =
 const Countdown = ({ targetDate, config }: { targetDate: string, config: any }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
+  const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
+
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date().getTime();
-      const birthday = new Date(targetDate).getTime();
-      const difference = birthday - now;
+      const eventDate = new Date(targetDate).getTime();
+      const difference = eventDate - now;
 
       if (difference <= 0) {
         clearInterval(timer);
         confetti({
-          particleCount: 150,
-          spread: 70,
+          particleCount: Math.floor((config.CONFETTI?.particleCount || 150) * (config.CONFETTI?.density || 1)),
+          spread: config.CONFETTI?.spread || 70,
           origin: { y: 0.6 },
-          colors: [config.THEME.primary, config.THEME.secondary, '#ffffff']
+          colors: config.CONFETTI?.colors || [config.THEME.primary, config.THEME.secondary, '#ffffff']
         });
       } else {
         setTimeLeft({
@@ -851,6 +1059,22 @@ const TypingText = ({ text }: { text: string }) => {
         className="inline-block w-1 h-6 bg-romantic-pink ml-1 align-middle"
       />
     </div>
+  );
+};
+
+const ParallaxSection = ({ children, offset = 50 }: { children: React.ReactNode, offset?: number }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
+
+  return (
+    <motion.div ref={ref} style={{ y }}>
+      {children}
+    </motion.div>
   );
 };
 
@@ -944,6 +1168,124 @@ const MapSection = ({ config }: { config: any }) => {
   );
 };
 
+const StoryCard = ({ config }: { config: any }) => {
+  const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
+  
+  // Standard colors to avoid oklab/oklch issues with html2canvas
+  const primaryColor = config.THEME.primary;
+  const textColor = config.THEME.text;
+  const bgColor = config.THEME.background;
+
+  return (
+    <div 
+      style={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '60px 80px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        width: '1080px', 
+        height: '1920px', 
+        backgroundColor: bgColor,
+        color: textColor,
+        fontFamily: 'sans-serif'
+      }}
+    >
+      {/* Background Decorations */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.05, pointerEvents: 'none' }}>
+        {[...Array(30)].map((_, i) => (
+          <div 
+            key={i} 
+            style={{ 
+              position: 'absolute',
+              top: `${Math.random() * 100}%`, 
+              left: `${Math.random() * 100}%`,
+              transform: `rotate(${Math.random() * 360}deg) scale(${Math.random() * 2 + 1})`,
+              color: primaryColor
+            }}
+          >
+            <Heart fill="currentColor" size={80} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '40px', width: '100%', height: '100%' }}>
+        {/* Header / Hero */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', marginTop: '40px' }}>
+          <div style={{ padding: '30px', borderRadius: '50%', border: '6px solid white', backgroundColor: 'rgba(255, 255, 255, 0.2)', boxShadow: '0 15px 30px rgba(0,0,0,0.1)' }}>
+            <Heart size={100} style={{ color: primaryColor }} fill="currentColor" />
+          </div>
+          <h1 style={{ fontSize: '90px', lineHeight: 1.1, color: primaryColor, fontWeight: 'bold', margin: 0, textShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+            {currentEvent.label} Surprise
+          </h1>
+          <p style={{ fontSize: '44px', fontWeight: 'bold', opacity: 0.8, margin: 0 }}>For {config.GIRLFRIEND_NAME}</p>
+        </div>
+
+        {/* Love Letter Snippet */}
+        <div style={{ padding: '40px 50px', borderRadius: '50px', backgroundColor: 'rgba(255, 255, 255, 0.2)', width: '100%', border: '3px solid rgba(255, 255, 255, 0.4)', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>
+           <p style={{ fontSize: '30px', fontStyle: 'italic', lineHeight: 1.5, margin: 0 }}>
+             "{config.LOVE_LETTER.length > 250 ? config.LOVE_LETTER.substring(0, 250) + '...' : config.LOVE_LETTER}"
+           </p>
+        </div>
+
+        {/* Reasons Section - Top 3 */}
+        <div style={{ width: '100%', textAlign: 'left', padding: '0 20px' }}>
+          <h3 style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '25px', color: primaryColor, textTransform: 'uppercase', letterSpacing: '3px', borderBottom: `3px solid ${primaryColor}`, paddingBottom: '10px', display: 'inline-block' }}>Why I Love You</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
+            {config.REASONS_TO_LOVE.slice(0, 3).map((reason: any, i: number) => (
+              <div key={i} style={{ display: 'flex', gap: '20px', alignItems: 'center', padding: '20px', borderRadius: '25px', backgroundColor: 'rgba(255, 255, 255, 0.15)', border: '2px solid rgba(255, 255, 255, 0.2)' }}>
+                <div style={{ fontSize: '40px' }}>{reason.icon}</div>
+                <p style={{ fontSize: '30px', margin: 0, fontWeight: 600 }}>{reason.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Timeline Section - Top 2 */}
+        <div style={{ width: '100%', textAlign: 'left', padding: '0 20px' }}>
+          <h3 style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '25px', color: primaryColor, textTransform: 'uppercase', letterSpacing: '3px', borderBottom: `3px solid ${primaryColor}`, paddingBottom: '10px', display: 'inline-block' }}>Our Journey</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+            {config.TIMELINE.slice(0, 2).map((item: any, i: number) => (
+              <div key={i} style={{ borderLeft: `6px solid ${primaryColor}`, paddingLeft: '30px', position: 'relative' }}>
+                <div style={{ position: 'absolute', left: '-13px', top: '0', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'white', border: `4px solid ${primaryColor}` }} />
+                <p style={{ fontSize: '24px', fontWeight: 'bold', color: primaryColor, margin: '0 0 5px 0', textTransform: 'uppercase' }}>{item.date}</p>
+                <p style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 5px 0' }}>{item.event}</p>
+                <p style={{ fontSize: '26px', opacity: 0.8, margin: 0, lineHeight: 1.3 }}>{item.description.length > 80 ? item.description.substring(0, 80) + '...' : item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Photos Section - Top 4 */}
+        <div style={{ width: '100%', padding: '0 20px' }}>
+          <h3 style={{ fontSize: '40px', fontWeight: 'bold', marginBottom: '25px', color: primaryColor, textTransform: 'uppercase', letterSpacing: '3px', borderBottom: `3px solid ${primaryColor}`, paddingBottom: '10px', display: 'inline-block' }}>Memories</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+            {config.PHOTOS.slice(0, 4).map((photo: any, i: number) => (
+              <div key={i} style={{ aspectRatio: '1', borderRadius: '30px', overflow: 'hidden', border: '6px solid white', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+                <img 
+                  src={photo.url} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ marginTop: 'auto', marginBottom: '60px', padding: '40px', borderTop: '3px solid rgba(255, 255, 255, 0.3)', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+           <p style={{ fontSize: '38px', fontWeight: 'bold', color: primaryColor }}>Scan to see the full surprise!</p>
+           <p style={{ fontSize: '28px', opacity: 0.7, fontStyle: 'italic' }}>Created with love by {config.YOUR_NAME || 'Your Love'}</p>
+           <div style={{ width: '120px', height: '8px', backgroundColor: primaryColor, margin: '20px auto 0', borderRadius: '10px' }} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
@@ -955,6 +1297,7 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasSParam, setHasSParam] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -987,10 +1330,10 @@ export default function App() {
 
   const handleSurprise = () => {
     confetti({
-      particleCount: 100,
-      spread: 70,
+      particleCount: Math.floor((config.CONFETTI?.particleCount || 100) * (config.CONFETTI?.density || 1)),
+      spread: config.CONFETTI?.spread || 70,
       origin: { y: 0.6 },
-      colors: [config.THEME.primary, config.THEME.secondary, '#ffffff']
+      colors: config.CONFETTI?.colors || [config.THEME.primary, config.THEME.secondary, '#ffffff']
     });
   };
 
@@ -1017,7 +1360,7 @@ export default function App() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Birthday Surprise for ${config.GIRLFRIEND_NAME}</title>
+        <title>${currentEvent.label} Surprise for ${config.GIRLFRIEND_NAME}</title>
         <meta http-equiv="refresh" content="0; url=${currentUrl}">
         <style>
           body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: ${config.THEME.background}; }
@@ -1032,7 +1375,7 @@ export default function App() {
         <div class="card">
           <div class="heart">❤️</div>
           <h1>Your Surprise is Ready!</h1>
-          <p>This file contains the link to your personalized birthday surprise for <strong>${config.GIRLFRIEND_NAME}</strong>.</p>
+          <p>This file contains the link to your personalized ${currentEvent.label.toLowerCase()} surprise for <strong>${config.GIRLFRIEND_NAME}</strong>.</p>
           <p>If you are not redirected automatically, <a href="${currentUrl}">click here to open it</a>.</p>
         </div>
       </body>
@@ -1048,11 +1391,101 @@ export default function App() {
     toast.success('HTML shortcut downloaded!');
   };
 
-  const handleDownloadPDF = () => {
-    toast.info('Preparing PDF... Use "Save as PDF" in the print dialog.');
-    setTimeout(() => {
+  const handleDownloadPDF = async () => {
+    if (!contentRef.current) return;
+    
+    toast.info('Generating PDF... This may take a moment.');
+    
+    try {
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: config.THEME.background,
+        windowWidth: 1200,
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
+      const pageHeight = (pdfHeight * imgWidth) / pdfWidth;
+
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, 'JPEG', 0, position * (pdfWidth / imgWidth), pdfWidth, (imgHeight * pdfWidth) / imgWidth);
+        heightLeft -= pageHeight;
+        position -= pageHeight;
+        if (heightLeft > 0) {
+          pdf.addPage();
+        }
+      }
+      
+      pdf.save(`${currentEvent.label}_Surprise_${config.GIRLFRIEND_NAME}.pdf`);
+      toast.success('PDF downloaded successfully! ❤️');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('Failed to generate PDF. Try using the print dialog instead.');
       window.print();
-    }, 500);
+    }
+  };
+
+  const storyRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadStory = async () => {
+    if (!storyRef.current) return;
+    
+    toast.info('Generating Instagram Story card...');
+    
+    try {
+      // Temporarily move the hidden card into view but keep it invisible to ensure full rendering
+      const originalStyle = storyRef.current.style.cssText;
+      storyRef.current.style.position = 'fixed';
+      storyRef.current.style.left = '0';
+      storyRef.current.style.top = '0';
+      storyRef.current.style.zIndex = '-1000';
+      storyRef.current.style.opacity = '1';
+      storyRef.current.style.visibility = 'visible';
+
+      const canvas = await html2canvas(storyRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: config.THEME.background,
+        width: 1080,
+        height: 1920,
+        windowWidth: 1080,
+        windowHeight: 1920,
+        onclone: (clonedDoc) => {
+          const styles = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
+          styles.forEach(s => s.remove());
+          
+          const style = clonedDoc.createElement('style');
+          style.innerHTML = `
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { background: transparent; }
+          `;
+          clonedDoc.head.appendChild(style);
+        }
+      });
+
+      // Restore original style
+      storyRef.current.style.cssText = originalStyle;
+      
+      const link = document.createElement('a');
+      link.download = `IG_Story_${config.GIRLFRIEND_NAME}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      toast.success('Instagram Story card ready! ❤️');
+    } catch (error) {
+      console.error('Story generation error:', error);
+      toast.error('Failed to generate Story card.');
+    }
   };
 
   const handleEnterCinematicMode = () => {
@@ -1090,6 +1523,9 @@ export default function App() {
   if (isLoading) {
     return <LoadingScreen />;
   }
+
+  const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
+  const titlePrefix = currentEvent.titlePrefix;
 
   if (!isUnlocked) {
     if (!hasSParam) {
@@ -1130,6 +1566,7 @@ export default function App() {
             onClose={() => setIsCustomizing(false)} 
             onDownloadHTML={handleDownloadHTML}
             onDownloadPDF={handleDownloadPDF}
+            onDownloadStory={handleDownloadStory}
             onEnterCinematicMode={handleEnterCinematicMode}
           />
         )}
@@ -1139,300 +1576,537 @@ export default function App() {
             onClose={() => setIsShareModalOpen(false)} 
             onDownloadHTML={handleDownloadHTML}
             onDownloadPDF={handleDownloadPDF}
+            onDownloadStory={handleDownloadStory}
             onEnterCinematicMode={handleEnterCinematicMode}
           />
         )}
       </AnimatePresence>
 
-      <div>
+      {/* Hidden Story Card for Capture */}
+      <div className="fixed -left-[2000px] top-0 pointer-events-none">
+        <div ref={storyRef}>
+          <StoryCard config={config} />
+        </div>
+      </div>
+
+      <div 
+        ref={contentRef}
+        className={cn(
+          "transition-all duration-1000",
+          config.LAYOUT === 'minimal' ? "max-w-6xl mx-auto" : ""
+        )}
+      >
         {/* Hero Section */}
-      <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
-        <motion.div
-          {...ANIMATION_PRESETS[config.ANIMATIONS.HERO_TITLE as AnimationKey]}
-          className="z-10"
-        >
-          <motion.div 
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="mb-6 inline-block"
-          >
-            <Heart size={64} className="text-romantic-pink" fill="currentColor" />
-          </motion.div>
-          <h1 className="text-5xl md:text-7xl font-heading text-gradient mb-4">
-            Happy Birthday {config.GIRLFRIEND_NAME}!
-          </h1>
-          <motion.p 
-            {...ANIMATION_PRESETS[config.ANIMATIONS.HERO_SUBTITLE as AnimationKey]}
-            className="text-xl text-gray-600 mb-8 max-w-md mx-auto italic"
-          >
-            "This is something special just for you, my love..."
-          </motion.p>
-          
-          <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
+        {config.LAYOUT === 'editorial' || config.LAYOUT === 'split' ? (
+          <section className="relative min-h-screen flex items-center px-6 md:px-20 overflow-hidden">
+            <div className="grid md:grid-cols-2 gap-12 items-center z-10 w-full">
+              <motion.div
+                {...ANIMATION_PRESETS.StaggerContainer}
+                initial="initial"
+                animate="animate"
+                className="text-left"
+              >
+                <motion.div 
+                  variants={ANIMATION_PRESETS.StaggerItem}
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="mb-6 inline-block"
+                >
+                  <Heart size={48} className="text-romantic-pink" fill="currentColor" />
+                </motion.div>
+                <motion.h1 
+                  variants={ANIMATION_PRESETS.StaggerItem}
+                  className="text-5xl md:text-8xl font-heading text-gradient mb-6 leading-tight"
+                >
+                  {titlePrefix} <br /> {config.GIRLFRIEND_NAME}!
+                </motion.h1>
+                <motion.p 
+                  variants={ANIMATION_PRESETS.StaggerItem}
+                  className="text-xl text-gray-600 mb-10 italic max-w-md"
+                >
+                  "{config.LOVE_LETTER.split('\n')[0].substring(0, 100)}..."
+                </motion.p>
+                
+                <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="scale-90 origin-left mb-10">
+                  <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
+                </motion.div>
 
-          <motion.button
-            {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-            className="mt-12 flex items-center gap-2 text-romantic-pink font-medium animate-bounce"
-          >
-            Tap to Begin <ChevronDown size={20} />
-          </motion.button>
-        </motion.div>
-        
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-romantic-bg" />
-      </section>
-
-      {/* Love Letter Section */}
-      <section className="py-20 px-6 max-w-2xl mx-auto">
-        <motion.div 
-          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
-          whileInView="animate"
-          viewport={{ once: true }}
-          className="glass p-8 md:p-12 rounded-[2rem] shadow-2xl relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <MessageCircle size={100} />
-          </div>
-          <h2 className="text-3xl font-heading text-romantic-pink mb-8 border-b border-romantic-pink/20 pb-4">
-            A Letter for You
-          </h2>
-          <TypingText text={config.LOVE_LETTER} />
-        </motion.div>
-      </section>
-
-      {/* Photo Gallery */}
-      <section className="py-20 bg-white/30">
-        <div className="container mx-auto px-4">
-          <motion.h2 
-            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="text-4xl font-heading text-center text-romantic-pink mb-12"
-          >
-            Our Beautiful Memories
-          </motion.h2>
-          <Swiper
-            effect={'coverflow'}
-            grabCursor={true}
-            centeredSlides={true}
-            slidesPerView={'auto'}
-            coverflowEffect={{
-              rotate: 50,
-              stretch: 0,
-              depth: 100,
-              modifier: 1,
-              slideShadows: true,
-            }}
-            autoplay={{
-              delay: 3000,
-              disableOnInteraction: false,
-            }}
-            pagination={true}
-            modules={[EffectCoverflow, Pagination, Autoplay]}
-            className="w-full max-w-4xl py-12"
-          >
-            {config.PHOTOS.map((photo: any, i: number) => (
-              <SwiperSlide key={i} className="w-[300px] h-[400px]">
-                <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-xl group">
+                <motion.button
+                  variants={ANIMATION_PRESETS.StaggerItem}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                  className="flex items-center gap-3 text-romantic-pink font-bold text-lg group"
+                >
+                  Explore Memories 
+                  <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                    <ChevronDown size={24} />
+                  </motion.div>
+                </motion.button>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="relative hidden md:block"
+              >
+                <div className="relative aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white/50">
                   <img 
-                    src={photo.url} 
-                    alt={photo.caption} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    src={config.PHOTOS[0].url} 
+                    alt="Hero" 
+                    className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                    <p className="text-white text-sm italic">{photo.caption}</p>
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-romantic-pink/40 to-transparent" />
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </section>
+                {/* Decorative Elements */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-romantic-purple/20 rounded-full blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-romantic-pink/20 rounded-full blur-3xl" />
+              </motion.div>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-romantic-bg/80 via-transparent to-transparent z-0" />
+          </section>
+        ) : config.LAYOUT === 'minimal' ? (
+          <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
+            <motion.div
+              {...ANIMATION_PRESETS.StaggerContainer}
+              initial="initial"
+              animate="animate"
+              className="z-10"
+            >
+              <motion.h1 
+                variants={ANIMATION_PRESETS.StaggerItem}
+                className="text-6xl md:text-9xl font-heading text-gray-900 mb-8 tracking-tighter"
+              >
+                {config.GIRLFRIEND_NAME}.
+              </motion.h1>
+              <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="h-px w-24 bg-romantic-pink mx-auto mb-8" />
+              <motion.p 
+                variants={ANIMATION_PRESETS.StaggerItem}
+                className="text-lg text-gray-500 mb-12 uppercase tracking-[0.3em] font-light"
+              >
+                A Celebration of You
+              </motion.p>
+              
+              <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="mb-12">
+                <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
+              </motion.div>
 
-      {/* Timeline Section */}
-      <section className="py-20 px-6">
-        <h2 className="text-4xl font-heading text-center text-romantic-pink mb-16">Our Journey Together</h2>
-        <div className="max-w-lg mx-auto space-y-12">
-          {config.TIMELINE.map((item: any, i: number) => (
+              <motion.button
+                variants={ANIMATION_PRESETS.StaggerItem}
+                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                className="text-sm font-bold uppercase tracking-widest text-romantic-pink hover:opacity-70 transition-opacity"
+              >
+                Scroll to Begin
+              </motion.button>
+            </motion.div>
+          </section>
+        ) : (
+          <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
+            <motion.div
+              {...ANIMATION_PRESETS.StaggerContainer}
+              initial="initial"
+              animate="animate"
+              className="z-10"
+            >
+              <motion.div 
+                variants={ANIMATION_PRESETS.StaggerItem}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="mb-6 inline-block"
+              >
+                <Heart size={64} className="text-romantic-pink" fill="currentColor" />
+              </motion.div>
+              <motion.h1 
+                variants={ANIMATION_PRESETS.StaggerItem}
+                className="text-5xl md:text-7xl font-heading text-gradient mb-4"
+              >
+                {titlePrefix} {config.GIRLFRIEND_NAME}!
+              </motion.h1>
+              <motion.p 
+                variants={ANIMATION_PRESETS.StaggerItem}
+                className="text-xl text-gray-600 mb-8 max-w-md mx-auto italic"
+              >
+                "This is something special just for you, my love..."
+              </motion.p>
+              
+              <motion.div variants={ANIMATION_PRESETS.StaggerItem}>
+                <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
+              </motion.div>
+
+              <motion.button
+                variants={ANIMATION_PRESETS.StaggerItem}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                className="mt-12 flex items-center gap-2 text-romantic-pink font-medium animate-bounce"
+              >
+                Tap to Begin <ChevronDown size={20} />
+              </motion.button>
+            </motion.div>
+            
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-romantic-bg" />
+          </section>
+        )}
+
+        {/* Love Letter Section */}
+        <section className={cn(
+          "py-20 px-6",
+          config.LAYOUT === 'minimal' ? "max-w-4xl mx-auto" : "max-w-2xl mx-auto"
+        )}>
+          <ParallaxSection offset={30}>
             <motion.div 
-              key={i}
               {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
               whileInView="animate"
               viewport={{ once: true }}
-              className="flex gap-6 items-start"
+              className={cn(
+                "p-8 md:p-12 shadow-2xl relative overflow-hidden transition-all duration-500",
+                config.LAYOUT === 'scrapbook' ? "bg-[#fdfbf7] rounded-sm border-8 border-white rotate-1 shadow-inner" : "glass rounded-[2rem]",
+                config.LAYOUT === 'minimal' ? "border-l-4 border-romantic-pink shadow-none bg-transparent" : ""
+              )}
             >
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-romantic-pink text-white flex items-center justify-center shadow-lg">
-                  <Calendar size={20} />
-                </div>
-                {i !== config.TIMELINE.length - 1 && (
-                  <div className="w-0.5 h-24 bg-romantic-pink/20 mt-2" />
-                )}
+              {config.LAYOUT === 'scrapbook' && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-8 bg-romantic-pink/20 -rotate-2 z-20" />
+              )}
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <MessageCircle size={100} />
               </div>
-              <div className="glass p-6 rounded-2xl flex-1">
-                <span className="text-xs font-bold text-romantic-purple uppercase tracking-widest">{item.date}</span>
-                <h3 className="text-xl font-bold text-gray-800 mt-1">{item.event}</h3>
-                <p className="text-gray-600 text-sm mt-2">{item.description}</p>
+              <h2 className={cn(
+                "text-3xl font-heading text-romantic-pink mb-8 pb-4",
+                config.LAYOUT === 'minimal' ? "text-left border-none" : "border-b border-romantic-pink/20"
+              )}>
+                A Letter for You
+              </h2>
+              <div className={cn(
+                config.LAYOUT === 'scrapbook' ? "font-serif text-xl leading-loose" : ""
+              )}>
+                <TypingText text={config.LOVE_LETTER} />
               </div>
             </motion.div>
-          ))}
-        </div>
-      </section>
+          </ParallaxSection>
+        </section>
 
-      {/* Map Section */}
-      <MapSection config={config} />
-
-      {/* Reasons Section */}
-      <section className="py-20 bg-gradient-to-b from-transparent to-romantic-pink/5">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-heading text-center text-romantic-pink mb-12">Reasons Why I Love You</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {config.REASONS_TO_LOVE.map((reason: any, i: number) => (
-              <motion.div
-                key={i}
-                {...ANIMATION_PRESETS[config.ANIMATIONS.CARDS as AnimationKey]}
-                whileInView="animate"
-                viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="glass p-8 rounded-3xl text-center hover:bg-white/60 transition-colors"
+        {/* Photo Gallery */}
+        <section className={cn(
+          "py-20",
+          config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-white/30"
+        )}>
+          <div className="container mx-auto px-4">
+            <motion.h2 
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              whileInView="animate"
+              viewport={{ once: true }}
+              className={cn(
+                "text-4xl font-heading text-romantic-pink mb-12",
+                config.LAYOUT === 'minimal' ? "text-left" : "text-center"
+              )}
+            >
+              Our Beautiful Memories
+            </motion.h2>
+            
+            {config.LAYOUT === 'bento' ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+                {config.PHOTOS.map((photo: any, i: number) => (
+                  <motion.div
+                    key={i}
+                    whileHover={{ scale: 1.02 }}
+                    className={cn(
+                      "relative rounded-3xl overflow-hidden shadow-lg group",
+                      i === 0 ? "col-span-2 row-span-2 h-[500px]" : "h-[240px]",
+                      i === 3 ? "col-span-2 h-[240px]" : ""
+                    )}
+                  >
+                    <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                      <p className="text-white text-xs italic">{photo.caption}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <Swiper
+                effect={'coverflow'}
+                grabCursor={true}
+                centeredSlides={true}
+                slidesPerView={'auto'}
+                coverflowEffect={{
+                  rotate: 50,
+                  stretch: 0,
+                  depth: 100,
+                  modifier: 1,
+                  slideShadows: true,
+                }}
+                autoplay={{
+                  delay: 3000,
+                  disableOnInteraction: false,
+                }}
+                pagination={true}
+                modules={[EffectCoverflow, Pagination, Autoplay]}
+                className="w-full max-w-4xl py-12"
               >
-                <div className="text-4xl mb-4">{reason.icon}</div>
-                <p className="text-gray-700 font-medium italic">{reason.text}</p>
-              </motion.div>
-            ))}
+                {config.PHOTOS.map((photo: any, i: number) => (
+                  <SwiperSlide key={i} className="w-[300px] h-[400px]">
+                    <div className={cn(
+                      "relative w-full h-full overflow-hidden shadow-xl group transition-all duration-500",
+                      config.LAYOUT === 'scrapbook' ? "bg-white p-3 border-b-8 border-white rounded-none shadow-md -rotate-2" : "rounded-3xl",
+                      config.LAYOUT === 'minimal' ? "rounded-none grayscale hover:grayscale-0" : ""
+                    )}>
+                      <img 
+                        src={photo.url} 
+                        alt={photo.caption} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                        <p className="text-white text-sm italic">{photo.caption}</p>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Video Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <motion.h2 
-            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+        {/* Timeline Section */}
+        <section className="py-20 px-6">
+          <h2 className={cn(
+            "text-4xl font-heading text-romantic-pink mb-16",
+            config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
+          )}>Our Journey Together</h2>
+          <motion.div 
+            {...ANIMATION_PRESETS.StaggerContainer}
             whileInView="animate"
             viewport={{ once: true }}
-            className="text-4xl font-heading text-center text-romantic-pink mb-12"
+            className={cn(
+              "max-w-lg mx-auto space-y-12",
+              config.LAYOUT === 'minimal' ? "max-w-4xl grid md:grid-cols-2 gap-12 space-y-0" : ""
+            )}
           >
-            A Special Memory
-          </motion.h2>
+            {config.TIMELINE.map((item: any, i: number) => (
+              <motion.div 
+                key={i}
+                variants={ANIMATION_PRESETS.StaggerItem}
+                className={cn(
+                  "flex gap-6 items-start",
+                  config.LAYOUT === 'minimal' ? "border-b border-gray-100 pb-8" : ""
+                )}
+              >
+                <div className={cn(
+                  "flex flex-col items-center",
+                  config.LAYOUT === 'minimal' ? "hidden" : ""
+                )}>
+                  <div className="w-12 h-12 rounded-full bg-romantic-pink text-white flex items-center justify-center shadow-lg">
+                    <Calendar size={20} />
+                  </div>
+                  {i !== config.TIMELINE.length - 1 && (
+                    <div className="w-0.5 h-24 bg-romantic-pink/20 mt-2" />
+                  )}
+                </div>
+                <div className={cn(
+                  "rounded-2xl flex-1",
+                  config.LAYOUT === 'minimal' ? "" : "glass p-6"
+                )}>
+                  <span className="text-xs font-bold text-romantic-purple uppercase tracking-widest">{item.date}</span>
+                  <h3 className="text-xl font-bold text-gray-800 mt-1">{item.event}</h3>
+                  <p className="text-gray-600 text-sm mt-2">{item.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* Map Section */}
+        <MapSection config={config} />
+
+        {/* Reasons Section */}
+        <section className={cn(
+          "py-20",
+          config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-gradient-to-b from-transparent to-romantic-pink/5"
+        )}>
+          <div className="container mx-auto px-4">
+            <h2 className={cn(
+              "text-4xl font-heading text-romantic-pink mb-12",
+              config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
+            )}>Reasons Why I Love You</h2>
+            <motion.div 
+              {...ANIMATION_PRESETS.StaggerContainer}
+              whileInView="animate"
+              viewport={{ once: true }}
+              className={cn(
+                "grid gap-6 max-w-5xl mx-auto",
+                config.LAYOUT === 'bento' ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"
+              )}
+            >
+              {config.REASONS_TO_LOVE.map((reason: any, i: number) => (
+                <motion.div
+                  key={i}
+                  variants={ANIMATION_PRESETS.StaggerItem}
+                  whileHover={{ y: -10 }}
+                  className={cn(
+                    "p-8 rounded-3xl text-center transition-all duration-500",
+                    config.LAYOUT === 'bento' && i % 3 === 0 ? "md:col-span-2" : "",
+                    config.LAYOUT === 'minimal' ? "border border-gray-100 hover:border-romantic-pink" : "glass hover:bg-white/60 shadow-xl"
+                  )}
+                >
+                  <div className="text-4xl mb-4">{reason.icon}</div>
+                  <p className="text-gray-700 font-medium italic">{reason.text}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Video Section */}
+        <section className="py-20 px-6">
+          <div className="max-w-4xl mx-auto">
+            <motion.h2 
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              whileInView="animate"
+              viewport={{ once: true }}
+              className={cn(
+                "text-4xl font-heading text-romantic-pink mb-12",
+                config.LAYOUT === 'minimal' ? "text-left" : "text-center"
+              )}
+            >
+              A Special Memory
+            </motion.h2>
+            <motion.div 
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              whileInView="animate"
+              viewport={{ once: true }}
+              className={cn(
+                "aspect-video overflow-hidden shadow-2xl p-2",
+                config.LAYOUT === 'minimal' ? "rounded-none" : "glass rounded-[2rem]"
+              )}
+            >
+              <iframe
+                className={cn(
+                  "w-full h-full",
+                  config.LAYOUT === 'minimal' ? "" : "rounded-2xl"
+                )}
+                src={config.VIDEO_URL}
+                title="Romantic Memory"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Fun Section */}
+        <section className="py-20 text-center px-6">
           <motion.div 
             {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
             whileInView="animate"
             viewport={{ once: true }}
-            className="aspect-video rounded-[2rem] overflow-hidden shadow-2xl glass p-2"
+            className={cn(
+              "p-12 max-w-xl mx-auto relative overflow-hidden transition-all",
+              config.LAYOUT === 'minimal' ? "border-2 border-gray-100 rounded-none" : "glass rounded-[3rem]"
+            )}
           >
-            <iframe
-              className="w-full h-full rounded-2xl"
-              src={config.VIDEO_URL}
-              title="Romantic Memory"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+            <h2 className="text-3xl font-heading text-romantic-pink mb-8">Quick Question...</h2>
+            <p className="text-2xl font-bold text-gray-800 mb-12">Do you love me? 🥺</p>
+            
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              <motion.button
+                {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  confetti({ 
+                    particleCount: Math.floor((config.CONFETTI?.particleCount || 200) * (config.CONFETTI?.density || 1.5)), 
+                    spread: (config.CONFETTI?.spread || 70) * 1.5,
+                    colors: config.CONFETTI?.colors || [config.THEME.primary, config.THEME.secondary, '#ffffff']
+                  });
+                  toast.success("I KNEW IT! I LOVE YOU TOO! ❤️❤️❤️", {
+                    duration: 5000,
+                    icon: '❤️'
+                  });
+                }}
+                className="px-10 py-4 rounded-full bg-romantic-pink text-white font-bold shadow-xl"
+              >
+                YES!
+              </motion.button>
+              
+              <motion.button
+                animate={{ x: noButtonPos.x, y: noButtonPos.y }}
+                onMouseEnter={moveNoButton}
+                onClick={moveNoButton}
+                className="px-10 py-4 rounded-full bg-gray-200 text-gray-500 font-bold"
+              >
+                No
+              </motion.button>
+            </div>
           </motion.div>
-        </div>
-      </section>
+        </section>
 
-      {/* Fun Section */}
-      <section className="py-20 text-center px-6">
-        <motion.div 
-          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
-          whileInView="animate"
-          viewport={{ once: true }}
-          className="glass p-12 rounded-[3rem] max-w-xl mx-auto relative overflow-hidden"
-        >
-          <h2 className="text-3xl font-heading text-romantic-pink mb-8">Quick Question...</h2>
-          <p className="text-2xl font-bold text-gray-800 mb-12">Do you love me? 🥺</p>
-          
-          <div className="flex flex-wrap items-center justify-center gap-6">
-            <motion.button
-              {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => {
-                confetti({ particleCount: 200, spread: 100 });
-                toast.success("I KNEW IT! I LOVE YOU TOO! ❤️❤️❤️", {
-                  duration: 5000,
-                  icon: '❤️'
-                });
-              }}
-              className="px-10 py-4 rounded-full bg-romantic-pink text-white font-bold shadow-xl"
+        {/* Surprise Section */}
+        <section className="py-20 text-center">
+          <motion.button
+            {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
+            whileInView="animate"
+            viewport={{ once: true }}
+            whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleSurprise}
+            className="group relative inline-block"
+          >
+            <div className="absolute -inset-4 bg-romantic-pink/20 rounded-full blur-xl group-hover:bg-romantic-pink/40 transition-all" />
+            <div className={cn(
+              "p-10 relative transition-all",
+              config.LAYOUT === 'minimal' ? "rounded-none border-2 border-romantic-pink" : "glass rounded-full"
+            )}>
+              <Gift size={64} className="text-romantic-pink" />
+            </div>
+            <p className="mt-6 font-heading text-2xl text-romantic-pink">Click for Surprise 🎁</p>
+          </motion.button>
+        </section>
+
+        {/* Final Note */}
+        <section className={cn(
+          "py-40 text-center px-6",
+          config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-gradient-to-t from-romantic-pink/20 to-transparent"
+        )}>
+          <motion.div
+            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+            whileInView="animate"
+            viewport={{ once: true }}
+            className={cn(config.LAYOUT === 'minimal' ? "max-w-4xl mx-auto" : "")}
+          >
+            <h2 className="text-4xl md:text-6xl font-heading text-romantic-pink mb-8">To the most beautiful girl...</h2>
+            <p className="text-xl text-gray-600 italic mb-12 max-w-2xl mx-auto">
+              "You are the best thing that ever happened to me. I promise to love you, cherish you, and make you smile every single day."
+            </p>
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="text-5xl md:text-7xl font-heading text-romantic-pink"
             >
-              YES!
+              I Love You Forever ❤️
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-12 text-center text-gray-500 text-sm">
+          <div className="flex flex-col items-center justify-center gap-4 mb-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleShare}
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-romantic-pink text-white font-medium shadow-lg hover:shadow-romantic-pink/50 transition-all no-print"
+            >
+              <Share2 size={18} /> Share this Surprise
             </motion.button>
             
-            <motion.button
-              animate={{ x: noButtonPos.x, y: noButtonPos.y }}
-              onMouseEnter={moveNoButton}
-              onClick={moveNoButton}
-              className="px-10 py-4 rounded-full bg-gray-200 text-gray-500 font-bold"
-            >
-              No
-            </motion.button>
+            <div className="flex items-center gap-2">
+              Made with <Heart size={14} className="text-romantic-pink animate-pulse" fill="currentColor" /> by {config.YOUR_NAME}
+            </div>
           </div>
-        </motion.div>
-      </section>
-
-      {/* Surprise Section */}
-      <section className="py-20 text-center">
-        <motion.button
-          {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
-          whileInView="animate"
-          viewport={{ once: true }}
-          whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-          whileTap={{ scale: 0.9 }}
-          onClick={handleSurprise}
-          className="group relative inline-block"
-        >
-          <div className="absolute -inset-4 bg-romantic-pink/20 rounded-full blur-xl group-hover:bg-romantic-pink/40 transition-all" />
-          <div className="glass p-10 rounded-full relative">
-            <Gift size={64} className="text-romantic-pink" />
-          </div>
-          <p className="mt-6 font-heading text-2xl text-romantic-pink">Click for Surprise 🎁</p>
-        </motion.button>
-      </section>
-
-      {/* Final Note */}
-      <section className="py-40 text-center px-6 bg-gradient-to-t from-romantic-pink/20 to-transparent">
-        <motion.div
-          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
-          whileInView="animate"
-          viewport={{ once: true }}
-        >
-          <h2 className="text-4xl md:text-6xl font-heading text-romantic-pink mb-8">To the most beautiful girl...</h2>
-          <p className="text-xl text-gray-600 italic mb-12 max-w-2xl mx-auto">
-            "You are the best thing that ever happened to me. I promise to love you, cherish you, and make you smile every single day."
-          </p>
-          <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="text-5xl md:text-7xl font-heading text-romantic-pink"
-          >
-            I Love You Forever ❤️
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 text-center text-gray-500 text-sm">
-        <div className="flex flex-col items-center justify-center gap-4 mb-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleShare}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-romantic-pink text-white font-medium shadow-lg hover:shadow-romantic-pink/50 transition-all no-print"
-          >
-            <Share2 size={18} /> Share this Surprise
-          </motion.button>
-          
-          <div className="flex items-center gap-2">
-            Made with <Heart size={14} className="text-romantic-pink animate-pulse" fill="currentColor" /> by {config.YOUR_NAME}
-          </div>
-        </div>
-        <p>© 2026 • For My One and Only</p>
-      </footer>
+          <p>© 2026 • For My One and Only</p>
+        </footer>
       </div>
     </div>
   );

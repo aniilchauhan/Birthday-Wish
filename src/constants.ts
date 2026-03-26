@@ -3,7 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+export const EVENT_TYPES = [
+  { id: 'birthday', label: 'Birthday', titlePrefix: 'Happy Birthday', icon: '🎂' },
+  { id: 'anniversary', label: 'Anniversary', labelFull: 'Happy Anniversary', titlePrefix: 'Happy Anniversary', icon: '💑' },
+  { id: 'graduation', label: 'Graduation', labelFull: 'Congratulations on Your Graduation', titlePrefix: 'Congratulations', icon: '🎓' },
+  { id: 'proposal', label: 'Proposal', labelFull: 'A Special Question', titlePrefix: 'Will You Marry Me?', icon: '💍' },
+  { id: 'promotion', label: 'Promotion', labelFull: 'Congrats on Your Promotion', titlePrefix: 'Congratulations', icon: '🚀' },
+  { id: 'other', label: 'Other Special Event', labelFull: 'A Special Celebration', titlePrefix: 'Celebrating', icon: '✨' }
+];
+
 export const BIRTHDAY_CONFIG = {
+  EVENT_TYPE: "birthday",
   GIRLFRIEND_NAME: "Sarah", // Change this to her name
   PASSWORD: "Sarah", // The password to unlock the site
   BIRTHDAY_DATE: "2026-04-15T00:00:00", // YYYY-MM-DDTHH:mm:ss
@@ -69,6 +79,13 @@ Anil`,
     accent: "#ff8e8e",
     background: "#fff5f5",
     text: "#4a4a4a"
+  },
+  LAYOUT: "classic",
+  CONFETTI: {
+    particleCount: 150,
+    spread: 70,
+    colors: ["#ff6b6b", "#f06292", "#ffffff"],
+    density: 1
   }
 };
 
@@ -122,5 +139,18 @@ export const ANIMATION_PRESETS = {
     initial: { opacity: 0, skewX: -20, x: -50 },
     animate: { opacity: 1, skewX: 0, x: 0 },
     transition: { duration: 0.8, ease: "easeOut" }
+  },
+  StaggerContainer: {
+    initial: {},
+    animate: {
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  },
+  StaggerItem: {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5 }
   }
 };

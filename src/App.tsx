@@ -11,8 +11,10 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
-import { BIRTHDAY_CONFIG } from './constants';
+import { BIRTHDAY_CONFIG, ANIMATION_PRESETS } from './constants';
 import { cn } from './lib/utils';
+
+type AnimationKey = keyof typeof ANIMATION_PRESETS;
 
 // --- Utils ---
 
@@ -204,6 +206,29 @@ const Customizer = ({ config, onSave, onClose }: { config: any, onSave: (newConf
             </div>
           </div>
 
+          {/* Animations */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Play size={18} className="text-romantic-pink" /> Creative Animations
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(formData.ANIMATIONS).map(([key, value]) => (
+                <div key={key} className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">{key.replace('_', ' ')}</label>
+                  <select 
+                    value={value as string}
+                    onChange={(e) => handleChange('ANIMATIONS', { ...formData.ANIMATIONS, [key]: e.target.value })}
+                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none bg-white"
+                  >
+                    {Object.keys(ANIMATION_PRESETS).map((preset) => (
+                      <option key={preset} value={preset}>{preset}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Journey/Timeline */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -259,6 +284,53 @@ const Customizer = ({ config, onSave, onClose }: { config: any, onSave: (newConf
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Map Configuration */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <MapPin size={18} className="text-romantic-pink" /> Map Section
+              </h3>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-bold text-gray-400 uppercase">Show Map</label>
+                <input 
+                  type="checkbox"
+                  checked={formData.MAP_CONFIG?.show}
+                  onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, show: e.target.checked })}
+                  className="w-4 h-4 accent-romantic-pink"
+                />
+              </div>
+            </div>
+            {formData.MAP_CONFIG?.show && (
+              <div className="space-y-3 p-4 bg-gray-50 rounded-2xl">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Section Title</label>
+                  <input 
+                    value={formData.MAP_CONFIG.title} 
+                    onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, title: e.target.value })}
+                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Location (Address or City)</label>
+                  <input 
+                    value={formData.MAP_CONFIG.location} 
+                    onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, location: e.target.value })}
+                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Description</label>
+                  <textarea 
+                    value={formData.MAP_CONFIG.description} 
+                    onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, description: e.target.value })}
+                    rows={2}
+                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none resize-none"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="pt-4">
@@ -329,6 +401,99 @@ const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string
           </button>
         </form>
       </motion.div>
+    </div>
+  );
+};
+
+const LoadingScreen = () => {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-romantic-pink/10 backdrop-blur-md overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-romantic-pink/20 via-white to-romantic-purple/20" />
+      
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ 
+              opacity: 0, 
+              scale: 0,
+              x: Math.random() * 100 + '%',
+              y: Math.random() * 100 + '%'
+            }}
+            animate={{ 
+              opacity: [0, 0.5, 0],
+              scale: [0, 1, 0],
+              y: [null, '-20%']
+            }}
+            transition={{ 
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2
+            }}
+            className="absolute text-romantic-pink/30"
+          >
+            <Heart fill="currentColor" size={10 + Math.random() * 20} />
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="relative z-10 text-center"
+      >
+        <div className="relative mb-8 flex justify-center">
+          <motion.div
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 5, -5, 0]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="relative z-10"
+          >
+            <Heart size={80} className="text-romantic-pink" fill="currentColor" />
+          </motion.div>
+          
+          {/* Glowing Aura */}
+          <motion.div
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 bg-romantic-pink rounded-full blur-3xl -z-10"
+          />
+        </div>
+
+        <motion.h2 
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-3xl font-heading text-romantic-pink mb-2"
+        >
+          Preparing Your Surprise...
+        </motion.h2>
+        <p className="text-gray-500 italic">Filling the air with love ❤️</p>
+      </motion.div>
+
+      {/* Progress Bar */}
+      <div className="absolute bottom-20 w-64 h-1 bg-gray-200 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 3, ease: "easeInOut" }}
+          className="h-full bg-gradient-to-r from-romantic-pink to-romantic-purple"
+        />
+      </div>
     </div>
   );
 };
@@ -490,11 +655,70 @@ const FloatingHearts = () => {
   );
 };
 
+const MapSection = ({ config }: { config: any }) => {
+  if (!config.MAP_CONFIG?.show) return null;
+
+  const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.GOOGLE_MAPS_API_KEY || ''}&q=${encodeURIComponent(config.MAP_CONFIG.location)}`;
+  
+  // Fallback if no API key is provided - use a standard search embed which is free but less customizable
+  const fallbackMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(config.MAP_CONFIG.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+
+  return (
+    <section className="py-20 px-6">
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+          whileInView="animate"
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <div className="inline-block p-4 bg-romantic-pink/10 rounded-full mb-4">
+            <MapPin size={32} className="text-romantic-pink" />
+          </div>
+          <h2 className="text-4xl font-heading text-romantic-pink mb-4">{config.MAP_CONFIG.title}</h2>
+          <p className="text-gray-600 italic max-w-lg mx-auto">{config.MAP_CONFIG.description}</p>
+        </motion.div>
+
+        <motion.div
+          {...ANIMATION_PRESETS[config.ANIMATIONS.CARDS as AnimationKey]}
+          whileInView="animate"
+          viewport={{ once: true }}
+          className="glass p-4 rounded-[2.5rem] shadow-2xl overflow-hidden aspect-video relative"
+        >
+          <iframe
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            style={{ border: 0 }}
+            src={fallbackMapUrl}
+            allowFullScreen
+            title="Our Special Location"
+            className="rounded-2xl"
+          ></iframe>
+          
+          <div className="absolute bottom-8 left-8 right-8 glass p-4 rounded-2xl backdrop-blur-md border border-white/50 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-romantic-pink rounded-lg text-white">
+                <MapPin size={18} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Location</p>
+                <p className="text-gray-800 font-medium">{config.MAP_CONFIG.location}</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
   const [config, setConfig] = useState(BIRTHDAY_CONFIG);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasSParam, setHasSParam] = useState(false);
@@ -506,10 +730,13 @@ export default function App() {
     const data = params.get('s');
     if (data) {
       setHasSParam(true);
+      setIsLoading(true);
       const decoded = decodeConfig(data);
       if (decoded) {
         setConfig(decoded);
       }
+      // Romantic delay for the loading animation
+      setTimeout(() => setIsLoading(false), 3500);
     }
   }, []);
 
@@ -580,6 +807,10 @@ export default function App() {
     toast.success('Surprise updated! Now click Share to get your link. ❤️');
   };
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   if (!isUnlocked) {
     if (!hasSParam) {
       return <WelcomeScreen onStart={handleStart} />;
@@ -624,9 +855,7 @@ export default function App() {
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center text-center px-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
+          {...ANIMATION_PRESETS[config.ANIMATIONS.HERO_TITLE as AnimationKey]}
           className="z-10"
         >
           <motion.div 
@@ -639,13 +868,17 @@ export default function App() {
           <h1 className="text-5xl md:text-7xl font-heading text-gradient mb-4">
             Happy Birthday {config.GIRLFRIEND_NAME}!
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto italic">
+          <motion.p 
+            {...ANIMATION_PRESETS[config.ANIMATIONS.HERO_SUBTITLE as AnimationKey]}
+            className="text-xl text-gray-600 mb-8 max-w-md mx-auto italic"
+          >
             "This is something special just for you, my love..."
-          </p>
+          </motion.p>
           
           <Countdown targetDate={config.BIRTHDAY_DATE} />
 
           <motion.button
+            {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
@@ -661,8 +894,9 @@ export default function App() {
       {/* Love Letter Section */}
       <section className="py-20 px-6 max-w-2xl mx-auto">
         <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+          whileInView="animate"
+          viewport={{ once: true }}
           className="glass p-8 md:p-12 rounded-[2rem] shadow-2xl relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -678,7 +912,14 @@ export default function App() {
       {/* Photo Gallery */}
       <section className="py-20 bg-white/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-heading text-center text-romantic-pink mb-12">Our Beautiful Memories</h2>
+          <motion.h2 
+            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="text-4xl font-heading text-center text-romantic-pink mb-12"
+          >
+            Our Beautiful Memories
+          </motion.h2>
           <Swiper
             effect={'coverflow'}
             grabCursor={true}
@@ -725,8 +966,9 @@ export default function App() {
           {config.TIMELINE.map((item: any, i: number) => (
             <motion.div 
               key={i}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+              whileInView="animate"
+              viewport={{ once: true }}
               className="flex gap-6 items-start"
             >
               <div className="flex flex-col items-center">
@@ -747,6 +989,9 @@ export default function App() {
         </div>
       </section>
 
+      {/* Map Section */}
+      <MapSection config={config} />
+
       {/* Reasons Section */}
       <section className="py-20 bg-gradient-to-b from-transparent to-romantic-pink/5">
         <div className="container mx-auto px-4">
@@ -755,6 +1000,9 @@ export default function App() {
             {config.REASONS_TO_LOVE.map((reason: any, i: number) => (
               <motion.div
                 key={i}
+                {...ANIMATION_PRESETS[config.ANIMATIONS.CARDS as AnimationKey]}
+                whileInView="animate"
+                viewport={{ once: true }}
                 whileHover={{ y: -10 }}
                 className="glass p-8 rounded-3xl text-center hover:bg-white/60 transition-colors"
               >
@@ -769,8 +1017,20 @@ export default function App() {
       {/* Video Section */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-heading text-center text-romantic-pink mb-12">A Special Memory</h2>
-          <div className="aspect-video rounded-[2rem] overflow-hidden shadow-2xl glass p-2">
+          <motion.h2 
+            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="text-4xl font-heading text-center text-romantic-pink mb-12"
+          >
+            A Special Memory
+          </motion.h2>
+          <motion.div 
+            {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="aspect-video rounded-[2rem] overflow-hidden shadow-2xl glass p-2"
+          >
             <iframe
               className="w-full h-full rounded-2xl"
               src={config.VIDEO_URL}
@@ -778,18 +1038,24 @@ export default function App() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Fun Section */}
       <section className="py-20 text-center px-6">
-        <div className="glass p-12 rounded-[3rem] max-w-xl mx-auto relative overflow-hidden">
+        <motion.div 
+          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+          whileInView="animate"
+          viewport={{ once: true }}
+          className="glass p-12 rounded-[3rem] max-w-xl mx-auto relative overflow-hidden"
+        >
           <h2 className="text-3xl font-heading text-romantic-pink mb-8">Quick Question...</h2>
           <p className="text-2xl font-bold text-gray-800 mb-12">Do you love me? 🥺</p>
           
           <div className="flex flex-wrap items-center justify-center gap-6">
             <motion.button
+              {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => {
@@ -810,12 +1076,15 @@ export default function App() {
               No
             </motion.button>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Surprise Section */}
       <section className="py-20 text-center">
         <motion.button
+          {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey]}
+          whileInView="animate"
+          viewport={{ once: true }}
           whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
           whileTap={{ scale: 0.9 }}
           onClick={handleSurprise}
@@ -832,9 +1101,9 @@ export default function App() {
       {/* Final Note */}
       <section className="py-40 text-center px-6 bg-gradient-to-t from-romantic-pink/20 to-transparent">
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
+          {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey]}
+          whileInView="animate"
+          viewport={{ once: true }}
         >
           <h2 className="text-4xl md:text-6xl font-heading text-romantic-pink mb-8">To the most beautiful girl...</h2>
           <p className="text-xl text-gray-600 italic mb-12 max-w-2xl mx-auto">

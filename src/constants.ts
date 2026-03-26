@@ -46,5 +46,73 @@ Anil`,
   ],
 
   MUSIC_URL: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Replace with a real romantic instrumental URL
-  VIDEO_URL: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Replace with your memory video
+  VIDEO_URL: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Replace with your memory video
+  
+  MAP_CONFIG: {
+    show: false,
+    title: "Our Special Place",
+    location: "Central Park, New York",
+    description: "The place where we first met and our journey began."
+  },
+
+  ANIMATIONS: {
+    HERO_TITLE: "SlideUp",
+    HERO_SUBTITLE: "Fade",
+    SECTIONS: "SlideUp",
+    BUTTONS: "Bounce",
+    CARDS: "Zoom"
+  }
+};
+
+export const ANIMATION_PRESETS = {
+  Fade: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    transition: { duration: 0.8 }
+  },
+  SlideUp: {
+    initial: { opacity: 0, y: 50 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  },
+  SlideDown: {
+    initial: { opacity: 0, y: -50 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  },
+  SlideLeft: {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  },
+  SlideRight: {
+    initial: { opacity: 0, x: -50 },
+    animate: { opacity: 1, x: 0 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  },
+  Zoom: {
+    initial: { opacity: 0, scale: 0.5 },
+    animate: { opacity: 1, scale: 1 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  },
+  Rotate: {
+    initial: { opacity: 0, rotate: -180, scale: 0.5 },
+    animate: { opacity: 1, rotate: 0, scale: 1 },
+    transition: { duration: 1, ease: "easeOut" }
+  },
+  Bounce: {
+    initial: { opacity: 0, scale: 0.3 },
+    animate: { opacity: 1, scale: 1 },
+    transition: { type: "spring", stiffness: 260, damping: 20 }
+  },
+  Flip: {
+    initial: { opacity: 0, rotateY: 90 },
+    animate: { opacity: 1, rotateY: 0 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  },
+  Skew: {
+    initial: { opacity: 0, skewX: -20, x: -50 },
+    animate: { opacity: 1, skewX: 0, x: 0 },
+    transition: { duration: 0.8, ease: "easeOut" }
+  }
 };

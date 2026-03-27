@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload, Stars, Sparkles, Smile, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Scissors, Mail, User, Info, Lock, ChevronLeft, ChevronRight, Clock, RefreshCw, Send, Image, Maximize2, Pointer, Square } from 'lucide-react';
+import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload, Stars, Sparkles, Smile, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Scissors, Mail, User, Info, Lock, ChevronLeft, ChevronRight, Clock, RefreshCw, Send, Image, Maximize2, Pointer, Square, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -69,9 +69,9 @@ const CursorTrail = ({ config }: { config: any }) => {
     const handleMouseMove = (e: MouseEvent) => {
       const dist = Math.hypot(e.clientX - lastPos.current.x, e.clientY - lastPos.current.y);
       if (dist < 40) return;
-      
+
       lastPos.current = { x: e.clientX, y: e.clientY };
-      
+
       const id = Math.random();
       const p = {
         id,
@@ -81,7 +81,7 @@ const CursorTrail = ({ config }: { config: any }) => {
         rotation: Math.random() * 360,
         color: config.THEME.primary
       };
-      
+
       setParticles(prev => [...prev.slice(-12), p]);
       setTimeout(() => {
         setParticles(prev => prev.filter(item => item.id !== id));
@@ -118,9 +118,9 @@ const CursorTrail = ({ config }: { config: any }) => {
   );
 };
 
-const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: { 
-  config: any, 
-  onSave: (config: any) => void, 
+const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: {
+  config: any,
+  onSave: (config: any) => void,
   onClose: () => void,
   onDownloadHTML: () => void,
   onDownloadPDF: () => void,
@@ -158,7 +158,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-[2rem] md:rounded-[3rem] w-full max-w-3xl max-h-[95vh] md:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
@@ -183,8 +183,8 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
               onClick={() => setActiveTab(tab.id as any)}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-4 px-6 text-sm font-bold transition-all border-b-2",
-                activeTab === tab.id 
-                  ? "border-romantic-pink text-romantic-pink bg-white" 
+                activeTab === tab.id
+                  ? "border-romantic-pink text-romantic-pink bg-white"
                   : "border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50"
               )}
             >
@@ -205,8 +205,8 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Recipient Name</label>
-                    <input 
-                      value={formData.GIRLFRIEND_NAME} 
+                    <input
+                      value={formData.GIRLFRIEND_NAME}
                       onChange={(e) => handleChange('GIRLFRIEND_NAME', e.target.value)}
                       className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
                       placeholder="e.g. Sarah"
@@ -214,8 +214,8 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Your Name</label>
-                    <input 
-                      value={formData.YOUR_NAME} 
+                    <input
+                      value={formData.YOUR_NAME}
                       onChange={(e) => handleChange('YOUR_NAME', e.target.value)}
                       className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
                       placeholder="e.g. Anil"
@@ -223,17 +223,17 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Password to Unlock</label>
-                    <input 
-                      value={formData.PASSWORD} 
+                    <input
+                      value={formData.PASSWORD}
                       onChange={(e) => handleChange('PASSWORD', e.target.value)}
                       className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
                     />
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Event Date & Time</label>
-                    <input 
+                    <input
                       type="datetime-local"
-                      value={formData.BIRTHDAY_DATE.slice(0, 16)} 
+                      value={formData.BIRTHDAY_DATE.slice(0, 16)}
                       onChange={(e) => handleChange('BIRTHDAY_DATE', e.target.value + ':00')}
                       className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
                     />
@@ -248,8 +248,8 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                     <MessageCircle size={18} className="text-romantic-pink" /> Love Letter
                   </h3>
                 </div>
-                <textarea 
-                  value={formData.LOVE_LETTER} 
+                <textarea
+                  value={formData.LOVE_LETTER}
                   onChange={(e) => handleChange('LOVE_LETTER', e.target.value)}
                   rows={6}
                   className="w-full px-4 py-4 rounded-[2rem] border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none resize-none transition-all"
@@ -263,7 +263,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                     <Camera size={18} className="text-romantic-pink" /> Memories
                   </h3>
-                  <button 
+                  <button
                     onClick={() => addArrayItem('PHOTOS', { url: 'https://picsum.photos/800/1000', caption: 'New Memory' })}
                     className="text-xs font-bold text-romantic-pink flex items-center gap-1"
                   >
@@ -276,14 +276,14 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                       <button onClick={() => removeArrayItem('PHOTOS', i)} className="absolute top-2 right-2 p-1.5 text-red-400 hover:bg-red-50 rounded-lg">
                         <Trash2 size={14} />
                       </button>
-                      <input 
-                        value={photo.url} 
+                      <input
+                        value={photo.url}
                         onChange={(e) => handleArrayChange('PHOTOS', i, 'url', e.target.value)}
                         className="w-full px-3 py-1.5 text-xs rounded-lg border outline-none bg-white"
                         placeholder="Image URL"
                       />
-                      <input 
-                        value={photo.caption} 
+                      <input
+                        value={photo.caption}
                         onChange={(e) => handleArrayChange('PHOTOS', i, 'caption', e.target.value)}
                         className="w-full px-3 py-1.5 text-xs rounded-lg border outline-none bg-white font-medium"
                         placeholder="Caption"
@@ -307,7 +307,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                     <div key={key} className="space-y-2 text-center">
                       <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{key}</label>
                       <div className="relative group">
-                        <input 
+                        <input
                           type="color"
                           value={value as string}
                           onChange={(e) => handleChange('THEME', { ...formData.THEME, [key]: e.target.value })}
@@ -330,7 +330,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Glass Intensity</label>
                       <span className="text-xs font-bold text-romantic-pink">{(formData.DESIGN?.glassIntensity || 0.4).toFixed(1)}</span>
                     </div>
-                    <input 
+                    <input
                       type="range" min="0" max="1" step="0.1"
                       value={formData.DESIGN?.glassIntensity || 0.4}
                       onChange={(e) => handleChange('DESIGN', { ...formData.DESIGN, glassIntensity: parseFloat(e.target.value) })}
@@ -343,7 +343,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Corner Rounding</label>
                       <span className="text-xs font-bold text-romantic-pink">{formData.DESIGN?.borderRadius || '2rem'}</span>
                     </div>
-                    <input 
+                    <input
                       type="range" min="0" max="48" step="4"
                       value={parseInt(formData.DESIGN?.borderRadius || '32')}
                       onChange={(e) => handleChange('DESIGN', { ...formData.DESIGN, borderRadius: `${e.target.value}px` })}
@@ -353,7 +353,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
 
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Font Family</label>
-                    <select 
+                    <select
                       value={formData.FONT_FAMILY}
                       onChange={(e) => handleChange('FONT_FAMILY', e.target.value)}
                       className="w-full px-4 py-3 rounded-2xl border bg-white focus:border-romantic-pink outline-none"
@@ -387,8 +387,8 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                       onClick={() => handleChange('DESIGN', { ...formData.DESIGN, floatingObject: item.id })}
                       className={cn(
                         "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
-                        formData.DESIGN?.floatingObject === item.id 
-                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink" 
+                        formData.DESIGN?.floatingObject === item.id
+                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink"
                           : "border-gray-100 hover:border-romantic-pink/20"
                       )}
                     >
@@ -416,12 +416,12 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                       onClick={() => handleChange('DESIGN', { ...formData.DESIGN, buttonStyle: style.id })}
                       className={cn(
                         "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
-                        formData.DESIGN?.buttonStyle === style.id 
-                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink font-bold" 
+                        formData.DESIGN?.buttonStyle === style.id
+                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink font-bold"
                           : "border-gray-100 hover:border-romantic-pink/20"
                       )}
                     >
-                      <div 
+                      <div
                         className={cn(
                           "w-12 h-6 border-2 flex items-center justify-center text-[10px]",
                           style.outline ? "border-current bg-transparent" : "bg-current border-transparent"
@@ -444,7 +444,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                 <Layout size={18} className="text-romantic-pink" /> Page Components
               </h3>
               <p className="text-sm text-gray-400 italic">Toggle which sections should be visible in your surprise ❤️</p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   { id: 'stats', label: 'Relationship Stats', icon: Zap },
@@ -455,16 +455,14 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   { id: 'video', label: 'Video Memory', icon: Video },
                   { id: 'map', label: 'Special Location Map', icon: MapPin },
                   { id: 'starMap', label: 'Celestial Star Map', icon: Stars },
-                  { id: 'wishlist', label: 'Virtual Wishlist', icon: Gift },
-                  { id: 'guestbook', label: 'Guestbook/Messages', icon: Smile },
                   { id: 'candles', label: 'Birthday Candles', icon: Zap },
                   { id: 'daysSince', label: 'Days Counter', icon: Heart },
                 ].map((section) => (
                   <button
                     key={section.id}
-                    onClick={() => handleChange('SECTIONS', { 
-                      ...formData.SECTIONS, 
-                      [section.id]: !formData.SECTIONS[section.id as keyof typeof formData.SECTIONS] 
+                    onClick={() => handleChange('SECTIONS', {
+                      ...formData.SECTIONS,
+                      [section.id]: !formData.SECTIONS[section.id as keyof typeof formData.SECTIONS]
                     })}
                     className={cn(
                       "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left",
@@ -502,7 +500,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                 <div className="p-6 bg-gray-50 rounded-3xl space-y-6">
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Confetti Density</label>
-                    <input 
+                    <input
                       type="range" min="50" max="500" step="10"
                       value={formData.CONFETTI?.particleCount || 150}
                       onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, particleCount: parseInt(e.target.value) })}
@@ -511,7 +509,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   </div>
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Floating Object Speed</label>
-                    <input 
+                    <input
                       type="range" min="0.5" max="3" step="0.1"
                       value={formData.DESIGN?.particleSpeed || 1.0}
                       onChange={(e) => handleChange('DESIGN', { ...formData.DESIGN, particleSpeed: parseFloat(e.target.value) })}
@@ -527,31 +525,31 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   <MousePointer2 size={18} className="text-romantic-pink" /> Interaction Design
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                    {['default', 'minimal', 'editorial', 'split', 'bento', 'scrapbook', 'love-stats', 'modern-split'].map(layout => (
-                        <button
-                            key={layout}
-                            onClick={() => handleChange('LAYOUT', layout)}
-                            className={cn(
-                              "py-3 px-4 rounded-xl border-2 text-[11px] font-bold uppercase transition-all",
-                              formData.LAYOUT === layout ? "border-romantic-pink bg-romantic-pink/5 text-romantic-pink" : "border-gray-100 hover:bg-gray-50"
-                            )}
-                          >
-                            {layout.replace('-', ' ')}
-                          </button>
-                        ))}
-                 </div>
-               </div>
+                  {['default', 'minimal', 'editorial', 'split', 'bento', 'scrapbook', 'love-stats', 'modern-split'].map(layout => (
+                    <button
+                      key={layout}
+                      onClick={() => handleChange('LAYOUT', layout)}
+                      className={cn(
+                        "py-3 px-4 rounded-xl border-2 text-[11px] font-bold uppercase transition-all",
+                        formData.LAYOUT === layout ? "border-romantic-pink bg-romantic-pink/5 text-romantic-pink" : "border-gray-100 hover:bg-gray-50"
+                      )}
+                    >
+                      {layout.replace('-', ' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-               {/* New Interactivity Controls */}
-               <div className="space-y-4">
+              {/* New Interactivity Controls */}
+              <div className="space-y-4">
                 <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                   <Sparkles size={18} className="text-romantic-pink" /> Advanced Interactivity
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
-                    onClick={() => handleChange('DESIGN', { 
-                      ...formData.DESIGN, 
-                      cursorTrail: !formData.DESIGN?.cursorTrail 
+                    onClick={() => handleChange('DESIGN', {
+                      ...formData.DESIGN,
+                      cursorTrail: !formData.DESIGN?.cursorTrail
                     })}
                     className={cn(
                       "flex items-center gap-4 p-4 rounded-[1.5rem] border-2 transition-all text-left",
@@ -578,18 +576,18 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   <div className="flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] border border-gray-100">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Animation Intensity</label>
                     <div className="flex gap-1 p-1 bg-white rounded-xl shadow-sm">
-                       {['subtle', 'normal', 'energetic'].map(level => (
-                         <button
-                           key={level}
-                           onClick={() => handleChange('DESIGN', { ...formData.DESIGN, animationIntensity: level })}
-                           className={cn(
-                             "flex-1 py-2 text-[9px] font-bold uppercase rounded-lg transition-all",
-                             formData.DESIGN?.animationIntensity === level ? "bg-romantic-pink text-white shadow-md" : "text-gray-400 hover:bg-gray-50"
-                           )}
-                         >
-                           {level}
-                         </button>
-                       ))}
+                      {['subtle', 'normal', 'energetic'].map(level => (
+                        <button
+                          key={level}
+                          onClick={() => handleChange('DESIGN', { ...formData.DESIGN, animationIntensity: level })}
+                          className={cn(
+                            "flex-1 py-2 text-[9px] font-bold uppercase rounded-lg transition-all",
+                            formData.DESIGN?.animationIntensity === level ? "bg-romantic-pink text-white shadow-md" : "text-gray-400 hover:bg-gray-50"
+                          )}
+                        >
+                          {level}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -599,7 +597,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
         </div>
 
         <div className="p-6 md:p-8 bg-gray-50/80 backdrop-blur-md border-t flex flex-col sm:flex-row gap-4 flex-shrink-0">
-          <button 
+          <button
             onClick={() => {
               onSave(formData);
               onClose();
@@ -608,7 +606,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
           >
             <Save size={20} /> Save Changes
           </button>
-          <button 
+          <button
             onClick={() => setFormData(BIRTHDAY_CONFIG)}
             className="px-8 py-4 rounded-[1.5rem] border-2 border-gray-200 text-gray-400 font-bold hover:bg-white hover:text-gray-600 transition-all text-sm"
           >
@@ -620,9 +618,9 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
   );
 };
 
-const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: { 
-  config: any, 
-  onClose: () => void, 
+const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: {
+  config: any,
+  onClose: () => void,
   onDownloadHTML: () => void,
   onDownloadPDF: () => void,
   onDownloadStory: (templateId: number) => void,
@@ -635,7 +633,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
   const handleCopyLink = async () => {
     const encoded = encodeConfig(config);
     const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
-    
+
     const shareData = {
       title: 'A Special Surprise ❤️',
       text: `I made this special ${currentEvent.label.toLowerCase()} surprise for ${config.GIRLFRIEND_NAME}! Check it out!`,
@@ -657,12 +655,12 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
   if (showStoryPreview) {
     return (
       <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 overflow-y-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative w-full max-w-4xl flex flex-col md:flex-row items-center gap-8 my-auto"
         >
-          <button 
+          <button
             onClick={() => setShowStoryPreview(false)}
             className="absolute -top-12 right-0 md:top-0 md:-right-12 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
           >
@@ -671,10 +669,10 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
 
           {/* Left: Preview */}
           <div className="flex-shrink-0">
-            <div 
+            <div
               className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 bg-white/5"
-              style={{ 
-                width: 'min(320px, 80vw)', 
+              style={{
+                width: 'min(320px, 80vw)',
                 height: 'min(568px, 142vw)', // 9:16 ratio
                 position: 'relative'
               }}
@@ -699,8 +697,8 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
                   onClick={() => setSelectedTemplateId(t.id)}
                   className={cn(
                     "p-4 rounded-2xl text-left transition-all border-2",
-                    selectedTemplateId === t.id 
-                      ? "bg-romantic-pink border-white shadow-lg scale-105" 
+                    selectedTemplateId === t.id
+                      ? "bg-romantic-pink border-white shadow-lg scale-105"
                       : "bg-white/5 border-transparent hover:bg-white/10"
                   )}
                 >
@@ -711,7 +709,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
             </div>
 
             <div className="flex flex-col gap-3">
-              <button 
+              <button
                 onClick={() => {
                   onDownloadStory(selectedTemplateId);
                   setShowStoryPreview(false);
@@ -721,13 +719,13 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
                 <Download size={20} /> Download Template #{selectedTemplateId + 1}
               </button>
               <div className="flex gap-3">
-                <button 
+                <button
                   onClick={() => setSelectedTemplateId(prev => Math.max(0, prev - 1))}
                   className="flex-1 py-3 bg-white/10 rounded-xl font-bold hover:bg-white/20 transition-all"
                 >
                   Previous
                 </button>
-                <button 
+                <button
                   onClick={() => setSelectedTemplateId(prev => Math.min(99, prev + 1))}
                   className="flex-1 py-3 bg-white/10 rounded-xl font-bold hover:bg-white/20 transition-all"
                 >
@@ -743,12 +741,12 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden my-auto relative"
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
         >
@@ -761,9 +759,9 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
           </div>
           <h2 className="text-xl md:text-2xl font-heading text-romantic-pink mb-2">Share the Love</h2>
           <p className="text-xs md:text-sm text-gray-500 mb-6 md:mb-8 italic">Choose how you want to share this special surprise ❤️</p>
-          
+
           <div className="grid grid-cols-1 gap-3 md:gap-4">
-            <button 
+            <button
               onClick={handleCopyLink}
               className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
@@ -776,7 +774,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
               </div>
             </button>
 
-            <button 
+            <button
               onClick={onDownloadHTML}
               className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
@@ -789,7 +787,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
               </div>
             </button>
 
-            <button 
+            <button
               onClick={() => setShowStoryPreview(true)}
               className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
@@ -802,7 +800,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
               </div>
             </button>
 
-            <button 
+            <button
               onClick={onDownloadPDF}
               className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
@@ -815,7 +813,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
               </div>
             </button>
 
-            <button 
+            <button
               onClick={onEnterCinematicMode}
               className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
@@ -829,7 +827,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
             </button>
           </div>
 
-          <button 
+          <button
             onClick={onClose}
             className="mt-8 w-full py-3 rounded-full border-2 border-gray-100 text-gray-400 font-bold hover:bg-gray-50 transition-all"
           >
@@ -842,51 +840,41 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
 };
 
 const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string) => void }) => {
-  const [receiver, setReceiver] = useState('');
-  const [sender, setSender] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (receiver.trim() && sender.trim()) {
-      onStart(receiver.trim(), sender.trim());
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-[#050505]">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
             x: [0, 100, 0],
             y: [0, -50, 0]
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-romantic-pink/10 rounded-full blur-[120px]" 
+          className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-romantic-pink/10 rounded-full blur-[120px]"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             scale: [1.2, 1, 1.2],
             rotate: [0, -90, 0],
             x: [0, -100, 0],
             y: [0, 50, 0]
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-romantic-purple/10 rounded-full blur-[150px]" 
+          className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-romantic-purple/10 rounded-full blur-[150px]"
         />
       </div>
 
       <div className="h-full flex items-center justify-center p-2 md:p-4 overflow-hidden">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative z-10 w-full max-w-lg max-h-full"
         >
           <div className="glass p-5 md:p-12 rounded-[1.5rem] md:rounded-[3rem] text-center shadow-2xl border border-white/10 backdrop-blur-3xl bg-white/5 overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
@@ -898,7 +886,7 @@ const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string
               </div>
             </motion.div>
 
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
@@ -906,8 +894,8 @@ const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string
             >
               Create a <span className="text-romantic-pink">Surprise</span>
             </motion.h2>
-            
-            <motion.p 
+
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -915,40 +903,20 @@ const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string
             >
               Craft a beautiful, personalized experience for your special someone.
             </motion.p>
-            
-            <form onSubmit={handleSubmit} className="space-y-3 md:space-y-6">
-              <div className="space-y-1 text-left">
-                <label className="text-[9px] font-bold text-romantic-pink uppercase ml-3 md:ml-6 tracking-[0.3em]">Recipient's Name</label>
-                <input
-                  required
-                  value={receiver}
-                  onChange={(e) => setReceiver(e.target.value)}
-                  placeholder="e.g. Sarah"
-                  className="w-full px-5 py-2.5 md:px-8 md:py-4 rounded-lg md:rounded-2xl bg-white/5 border border-white/10 focus:border-romantic-pink text-white outline-none transition-all placeholder:text-gray-600 text-sm md:text-base"
-                />
-              </div>
-              <div className="space-y-1 text-left">
-                <label className="text-[9px] font-bold text-romantic-pink uppercase ml-3 md:ml-6 tracking-[0.3em]">Your Name</label>
-                <input
-                  required
-                  value={sender}
-                  onChange={(e) => setSender(e.target.value)}
-                  placeholder="e.g. Anil"
-                  className="w-full px-5 py-2.5 md:px-8 md:py-4 rounded-lg md:rounded-2xl bg-white/5 border border-white/10 focus:border-romantic-pink text-white outline-none transition-all placeholder:text-gray-600 text-sm md:text-base"
-                />
-              </div>
-              <motion.button 
+
+            <div className="space-y-3 md:space-y-6">
+              <motion.button
                 whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(236, 72, 153, 0.3)" }}
                 whileTap={{ scale: 0.98 }}
-                type="submit"
+                onClick={() => onStart("Tanvi", "Anil")}
                 className="w-full py-3 md:py-4 rounded-lg md:rounded-2xl bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold text-sm md:text-lg shadow-2xl transition-all mt-1 md:mt-4"
               >
                 Start Creating ✨
               </motion.button>
-            </form>
+            </div>
           </div>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
@@ -966,24 +934,24 @@ const LoadingScreen = () => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-romantic-pink/10 backdrop-blur-md overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-romantic-pink/20 via-white to-romantic-purple/20" />
-      
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            initial={{ 
-              opacity: 0, 
+            initial={{
+              opacity: 0,
               scale: 0,
               x: Math.random() * 100 + '%',
               y: Math.random() * 100 + '%'
             }}
-            animate={{ 
+            animate={{
               opacity: [0, 0.5, 0],
               scale: [0, 1, 0],
               y: [null, '-20%']
             }}
-            transition={{ 
+            transition={{
               duration: 3 + Math.random() * 2,
               repeat: Infinity,
               delay: Math.random() * 2
@@ -1003,11 +971,11 @@ const LoadingScreen = () => {
       >
         <div className="relative mb-8 flex justify-center">
           <motion.div
-            animate={{ 
+            animate={{
               scale: [1, 1.2, 1],
               rotate: [0, 5, -5, 0]
             }}
-            transition={{ 
+            transition={{
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
@@ -1016,14 +984,14 @@ const LoadingScreen = () => {
           >
             <Heart size={80} className="text-romantic-pink" fill="currentColor" />
           </motion.div>
-          
+
           {/* Glowing Aura */}
           <motion.div
-            animate={{ 
+            animate={{
               scale: [1, 1.5, 1],
               opacity: [0.3, 0.6, 0.3]
             }}
-            transition={{ 
+            transition={{
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
@@ -1032,7 +1000,7 @@ const LoadingScreen = () => {
           />
         </div>
 
-        <motion.h2 
+        <motion.h2
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity }}
           className="text-3xl font-heading text-romantic-pink mb-2"
@@ -1258,7 +1226,7 @@ const Countdown = ({ targetDate, config }: { targetDate: string, config: any }) 
     <div className="grid grid-cols-4 gap-2 md:gap-4 max-w-md mx-auto">
       {Object.entries(timeLeft).map(([unit, value]) => (
         <div key={unit} className="glass p-3 rounded-2xl text-center">
-          <motion.div 
+          <motion.div
             key={value}
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -1290,7 +1258,7 @@ const TypingText = ({ text }: { text: string }) => {
   return (
     <div className="whitespace-pre-wrap leading-relaxed text-lg italic text-gray-700 markdown-content">
       <ReactMarkdown>{displayedText}</ReactMarkdown>
-      <motion.span 
+      <motion.span
         animate={{ opacity: [0, 1, 0] }}
         transition={{ repeat: Infinity, duration: 0.8 }}
         className="inline-block w-1 h-6 bg-romantic-pink ml-1 align-middle"
@@ -1334,20 +1302,20 @@ const FloatingHearts = ({ config }: { config: any }) => {
       {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
-          initial={{ 
-            x: Math.random() * 100 + '%', 
-            y: '110%', 
+          initial={{
+            x: Math.random() * 100 + '%',
+            y: '110%',
             scale: Math.random() * 0.5 + 0.3,
             opacity: Math.random() * 0.4 + 0.1
           }}
-          animate={{ 
+          animate={{
             y: '-10%',
             x: (Math.random() * 100 - 50) + '%',
             rotate: Math.random() * 360
           }}
-          transition={{ 
-            duration: (Math.random() * 10 + 15) / (config.DESIGN?.particleSpeed || 1), 
-            repeat: Infinity, 
+          transition={{
+            duration: (Math.random() * 10 + 15) / (config.DESIGN?.particleSpeed || 1),
+            repeat: Infinity,
             ease: "linear",
             delay: Math.random() * 15
           }}
@@ -1374,7 +1342,7 @@ const StatsSection = ({ config }: { config: any }) => {
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-romantic-pink rounded-full blur-[200px]" />
       </div>
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 md:mb-20 gap-8">
           <div>
@@ -1389,7 +1357,7 @@ const StatsSection = ({ config }: { config: any }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-3xl overflow-hidden">
           {stats.map((stat, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -1419,7 +1387,7 @@ const MapSection = ({ config }: { config: any }) => {
   if (!config.MAP_CONFIG?.show) return null;
 
   const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.GOOGLE_MAPS_API_KEY || ''}&q=${encodeURIComponent(config.MAP_CONFIG.location)}`;
-  
+
   // Fallback if no API key is provided - use a standard search embed which is free but less customizable
   const fallbackMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(config.MAP_CONFIG.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
 
@@ -1455,7 +1423,7 @@ const MapSection = ({ config }: { config: any }) => {
             title="Our Special Location"
             className="rounded-2xl"
           ></iframe>
-          
+
           <div className="absolute bottom-8 left-8 right-8 glass p-4 rounded-2xl backdrop-blur-md border border-white/50 shadow-lg">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-romantic-pink rounded-lg text-white">
@@ -1508,7 +1476,7 @@ const TEMPLATE_PRESETS = Array.from({ length: 100 }, (_, i) => ({
 const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: number }) => {
   const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
   const template = TEMPLATE_PRESETS[templateId] || TEMPLATE_PRESETS[0];
-  
+
   const primaryColor = config.THEME.primary;
   const textColor = config.THEME.text;
   const bgColor = config.THEME.background;
@@ -1519,7 +1487,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
       case 'gradient':
         return { background: `linear-gradient(135deg, ${bgColor}, ${primaryColor}33)` };
       case 'mesh-gradient':
-        return { 
+        return {
           background: `radial-gradient(at 0% 0%, ${primaryColor}22 0, transparent 50%), 
                        radial-gradient(at 100% 0%, ${primaryColor}22 0, transparent 50%),
                        radial-gradient(at 100% 100%, ${primaryColor}22 0, transparent 50%),
@@ -1584,7 +1552,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
     const photos = config.PHOTOS;
     const mainPhoto = config.GIRLFRIEND_PHOTO || photos[0]?.url || 'https://picsum.photos/800/1000';
     const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    
+
     switch (template.layout) {
       case 'editorial-modern':
         return (
@@ -1615,7 +1583,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
           <div style={{ height: '100%', position: 'relative', padding: '60px' }}>
             <img src={mainPhoto} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.4))' }} />
-            
+
             <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '40px' }}>
               <div style={{ display: 'flex', gap: '20px' }}>
                 {photos.slice(0, 2).map((p: any, i: number) => (
@@ -1624,7 +1592,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                   </div>
                 ))}
               </div>
-              
+
               <div style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(30px)', padding: '60px', borderRadius: '40px', border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 40px 80px rgba(0,0,0,0.3)' }}>
                 <p style={{ fontSize: '24px', color: 'white', opacity: 0.8, letterSpacing: '8px', textTransform: 'uppercase', marginBottom: '20px' }}>Happy {currentEvent.label}</p>
                 <h1 style={{ fontSize: '100px', fontWeight: 'bold', color: 'white', marginBottom: '20px' }}>{config.GIRLFRIEND_NAME}</h1>
@@ -1641,7 +1609,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
           <div style={{ height: '100%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px' }}>
             <img src={mainPhoto} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(40px) brightness(0.7)' }} crossOrigin="anonymous" />
             <div style={{ position: 'absolute', inset: '40px', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '40px' }} />
-            
+
             <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
               <div style={{ width: '300px', height: '300px', margin: '0 auto 60px', borderRadius: '50%', overflow: 'hidden', border: '8px solid white', boxShadow: '0 30px 60px rgba(0,0,0,0.4)' }}>
                 <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
@@ -1706,12 +1674,12 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
             </div>
             <div style={{ position: 'relative', width: '100%', height: '1200px' }}>
               {[mainPhoto, ...photos.slice(0, 2)].map((url, i) => (
-                <div key={i} style={{ 
+                <div key={i} style={{
                   position: 'absolute',
-                  backgroundColor: 'white', 
-                  padding: '30px 30px 120px 30px', 
+                  backgroundColor: 'white',
+                  padding: '30px 30px 120px 30px',
                   boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
-                  transform: `rotate(${[ -8, 5, -3 ][i]}deg) translate(${[ -40, 60, 0 ][i]}px, ${[ 0, 100, 200 ][i]}px)`,
+                  transform: `rotate(${[-8, 5, -3][i]}deg) translate(${[-40, 60, 0][i]}px, ${[0, 100, 200][i]}px)`,
                   width: '700px',
                   left: '50%',
                   marginLeft: '-350px',
@@ -1722,9 +1690,9 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                     <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
                   </div>
                   <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                     <p style={{ color: '#333', fontSize: '32px', fontFamily: "'Dancing Script', cursive" }}>
-                       {i === 0 ? `To my dearest ${config.GIRLFRIEND_NAME}` : i === 1 ? "Forever & Always" : `Happy ${currentEvent.label}!`}
-                     </p>
+                    <p style={{ color: '#333', fontSize: '32px', fontFamily: "'Dancing Script', cursive" }}>
+                      {i === 0 ? `To my dearest ${config.GIRLFRIEND_NAME}` : i === 1 ? "Forever & Always" : `Happy ${currentEvent.label}!`}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -1743,7 +1711,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
           <div style={{ height: '100%', position: 'relative', backgroundColor: '#000' }}>
             <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9 }} crossOrigin="anonymous" />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%, rgba(0,0,0,0.4) 100%)' }} />
-            
+
             <div style={{ position: 'absolute', top: '60px', left: '60px', right: '60px', display: 'flex', justifyContent: 'space-between', color: 'white', fontSize: '14px', letterSpacing: '4px', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
               <span>Special Edition</span>
               <span>{dateStr}</span>
@@ -1776,17 +1744,17 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
               <span>•</span>
               <span>Happy {currentEvent.label}</span>
             </div>
-            
+
             <div style={{ width: '240px', height: '240px', margin: '0 auto 80px', borderRadius: '50%', overflow: 'hidden', border: `2px solid #eee`, padding: '10px' }}>
               <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} crossOrigin="anonymous" />
             </div>
-            
+
             <h1 style={{ fontSize: '160px', fontWeight: '200', letterSpacing: '30px', textTransform: 'uppercase', marginBottom: '60px', color: '#111' }}>{config.GIRLFRIEND_NAME}</h1>
             <div style={{ width: '80px', height: '4px', backgroundColor: primaryColor, margin: '0 auto 60px' }} />
             <div style={{ fontSize: '44px', lineHeight: 1.8, color: '#444', fontWeight: '300', maxWidth: '800px', margin: '0 auto' }} className="markdown-content">
               <ReactMarkdown>{config.LOVE_LETTER.substring(0, 450)}</ReactMarkdown>
             </div>
-            
+
             <div style={{ position: 'absolute', bottom: '80px', left: '0', right: '0', fontSize: '12px', letterSpacing: '4px', opacity: 0.2, textTransform: 'uppercase' }}>
               Designed with love for the one and only
             </div>
@@ -1799,9 +1767,9 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
             <div style={{ position: 'absolute', top: '-100px', right: '-100px', fontSize: '400px', fontWeight: '900', color: 'rgba(255,255,255,0.03)', pointerEvents: 'none' }}>
               {config.GIRLFRIEND_NAME.substring(0, 1)}
             </div>
-            
+
             {[mainPhoto, ...photos.slice(0, 4)].map((url, i) => (
-              <div key={i} style={{ 
+              <div key={i} style={{
                 position: 'absolute',
                 width: i === 0 ? '700px' : '350px',
                 height: i === 0 ? '900px' : '450px',
@@ -1810,14 +1778,14 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                 borderRadius: '12px',
                 overflow: 'hidden',
                 boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
-                transform: `rotate(${[ -4, 6, 12, -8, 3 ][i]}deg)`,
+                transform: `rotate(${[-4, 6, 12, -8, 3][i]}deg)`,
                 zIndex: 5 - i,
                 border: '1px solid rgba(255,255,255,0.1)'
               }}>
                 <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
               </div>
             ))}
-            
+
             <div style={{ position: 'absolute', bottom: '80px', left: '60px', right: '60px', zIndex: 20 }}>
               <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', padding: '60px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
@@ -1841,7 +1809,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
               <span>{dateStr}</span>
               <span>SAFETY FILM</span>
             </div>
-            
+
             {[mainPhoto, ...photos.slice(0, 2)].map((url, i) => (
               <div key={i} style={{ flex: 1, position: 'relative', overflow: 'hidden', borderTop: '20px solid #000', borderBottom: '20px solid #000' }}>
                 <div style={{ position: 'absolute', left: '20px', top: '0', bottom: '0', width: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-around', opacity: 0.3 }}>
@@ -1856,7 +1824,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                 </div>
               </div>
             ))}
-            
+
             <div style={{ padding: '60px', backgroundColor: '#111', border: '1px solid #222', textAlign: 'center' }}>
               <p style={{ color: primaryColor, fontSize: '14px', letterSpacing: '8px', textTransform: 'uppercase', marginBottom: '20px' }}>Happy {currentEvent.label}</p>
               <h1 style={{ fontSize: '80px', color: 'white', fontFamily: 'monospace', marginBottom: '20px', letterSpacing: '-4px' }}>{config.GIRLFRIEND_NAME}</h1>
@@ -1874,7 +1842,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
               <div style={{ fontSize: '24px', fontWeight: 'bold' }}>RELATIONSHIP_ANALYTICS_V1.0</div>
               <div style={{ fontSize: '24px' }}>{dateStr}</div>
             </div>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', flex: 1 }}>
               <div style={{ border: '2px solid #141414', padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
@@ -1891,7 +1859,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                   </div>
                 </div>
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                 <div style={{ border: '2px solid #141414', padding: '40px', flex: 1 }}>
                   <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '30px', textTransform: 'uppercase' }}>// Core_Metrics</p>
@@ -1909,7 +1877,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                     ))}
                   </div>
                 </div>
-                
+
                 <div style={{ border: '2px solid #141414', padding: '40px', backgroundColor: '#141414', color: '#E4E3E0' }}>
                   <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '20px', textTransform: 'uppercase' }}>// System_Status</p>
                   <div style={{ fontSize: '32px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -1920,7 +1888,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                 </div>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.5 }}>
               <span>ENCRYPTED_WITH_AFFECTION</span>
               <span>STORY_ID: {template.id}</span>
@@ -1972,8 +1940,8 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
       default:
         return (
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '80px', justifyContent: 'center' }}>
-             <h1 style={{ fontSize: '100px' }}>{config.GIRLFRIEND_NAME}</h1>
-             <p>{template.layout} layout coming soon...</p>
+            <h1 style={{ fontSize: '100px' }}>{config.GIRLFRIEND_NAME}</h1>
+            <p>{template.layout} layout coming soon...</p>
           </div>
         );
     }
@@ -2488,7 +2456,7 @@ const WishListSection = ({ config }: { config: any }) => {
     updated[i] = { ...updated[i], gifted: !updated[i].gifted };
     setItems(updated);
     if (updated[i].gifted) {
-      confetti({ particleCount: 60, spread: 50, origin: { y: 0.7 } });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       toast.success("🎀 Gifted! So sweet!");
     }
   };
@@ -2496,46 +2464,120 @@ const WishListSection = ({ config }: { config: any }) => {
   const allGifted = items.every((i: any) => i.gifted);
 
   return (
-    <section className="py-10 md:py-14 px-6" style={{ background: 'linear-gradient(135deg, #ffe4e8 0%, #f3d9fa 100%)' }}>
-      <div className="max-w-xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-          <div className="inline-block p-4 rounded-full mb-4" style={{ background: `${config.THEME.primary}15` }}>
-            <Gift size={32} style={{ color: config.THEME.primary }} />
-          </div>
-          <h2 className="text-4xl font-heading mb-2" style={{ color: config.THEME.primary }}>Gift Ideas 🎁</h2>
-          <p className="text-gray-500 text-sm">Things that'll make {config.GIRLFRIEND_NAME} smile</p>
+    <section className="py-16 md:py-24 px-6 relative overflow-hidden" style={{ background: 'var(--bg-gradient, linear-gradient(135deg, #fff5f7 0%, #fdf2f8 100%))' }}>
+      {/* Decorative background elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-pink-300/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-300/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4"></div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl shadow-xl shadow-pink-200/50 mb-6 bg-white/80 backdrop-blur-md border border-white"
+          >
+            <Gift size={40} className="drop-shadow-sm" style={{ color: config.THEME.primary }} />
+          </motion.div>
+          <h2 className="text-4xl md:text-5xl font-heading mb-4 text-gray-800 drop-shadow-sm" style={{ color: config.THEME.primary }}>Wishlist Magic ✨</h2>
+          <p className="text-gray-500 text-lg md:text-xl font-medium max-w-md mx-auto leading-relaxed">Little surprises that will make {config.GIRLFRIEND_NAME}'s heart skip a beat.</p>
         </motion.div>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
           {items.map((item: any, i: number) => (
             <motion.div key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.08 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
               onClick={() => toggleGifted(i)}
-              className="cursor-pointer glass rounded-2xl p-4 flex items-center gap-4 border border-white/50 group hover:shadow-lg transition-all"
+              whileHover={{ y: -8, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`cursor-pointer rounded-[2rem] p-6 relative overflow-hidden transition-all duration-500 shadow-lg border-2
+                ${item.gifted
+                  ? 'bg-white/90 border-transparent shadow-pink-100/50 grayscale-[10%]'
+                  : 'bg-white/60 hover:bg-white/90 border-white hover:shadow-xl hover:shadow-pink-200/40 backdrop-blur-xl'}`}
             >
-              <span className="text-2xl flex-shrink-0">{item.emoji}</span>
-              <p className={`flex-1 text-sm font-medium transition-all ${item.gifted ? 'line-through text-gray-300' : 'text-gray-700'}`}>
-                {item.item}
-              </p>
-              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${item.gifted ? 'bg-green-400 border-green-400' : 'border-gray-200 group-hover:border-romantic-pink'}`}>
-                {item.gifted && <span className="text-white text-xs font-bold">✓</span>}
+              {/* Gifted Overlay Pattern */}
+              {item.gifted && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-gradient-to-br from-green-50/90 to-emerald-50/90 backdrop-blur-[2px] z-0 flex items-center justify-center">
+                </motion.div>
+              )}
+
+              <div className="relative z-10 flex flex-col items-center text-center h-full">
+                <motion.div
+                  animate={item.gifted ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : {}}
+                  className={`text-6xl mb-4 drop-shadow-xl transition-transform ${item.gifted ? 'opacity-90' : 'group-hover:scale-110'}`}
+                >
+                  {item.emoji}
+                </motion.div>
+
+                <h3 className={`text-xl font-bold mb-6 flex-grow transition-all duration-300 ${item.gifted ? 'text-emerald-800' : 'text-gray-800'}`}>
+                  {item.item}
+                </h3>
+
+                <div className="mt-auto pt-4 w-full flex-shrink-0 border-t border-black/5 flex items-center justify-center">
+                  <div className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 w-full justify-center
+                    ${item.gifted
+                      ? 'bg-emerald-100 text-emerald-700 shadow-inner'
+                      : 'bg-gray-100/80 text-gray-500 hover:bg-pink-50 hover:text-pink-500'}`}
+                  >
+                    {item.gifted ? (
+                      <>
+                        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}><Check size={18} strokeWidth={3} /></motion.span>
+                        <span>Gifted!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Gift size={16} />
+                        <span>Mark as gifted</span>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-              {item.gifted && <span className="text-xs text-green-500 font-bold flex-shrink-0">🎀 Gifted!</span>}
             </motion.div>
           ))}
         </div>
 
-        {allGifted && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-            className="mt-6 text-center p-6 rounded-3xl text-white shadow-xl"
-            style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
-          >
-            <p className="text-2xl font-heading">🎉 All gifts given!</p>
-            <p className="text-sm opacity-80 mt-1">You're the best! {config.GIRLFRIEND_NAME} is so lucky 💕</p>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {allGifted && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ type: "spring", bounce: 0.5 }}
+              className="mt-12 text-center p-8 md:p-12 rounded-[3rem] text-white shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute inset-0" style={{ backgroundImage: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}></div>
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/20 rounded-full blur-3xl"></div>
+
+              <div className="relative z-10 flex flex-col items-center">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="text-6xl mb-6 shadow-2xl bg-white/20 w-24 h-24 rounded-full flex items-center justify-center backdrop-blur-md"
+                >
+                  🎉
+                </motion.div>
+                <h3 className="text-3xl md:text-5xl font-heading mb-4 drop-shadow-lg">Mission Accomplished!</h3>
+                <p className="text-lg md:text-xl opacity-90 font-medium max-w-lg mx-auto leading-relaxed drop-shadow">
+                  You've unlocked all the gifts! {config.GIRLFRIEND_NAME} is incredibly lucky to have someone as thoughtful as you. 💕
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    const updated = items.map((i: any) => ({ ...i, gifted: false }));
+                    setItems(updated);
+                  }}
+                  className="mt-8 px-8 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/50 rounded-full font-bold transition-all flex items-center gap-2 shadow-lg"
+                >
+                  <RefreshCw size={18} /> Reset Gifts
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
@@ -2684,6 +2726,7 @@ export default function App() {
       if (decoded) {
         setConfig(decoded);
       }
+      setIsUnlocked(true);
       // Romantic delay for the loading animation
       setTimeout(() => setIsLoading(false), 3500);
     }
@@ -2768,9 +2811,9 @@ export default function App() {
 
   const handleDownloadPDF = async () => {
     if (!contentRef.current) return;
-    
+
     toast.info('Generating PDF... This may take a moment.');
-    
+
     try {
       const canvas = await html2canvas(contentRef.current, {
         scale: 2,
@@ -2779,14 +2822,14 @@ export default function App() {
         backgroundColor: config.THEME.background,
         windowWidth: 1200,
       });
-      
+
       const imgData = canvas.toDataURL('image/jpeg', 0.8);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      
+
       let heightLeft = imgHeight;
       let position = 0;
       const pageHeight = (pdfHeight * imgWidth) / pdfWidth;
@@ -2799,7 +2842,7 @@ export default function App() {
           pdf.addPage();
         }
       }
-      
+
       pdf.save(`${currentEvent.label}_Surprise_${config.GIRLFRIEND_NAME}.pdf`);
       toast.success('PDF downloaded successfully! ❤️');
     } catch (error) {
@@ -2813,12 +2856,12 @@ export default function App() {
 
   const handleDownloadStory = async (templateId: number = 0) => {
     if (!storyRef.current) return;
-    
+
     try {
       toast.loading('Generating your Instagram Story card...', { id: 'story-gen' });
-      
+
       setCaptureTemplateId(templateId);
-      
+
       // Wait for re-render
       await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -2842,7 +2885,7 @@ export default function App() {
         onclone: (clonedDoc) => {
           const styles = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
           styles.forEach(s => s.remove());
-          
+
           const style = clonedDoc.createElement('style');
           style.innerHTML = `
             * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2854,12 +2897,12 @@ export default function App() {
 
       // Restore original style
       storyRef.current.style.cssText = originalStyle;
-      
+
       const link = document.createElement('a');
       link.download = `IG_Story_${config.GIRLFRIEND_NAME}_Template_${templateId}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      
+
       toast.success('Instagram Story card ready! ❤️', { id: 'story-gen' });
     } catch (error) {
       console.error('Story generation error:', error);
@@ -2887,13 +2930,13 @@ export default function App() {
     root.style.setProperty('--romantic-accent', config.THEME.accent);
     root.style.setProperty('--romantic-bg', config.THEME.background);
     root.style.setProperty('--romantic-text', config.THEME.text);
-    
+
     root.style.setProperty('--font-family', config.FONT_FAMILY);
-    
+
     // New design variables
     root.style.setProperty('--glass-intensity', config.DESIGN?.glassIntensity?.toString() || '0.1');
     root.style.setProperty('--border-radius', config.DESIGN?.borderRadius || '1.5rem');
-    
+
     // Button Style variables
     let btnRadius = '9999px';
     let btnBorder = '0px';
@@ -2956,24 +2999,24 @@ export default function App() {
       <Toaster position="bottom-center" richColors />
       <FloatingHearts config={config} />
       {config.DESIGN?.cursorTrail && <CursorTrail config={config} />}
-      
+
       {/* Feature 2: Now Playing Widget */}
       {config.MUSIC_URL && <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />}
 
       {/* Background Music */}
       <audio ref={audioRef} src={config.MUSIC_URL} loop />
-      
+
       <div className="fixed top-6 right-6 z-40 flex gap-3 no-print">
         {!hasSParam && (
           <>
-            <button 
+            <button
               onClick={() => setIsThemeGalleryOpen(true)}
               className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
               title="Theme Gallery"
             >
               <Palette size={24} />
             </button>
-            <button 
+            <button
               onClick={handleShare}
               className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
               title="Share Surprise"
@@ -2982,14 +3025,14 @@ export default function App() {
             </button>
           </>
         )}
-        <button 
+        <button
           onClick={() => setIsCustomizing(true)}
           className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
           title="Customize Surprise"
         >
           <Edit3 size={24} />
         </button>
-        <button 
+        <button
           onClick={toggleMusic}
           className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
         >
@@ -2999,18 +3042,18 @@ export default function App() {
 
       <AnimatePresence>
         {isThemeGalleryOpen && (
-          <ThemeGalleryModal 
-            isOpen={isThemeGalleryOpen} 
-            onClose={() => setIsThemeGalleryOpen(false)} 
-            currentConfig={config} 
-            onApply={(tplConfig) => setConfig(prev => ({ ...prev, ...tplConfig }))} 
+          <ThemeGalleryModal
+            isOpen={isThemeGalleryOpen}
+            onClose={() => setIsThemeGalleryOpen(false)}
+            currentConfig={config}
+            onApply={(tplConfig) => setConfig(prev => ({ ...prev, ...tplConfig }))}
           />
         )}
         {isCustomizing && (
-          <Customizer 
-            config={config} 
-            onSave={handleSaveConfig} 
-            onClose={() => setIsCustomizing(false)} 
+          <Customizer
+            config={config}
+            onSave={handleSaveConfig}
+            onClose={() => setIsCustomizing(false)}
             onDownloadHTML={handleDownloadHTML}
             onDownloadPDF={handleDownloadPDF}
             onDownloadStory={handleDownloadStory}
@@ -3018,9 +3061,9 @@ export default function App() {
           />
         )}
         {isShareModalOpen && (
-          <ShareModal 
-            config={config} 
-            onClose={() => setIsShareModalOpen(false)} 
+          <ShareModal
+            config={config}
+            onClose={() => setIsShareModalOpen(false)}
             onDownloadHTML={handleDownloadHTML}
             onDownloadPDF={handleDownloadPDF}
             onDownloadStory={handleDownloadStory}
@@ -3036,7 +3079,7 @@ export default function App() {
         </div>
       </div>
 
-      <div 
+      <div
         ref={contentRef}
         className={cn(
           "transition-all duration-1000",
@@ -3072,8 +3115,8 @@ export default function App() {
               </motion.div>
             </div>
             <div className="relative h-[60vh] md:h-full">
-              <img 
-                src={config.GIRLFRIEND_PHOTO || config.PHOTOS[0].url} 
+              <img
+                src={config.GIRLFRIEND_PHOTO || config.PHOTOS[0].url}
                 className="w-full h-full object-cover"
                 alt="Hero"
                 referrerPolicy="no-referrer"
@@ -3081,17 +3124,17 @@ export default function App() {
               <div className="absolute inset-0 bg-romantic-pink/10 mix-blend-overlay" />
               <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 glass p-4 md:p-8 rounded-2xl md:rounded-3xl border border-white/20 backdrop-blur-2xl">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                   <div className="flex gap-2 md:gap-4 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
-                     {config.PHOTOS.slice(0, 3).map((p: any, i: number) => (
-                       <div key={i} className="w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden border-2 border-white/50">
-                         <img src={p.url} className="w-full h-full object-cover" alt="Thumb" />
-                       </div>
-                     ))}
-                   </div>
-                   <div className="text-center sm:text-right w-full sm:w-auto">
-                     <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Captured</p>
-                     <p className="text-white font-mono text-sm md:text-base">{dateStr}</p>
-                   </div>
+                  <div className="flex gap-2 md:gap-4 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
+                    {config.PHOTOS.slice(0, 3).map((p: any, i: number) => (
+                      <div key={i} className="w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-lg md:rounded-xl overflow-hidden border-2 border-white/50">
+                        <img src={p.url} className="w-full h-full object-cover" alt="Thumb" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-center sm:text-right w-full sm:w-auto">
+                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Captured</p>
+                    <p className="text-white font-mono text-sm md:text-base">{dateStr}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3101,9 +3144,9 @@ export default function App() {
             {/* Background Image */}
             {config.HERO_IMAGE && (
               <div className="absolute inset-0 z-0">
-                <img 
-                  src={config.HERO_IMAGE} 
-                  alt="Background" 
+                <img
+                  src={config.HERO_IMAGE}
+                  alt="Background"
                   className="w-full h-full object-cover opacity-20 blur-sm"
                   referrerPolicy="no-referrer"
                 />
@@ -3117,7 +3160,7 @@ export default function App() {
                 animate="animate"
                 className="text-left"
               >
-                <motion.div 
+                <motion.div
                   variants={ANIMATION_PRESETS.StaggerItem}
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ repeat: Infinity, duration: 2 }}
@@ -3125,19 +3168,19 @@ export default function App() {
                 >
                   <Heart size={48} className="text-romantic-pink" fill="currentColor" />
                 </motion.div>
-                <motion.h1 
+                <motion.h1
                   variants={ANIMATION_PRESETS.StaggerItem}
                   className="text-5xl md:text-8xl font-heading text-gradient mb-6 leading-tight"
                 >
                   {titlePrefix} <br /> {config.GIRLFRIEND_NAME}!
                 </motion.h1>
-                <motion.div 
+                <motion.div
                   variants={ANIMATION_PRESETS.StaggerItem}
                   className="text-xl text-gray-600 mb-10 italic max-w-md markdown-content"
                 >
                   <ReactMarkdown>{"\"" + config.LOVE_LETTER.split('\n')[0].substring(0, 100) + "...\""}</ReactMarkdown>
                 </motion.div>
-                
+
                 <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="scale-90 origin-left mb-10">
                   <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
                 </motion.div>
@@ -3149,23 +3192,23 @@ export default function App() {
                   onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
                   className="flex items-center gap-3 text-romantic-pink font-bold text-lg group"
                 >
-                  Explore Memories 
+                  Explore Memories
                   <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
                     <ChevronDown size={24} />
                   </motion.div>
                 </motion.button>
               </motion.div>
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0, x: 100 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
                 className="relative hidden md:block"
               >
                 <div className="relative aspect-[3/4] rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white/50">
-                  <img 
-                    src={config.GIRLFRIEND_PHOTO || config.PHOTOS[0].url} 
-                    alt="Hero" 
+                  <img
+                    src={config.GIRLFRIEND_PHOTO || config.PHOTOS[0].url}
+                    alt="Hero"
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
@@ -3186,20 +3229,20 @@ export default function App() {
               animate="animate"
               className="z-10"
             >
-              <motion.h1 
+              <motion.h1
                 variants={ANIMATION_PRESETS.StaggerItem}
                 className="text-6xl md:text-9xl font-heading text-gray-900 mb-8 tracking-tighter"
               >
                 {config.GIRLFRIEND_NAME}.
               </motion.h1>
               <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="h-px w-24 bg-romantic-pink mx-auto mb-8" />
-              <motion.p 
+              <motion.p
                 variants={ANIMATION_PRESETS.StaggerItem}
                 className="text-lg text-gray-500 mb-12 uppercase tracking-[0.3em] font-light"
               >
                 A Celebration of You
               </motion.p>
-              
+
               <motion.div variants={ANIMATION_PRESETS.StaggerItem} className="mb-12">
                 <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
               </motion.div>
@@ -3221,7 +3264,7 @@ export default function App() {
               animate="animate"
               className="z-10"
             >
-              <motion.div 
+              <motion.div
                 variants={ANIMATION_PRESETS.StaggerItem}
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ repeat: Infinity, duration: 2 }}
@@ -3229,19 +3272,19 @@ export default function App() {
               >
                 <Heart size={64} className="text-romantic-pink" fill="currentColor" />
               </motion.div>
-              <motion.h1 
+              <motion.h1
                 variants={ANIMATION_PRESETS.StaggerItem}
                 className="text-5xl md:text-7xl font-heading text-gradient mb-4"
               >
                 {titlePrefix} {config.GIRLFRIEND_NAME}!
               </motion.h1>
-              <motion.p 
+              <motion.p
                 variants={ANIMATION_PRESETS.StaggerItem}
                 className="text-xl text-gray-600 mb-8 max-w-md mx-auto italic"
               >
                 "This is something special just for you, my love..."
               </motion.p>
-              
+
               <motion.div variants={ANIMATION_PRESETS.StaggerItem}>
                 <Countdown targetDate={config.BIRTHDAY_DATE} config={config} />
               </motion.div>
@@ -3256,7 +3299,7 @@ export default function App() {
                 Tap to Begin <ChevronDown size={20} />
               </motion.button>
             </motion.div>
-            
+
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-romantic-bg" />
           </section>
         )}
@@ -3267,7 +3310,7 @@ export default function App() {
           config.LAYOUT === 'minimal' ? "max-w-4xl mx-auto" : "max-w-2xl mx-auto"
         )}>
           <ParallaxSection offset={30}>
-            <motion.div 
+            <motion.div
               {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
               whileInView="animate"
               viewport={{ once: true }}
@@ -3310,7 +3353,7 @@ export default function App() {
             config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-white/30"
           )}>
             <div className="container mx-auto px-4">
-              <motion.h2 
+              <motion.h2
                 {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
                 whileInView="animate"
                 viewport={{ once: true }}
@@ -3321,7 +3364,7 @@ export default function App() {
               >
                 Our Beautiful Memories
               </motion.h2>
-              
+
               {config.LAYOUT === 'bento' ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
                   {config.PHOTOS.map((photo: any, i: number) => (
@@ -3369,9 +3412,9 @@ export default function App() {
                         config.LAYOUT === 'scrapbook' ? "bg-white p-3 border-b-8 border-white rounded-none shadow-md -rotate-2" : "rounded-3xl",
                         config.LAYOUT === 'minimal' ? "rounded-none grayscale hover:grayscale-0" : ""
                       )}>
-                        <img 
-                          src={photo.url} 
-                          alt={photo.caption} 
+                        <img
+                          src={photo.url}
+                          alt={photo.caption}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           referrerPolicy="no-referrer"
                         />
@@ -3394,7 +3437,7 @@ export default function App() {
               "text-4xl font-heading text-romantic-pink mb-16",
               config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
             )}>Our Journey Together</h2>
-            <motion.div 
+            <motion.div
               {...ANIMATION_PRESETS.StaggerContainer}
               whileInView="animate"
               viewport={{ once: true }}
@@ -3404,7 +3447,7 @@ export default function App() {
               )}
             >
               {config.TIMELINE.map((item: any, i: number) => (
-                <motion.div 
+                <motion.div
                   key={i}
                   variants={ANIMATION_PRESETS.StaggerItem}
                   className={cn(
@@ -3451,7 +3494,7 @@ export default function App() {
                 "text-4xl font-heading text-romantic-pink mb-12",
                 config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
               )}>Reasons Why I Love You</h2>
-              <motion.div 
+              <motion.div
                 {...ANIMATION_PRESETS.StaggerContainer}
                 whileInView="animate"
                 viewport={{ once: true }}
@@ -3484,7 +3527,7 @@ export default function App() {
         {config.SECTIONS?.video && (
           <section className="py-20 px-6">
             <div className="max-w-4xl mx-auto">
-              <motion.h2 
+              <motion.h2
                 {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
                 whileInView="animate"
                 viewport={{ once: true }}
@@ -3495,7 +3538,7 @@ export default function App() {
               >
                 A Song for You
               </motion.h2>
-              <motion.div 
+              <motion.div
                 {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
                 whileInView="animate"
                 viewport={{ once: true }}
@@ -3504,7 +3547,7 @@ export default function App() {
                   config.LAYOUT === 'minimal' ? "rounded-none" : "glass rounded-[2rem]"
                 )}
               >
-              <iframe width="1013" height="570" src="https://www.youtube.com/embed/OkpIoEC44kk" title="Tenu Sang Rakhna - Jigra | Alia Bhatt | Vedang Raina | Arijit Singh | Achint, Anumita | Varun" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <iframe width="1013" height="570" src="https://www.youtube.com/embed/OkpIoEC44kk" title="Tenu Sang Rakhna - Jigra | Alia Bhatt | Vedang Raina | Arijit Singh | Achint, Anumita | Varun" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
               </motion.div>
             </div>
           </section>
@@ -3512,7 +3555,7 @@ export default function App() {
 
         {/* Fun Section */}
         <section className="py-20 text-center px-6">
-          <motion.div 
+          <motion.div
             {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
             whileInView="animate"
             viewport={{ once: true }}
@@ -3523,15 +3566,15 @@ export default function App() {
           >
             <h2 className="text-3xl font-heading text-romantic-pink mb-8">Quick Question...</h2>
             <p className="text-2xl font-bold text-gray-800 mb-12">Do you love me? 🥺</p>
-            
+
             <div className="flex flex-wrap items-center justify-center gap-6">
               <motion.button
                 {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey] as any}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
-                  confetti({ 
-                    particleCount: Math.floor((config.CONFETTI?.particleCount || 200) * (config.CONFETTI?.density || 1.5)), 
+                  confetti({
+                    particleCount: Math.floor((config.CONFETTI?.particleCount || 200) * (config.CONFETTI?.density || 1.5)),
                     spread: (config.CONFETTI?.spread || 70) * 1.5,
                     colors: config.CONFETTI?.colors || [config.THEME.primary, config.THEME.secondary, '#ffffff']
                   });
@@ -3544,7 +3587,7 @@ export default function App() {
               >
                 YES!
               </motion.button>
-              
+
               <motion.button
                 animate={{ x: noButtonPos.x, y: noButtonPos.y }}
                 onMouseEnter={moveNoButton}
@@ -3555,28 +3598,6 @@ export default function App() {
               </motion.button>
             </div>
           </motion.div>
-        </section>
-
-        {/* Surprise Section */}
-        <section className="py-10 text-center">
-          <motion.button
-            {...ANIMATION_PRESETS[config.ANIMATIONS.BUTTONS as AnimationKey] as any}
-            whileInView="animate"
-            viewport={{ once: true }}
-            whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleSurprise}
-            className="group relative inline-block"
-          >
-            <div className="absolute -inset-4 bg-romantic-pink/20 rounded-full blur-xl group-hover:bg-romantic-pink/40 transition-all" />
-            <div className={cn(
-              "p-10 relative transition-all",
-              config.LAYOUT === 'minimal' ? "rounded-none border-2 border-romantic-pink" : "glass rounded-full"
-            )}>
-              <Gift size={64} className="text-romantic-pink" />
-            </div>
-            <p className="mt-6 font-heading text-2xl text-romantic-pink">Click for Surprise 🎁</p>
-          </motion.button>
         </section>
 
         {/* Feature 8: Days Since We Met Counter */}
@@ -3594,11 +3615,7 @@ export default function App() {
         {/* Feature 6: Star Map */}
         {config.SECTIONS?.starMap && <StarMapSection config={config} />}
 
-        {/* Feature 9: Wish List */}
-        {config.SECTIONS?.wishlist && <WishListSection config={config} />}
-
-        {/* Feature 7: Guestbook */}
-        {config.SECTIONS?.guestbook && <GuestbookSection config={config} />}
+        {/* Removed WishList and Guestbook Sections */}
 
         {/* Final Note */}
         <section className={cn(

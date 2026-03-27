@@ -14,8 +14,8 @@ export const EVENT_TYPES = [
 
 export const BIRTHDAY_CONFIG = {
   EVENT_TYPE: "birthday",
-  GIRLFRIEND_NAME: "Sarah", // Change this to her name
-  PASSWORD: "Sarah", // The password to unlock the site
+  GIRLFRIEND_NAME: "Tanvi", // Change this to her name
+  PASSWORD: "Tanvi", // The password to unlock the site
   PASSWORD_HINT: "Think of your own name 💭", // Hint shown on password screen
   BIRTHDAY_DATE: "2026-04-15T00:00:00", // YYYY-MM-DDTHH:mm:ss
   YOUR_NAME: "Anil",
@@ -82,9 +82,9 @@ Anil`,
     FIRST_MET_DATE: "2023-06-12" // YYYY-MM-DD format
   },
 
-  MUSIC_URL: "/happy-birthday.mp3", // Put royalty-free file in public/happy-birthday.mp3
-  SONG_NAME: "Happy Birthday",
-  SONG_ARTIST: "Royalty-Free",
+  MUSIC_URL: "https://cdn.pixabay.com/audio/2022/10/24/audio_dc39b1a5aa.mp3", // Free Happy Birthday MP3 (Pixabay CDN)
+  SONG_NAME: "Happy Birthday To You 🎂",
+  SONG_ARTIST: "Pixabay Free Audio",
   VIDEO_URL: "https://www.youtube.com/embed/OkpIoEC44kk", // Tenu Sang Rakhna - Jigra | Arijit Singh
 
   // Feature: Wish List / Gift Ideas
@@ -162,8 +162,8 @@ Anil`,
     video: true,
     envelopes: true,
     polaroid: true,
-    wishlist: true,
-    guestbook: true,
+    wishlist: false,
+    guestbook: false,
     daysSince: true,
     candles: true,
   },

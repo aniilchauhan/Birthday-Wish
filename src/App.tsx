@@ -17,6 +17,7 @@ import 'swiper/css/effect-coverflow';
 import { BIRTHDAY_CONFIG, ANIMATION_PRESETS, EVENT_TYPES } from './constants';
 import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
+import ThemeGalleryModal from './components/ThemeGalleryModal';
 
 type AnimationKey = keyof typeof ANIMATION_PRESETS;
 
@@ -55,154 +56,6 @@ const decodeConfig = (base64: string) => {
 
 // --- Components ---
 
-const ThemeGalleryModal = ({ isOpen, onClose, currentConfig, onApply }: { isOpen: boolean, onClose: () => void, currentConfig: any, onApply: (tplConfig: any) => void }) => {
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 30 }}
-            className="bg-white/90 backdrop-blur-2xl rounded-3xl md:rounded-[2rem] w-full max-w-7xl max-h-[92vh] flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.2)] border border-white/20 overflow-hidden"
-          >
-            {/* Modal Header */}
-            <div className="bg-white/40 backdrop-blur-xl p-6 md:p-8 border-b border-gray-100/50 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-6">
-                <div className="p-3 bg-gradient-to-br from-romantic-pink to-pink-500 rounded-2xl shadow-lg shadow-pink-200">
-                  <Palette size={28} className="text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-heading text-gray-900 leading-tight">Design Portfolio</h2>
-                  <div className="flex items-center gap-4 mt-1">
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-extrabold">Handcrafted Visual Aesthetics</p>
-                    <div className="h-1 w-1 rounded-full bg-gray-300" />
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-romantic-pink font-extrabold">{TEMPLATES.length} Presets Available</p>
-                  </div>
-                </div>
-              </div>
-              <button 
-                onClick={onClose} 
-                className="p-3 hover:bg-gray-100 rounded-xl transition-all active:scale-90 group"
-                aria-label="Close"
-              >
-                <X size={24} className="text-gray-400 group-hover:text-gray-900 transition-colors" />
-              </button>
-            </div>
-            
-            {/* Scrollable Grid Area */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {TEMPLATES.map((template) => (
-                  <motion.button
-                    key={template.id}
-                    whileHover={{ y: -10, scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      onApply(template.config);
-                      toast.success(`Theme Applied: ${template.name}`, { 
-                        icon: '🎨',
-                        style: { 
-                          borderRadius: '1rem',
-                          background: '#fff',
-                          color: '#333',
-                          border: '1px solid #eee'
-                        } 
-                      });
-                    }}
-                    className={cn(
-                      "flex flex-col text-left rounded-3xl overflow-hidden transition-all duration-700 border-2 bg-white/50 backdrop-blur-sm group h-full relative",
-                      currentConfig.THEME.primary === template.config.THEME.primary 
-                        ? "border-romantic-pink shadow-[0_20px_50px_rgba(255,107,107,0.15)] ring-4 ring-romantic-pink/5" 
-                        : "border-transparent shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:border-romantic-pink/30 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
-                    )}
-                  >
-                    {/* Visual Preview Header */}
-                    <div 
-                      className="h-44 w-full p-8 flex items-center justify-center relative overflow-hidden"
-                      style={{ background: `linear-gradient(135deg, ${template.config.THEME.background}, ${template.config.THEME.primary}44)` }}
-                    >
-                      {/* Floating Category Tag */}
-                      <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[8px] font-bold uppercase tracking-widest text-gray-800">
-                        {template.tag}
-                      </div>
-
-                      <template.icon size={80} className="absolute -bottom-4 -right-4 p-4 opacity-5 group-hover:opacity-10 group-hover:rotate-12 transition-all duration-1000" />
-                      
-                      {/* Color DNA Bubbles */}
-                      <div className="relative z-10 flex flex-col items-center">
-                        <div className="flex -space-x-4 mb-4">
-                           <div className="w-16 h-16 rounded-full border-4 border-white shadow-2xl group-hover:scale-110 transition-transform duration-700" style={{ backgroundColor: template.config.THEME.primary }} />
-                           <div className="w-12 h-12 rounded-full border-4 border-white shadow-2xl translate-y-8 group-hover:translate-y-6 transition-all duration-700" style={{ backgroundColor: template.config.THEME.secondary }} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-8 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                           <h3 className="font-heading text-xl text-gray-900 group-hover:text-romantic-pink transition-colors mb-1">{template.name}</h3>
-                           <div className="h-0.5 w-8 bg-gray-100 group-hover:w-16 group-hover:bg-romantic-pink/30 transition-all duration-500 rounded-full" />
-                        </div>
-                        {currentConfig.THEME.primary === template.config.THEME.primary && (
-                          <div className="w-2.5 h-2.5 bg-romantic-pink rounded-full animate-ping" />
-                        )}
-                      </div>
-                      
-                      <p className="text-[11px] text-gray-500 leading-relaxed mb-6 flex-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                        {template.description}
-                      </p>
-
-                      {/* Theme DNA (Layout + Anim) */}
-                      <div className="grid grid-cols-2 gap-3 mb-6">
-                         <div className="px-3 py-2 bg-gray-50 rounded-xl flex flex-col gap-0.5 border border-gray-100/50">
-                            <span className="text-[7px] uppercase tracking-tighter text-gray-400 font-bold">Layout</span>
-                            <span className="text-[9px] font-bold text-gray-700 capitalize">{template.config.LAYOUT.replace('-', ' ')}</span>
-                         </div>
-                         <div className="px-3 py-2 bg-gray-50 rounded-xl flex flex-col gap-0.5 border border-gray-100/50">
-                            <span className="text-[7px] uppercase tracking-tighter text-gray-400 font-bold">Vibe</span>
-                            <span className="text-[9px] font-bold text-gray-700">{template.tag}</span>
-                         </div>
-                      </div>
-                      
-                      <div className="mt-auto pt-6 border-t border-gray-50 flex items-center justify-between text-gray-300 group-hover:text-romantic-pink transition-all">
-                        <span className="text-[9px] font-bold uppercase tracking-[0.25em]">Activate</span>
-                        <div className="p-1.5 rounded-full bg-gray-50 group-hover:bg-romantic-pink group-hover:text-white transition-all shadow-sm">
-                          <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
-                        </div>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Modal Footer */}
-            <div className="p-6 md:p-8 bg-gray-50/50 backdrop-blur-md flex items-center justify-between border-t border-gray-100/50 flex-shrink-0">
-               <div className="hidden md:block">
-                 <p className="text-[10px] text-gray-400 font-bold max-w-xs uppercase tracking-widest">Premium Handcrafted Kits • All Assets Included</p>
-               </div>
-               <div className="flex gap-4 w-full md:w-auto">
-                 <button 
-                   onClick={onClose}
-                   className="flex-1 md:flex-none px-8 py-4 bg-white rounded-2xl border-2 border-gray-100 text-gray-400 text-xs font-bold hover:bg-gray-100 hover:text-gray-600 transition-all shadow-sm active:scale-95"
-                  >
-                   Wait
-                 </button>
-                 <button 
-                   onClick={onClose}
-                   className="flex-1 md:flex-none px-12 py-4 bg-romantic-pink rounded-2xl text-white text-xs font-bold hover:bg-pink-600 transition-all shadow-lg shadow-pink-200 active:scale-95"
-                  >
-                   Confirm Design
-                 </button>
-               </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-  );
-};
 const CursorTrail = ({ config }: { config: any }) => {
   const [particles, setParticles] = useState<any[]>([]);
   const lastPos = useRef({ x: 0, y: 0 });
@@ -3640,7 +3493,7 @@ export default function App() {
                   config.LAYOUT === 'minimal' ? "text-left" : "text-center"
                 )}
               >
-                A Special Memory
+                A Song for You
               </motion.h2>
               <motion.div 
                 {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
@@ -3651,16 +3504,7 @@ export default function App() {
                   config.LAYOUT === 'minimal' ? "rounded-none" : "glass rounded-[2rem]"
                 )}
               >
-                <iframe
-                  className={cn(
-                    "w-full h-full",
-                    config.LAYOUT === 'minimal' ? "" : "rounded-2xl"
-                  )}
-                  src={config.VIDEO_URL}
-                  title="Romantic Memory"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+              <iframe width="1013" height="570" src="https://www.youtube.com/embed/OkpIoEC44kk" title="Tenu Sang Rakhna - Jigra | Alia Bhatt | Vedang Raina | Arijit Singh | Achint, Anumita | Varun" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
               </motion.div>
             </div>
           </section>

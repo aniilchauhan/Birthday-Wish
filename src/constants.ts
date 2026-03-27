@@ -82,10 +82,10 @@ Anil`,
     FIRST_MET_DATE: "2023-06-12" // YYYY-MM-DD format
   },
 
-  MUSIC_URL: "https://assets.mixkit.co/music/preview/mixkit-possible-dreams-316.mp3", // CORS-friendly romantic piano music. Replace with /song.mp3 if using own file.
-  SONG_NAME: "Tenu Sang Rakhna", // Display name for now-playing widget
-  SONG_ARTIST: "Arijit Singh", // Artist name for now-playing widget
-  VIDEO_URL: "https://www.youtube.com/embed/rEcCoB6_IsE", // Tenu Sang Rakhna - Jigra | Arijit Singh
+  MUSIC_URL: "/happy-birthday.mp3", // Put royalty-free file in public/happy-birthday.mp3
+  SONG_NAME: "Happy Birthday",
+  SONG_ARTIST: "Royalty-Free",
+  VIDEO_URL: "https://www.youtube.com/embed/OkpIoEC44kk", // Tenu Sang Rakhna - Jigra | Arijit Singh
 
   // Feature: Wish List / Gift Ideas
   WISH_LIST: [

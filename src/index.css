@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Pacifico&family=Inter:wght@100..900&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @theme {
-  --font-heading: "Dancing Script", cursive;
+  --font-heading: var(--font-family, "Dancing Script"), cursive;
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   
   --color-romantic-pink: var(--romantic-pink, #ff85a2);
@@ -14,13 +14,23 @@
 @layer base {
   body {
     background-color: var(--romantic-bg, #fff5f7);
+    background-image: var(--bg-gradient, linear-gradient(135deg, var(--romantic-bg, #fff5f7) 0%, white 100%));
     color: var(--romantic-text, #4a4a4a);
-    @apply font-sans selection:bg-romantic-pink/30;
+    @apply font-sans selection:bg-romantic-pink/30 transition-colors duration-500;
+  }
+
+  button {
+    border-radius: var(--btn-radius, 9999px) !important;
+    border-width: var(--btn-border, 0px) !important;
+    transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
 .glass {
-  @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-xl;
+  background-color: rgb(255 255 255 / var(--glass-intensity, 0.4));
+  border-radius: var(--border-radius, 2rem);
+  text-align: var(--text-align, center);
+  @apply backdrop-blur-md border border-white/20 shadow-xl;
 }
 
 .text-gradient {
@@ -70,6 +80,7 @@
     body {
       background: white !important;
       -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     
     section {
@@ -97,4 +108,36 @@
 
 .markdown-content em {
   font-style: italic;
+}
+
+/* Scrollbar Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Scrollbar for other areas */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--romantic-pink, #ff85a2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--romantic-purple, #a78bfa);
+  border: 2px solid transparent;
+  background-clip: content-box;
 }

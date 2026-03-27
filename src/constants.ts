@@ -82,10 +82,10 @@ Anil`,
     FIRST_MET_DATE: "2023-06-12" // YYYY-MM-DD format
   },
 
-  MUSIC_URL: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Replace with a real romantic instrumental URL
-  SONG_NAME: "Our Song", // Display name for now-playing widget
-  SONG_ARTIST: "Unknown Artist", // Artist name for now-playing widget
-  VIDEO_URL: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Replace with your memory video
+  MUSIC_URL: "https://assets.mixkit.co/music/preview/mixkit-possible-dreams-316.mp3", // CORS-friendly romantic piano music. Replace with /song.mp3 if using own file.
+  SONG_NAME: "Tenu Sang Rakhna", // Display name for now-playing widget
+  SONG_ARTIST: "Arijit Singh", // Artist name for now-playing widget
+  VIDEO_URL: "https://www.youtube.com/embed/rEcCoB6_IsE", // Tenu Sang Rakhna - Jigra | Arijit Singh
 
   // Feature: Wish List / Gift Ideas
   WISH_LIST: [
@@ -134,7 +134,40 @@ Anil`,
     text: "#4a4a4a"
   },
   FONT_FAMILY: "'Playfair Display', serif", // Custom font
-  LAYOUT: "classic", // Options: classic, minimal, editorial, split, modern-split, love-stats
+  LAYOUT: "classic", // Options: classic, minimal, editorial, split, modern-split, love-stats, bento, love-stats
+  
+  // Advanced Design Options
+  DESIGN: {
+    floatingObject: "heart", // heart, star, music, sparkle, petal, snow
+    glassIntensity: 0.1, // 0 to 1
+    borderRadius: "1.5rem", // '0' to '3rem'
+    fontFamily: 'Inter',
+    bgStyle: 'gradient',
+    bgSubStyle: 'soft-romantic',
+    buttonStyle: 'pill', // pill, rounded, square, outline
+    animationIntensity: 'normal', // subtle, normal, energetic
+    cursorTrail: true,
+    particleType: 'hearts',
+    particleSpeed: 'medium',
+    confettiDensity: 1.5,
+  },
+
+  // Section Visibility Toggles
+  SECTIONS: {
+    stats: true,
+    timeline: true,
+    map: false,
+    starMap: false,
+    reasons: true,
+    video: true,
+    envelopes: true,
+    polaroid: true,
+    wishlist: true,
+    guestbook: true,
+    daysSince: true,
+    candles: true,
+  },
+
   CONFETTI: {
     particleCount: 150,
     spread: 70,

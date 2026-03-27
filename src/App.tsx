@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload } from 'lucide-react';
+import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload, Stars, Sparkles, Smile, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Scissors, Mail, User, Info, Lock, ChevronLeft, ChevronRight, Clock, RefreshCw, Send, Image, Maximize2, Pointer, Square } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -55,9 +55,219 @@ const decodeConfig = (base64: string) => {
 
 // --- Components ---
 
+const ThemeGalleryModal = ({ isOpen, onClose, currentConfig, onApply }: { isOpen: boolean, onClose: () => void, currentConfig: any, onApply: (tplConfig: any) => void }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 30 }}
+            className="bg-white/90 backdrop-blur-2xl rounded-3xl md:rounded-[2rem] w-full max-w-7xl max-h-[92vh] flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.2)] border border-white/20 overflow-hidden"
+          >
+            {/* Modal Header */}
+            <div className="bg-white/40 backdrop-blur-xl p-6 md:p-8 border-b border-gray-100/50 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-6">
+                <div className="p-3 bg-gradient-to-br from-romantic-pink to-pink-500 rounded-2xl shadow-lg shadow-pink-200">
+                  <Palette size={28} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-heading text-gray-900 leading-tight">Design Portfolio</h2>
+                  <div className="flex items-center gap-4 mt-1">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-extrabold">Handcrafted Visual Aesthetics</p>
+                    <div className="h-1 w-1 rounded-full bg-gray-300" />
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-romantic-pink font-extrabold">{TEMPLATES.length} Presets Available</p>
+                  </div>
+                </div>
+              </div>
+              <button 
+                onClick={onClose} 
+                className="p-3 hover:bg-gray-100 rounded-xl transition-all active:scale-90 group"
+                aria-label="Close"
+              >
+                <X size={24} className="text-gray-400 group-hover:text-gray-900 transition-colors" />
+              </button>
+            </div>
+            
+            {/* Scrollable Grid Area */}
+            <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {TEMPLATES.map((template) => (
+                  <motion.button
+                    key={template.id}
+                    whileHover={{ y: -10, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      onApply(template.config);
+                      toast.success(`Theme Applied: ${template.name}`, { 
+                        icon: '🎨',
+                        style: { 
+                          borderRadius: '1rem',
+                          background: '#fff',
+                          color: '#333',
+                          border: '1px solid #eee'
+                        } 
+                      });
+                    }}
+                    className={cn(
+                      "flex flex-col text-left rounded-3xl overflow-hidden transition-all duration-700 border-2 bg-white/50 backdrop-blur-sm group h-full relative",
+                      currentConfig.THEME.primary === template.config.THEME.primary 
+                        ? "border-romantic-pink shadow-[0_20px_50px_rgba(255,107,107,0.15)] ring-4 ring-romantic-pink/5" 
+                        : "border-transparent shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:border-romantic-pink/30 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
+                    )}
+                  >
+                    {/* Visual Preview Header */}
+                    <div 
+                      className="h-44 w-full p-8 flex items-center justify-center relative overflow-hidden"
+                      style={{ background: `linear-gradient(135deg, ${template.config.THEME.background}, ${template.config.THEME.primary}44)` }}
+                    >
+                      {/* Floating Category Tag */}
+                      <div className="absolute top-4 left-4 z-20 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm text-[8px] font-bold uppercase tracking-widest text-gray-800">
+                        {template.tag}
+                      </div>
+
+                      <template.icon size={80} className="absolute -bottom-4 -right-4 p-4 opacity-5 group-hover:opacity-10 group-hover:rotate-12 transition-all duration-1000" />
+                      
+                      {/* Color DNA Bubbles */}
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div className="flex -space-x-4 mb-4">
+                           <div className="w-16 h-16 rounded-full border-4 border-white shadow-2xl group-hover:scale-110 transition-transform duration-700" style={{ backgroundColor: template.config.THEME.primary }} />
+                           <div className="w-12 h-12 rounded-full border-4 border-white shadow-2xl translate-y-8 group-hover:translate-y-6 transition-all duration-700" style={{ backgroundColor: template.config.THEME.secondary }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-8 flex-1 flex flex-col">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                           <h3 className="font-heading text-xl text-gray-900 group-hover:text-romantic-pink transition-colors mb-1">{template.name}</h3>
+                           <div className="h-0.5 w-8 bg-gray-100 group-hover:w-16 group-hover:bg-romantic-pink/30 transition-all duration-500 rounded-full" />
+                        </div>
+                        {currentConfig.THEME.primary === template.config.THEME.primary && (
+                          <div className="w-2.5 h-2.5 bg-romantic-pink rounded-full animate-ping" />
+                        )}
+                      </div>
+                      
+                      <p className="text-[11px] text-gray-500 leading-relaxed mb-6 flex-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                        {template.description}
+                      </p>
+
+                      {/* Theme DNA (Layout + Anim) */}
+                      <div className="grid grid-cols-2 gap-3 mb-6">
+                         <div className="px-3 py-2 bg-gray-50 rounded-xl flex flex-col gap-0.5 border border-gray-100/50">
+                            <span className="text-[7px] uppercase tracking-tighter text-gray-400 font-bold">Layout</span>
+                            <span className="text-[9px] font-bold text-gray-700 capitalize">{template.config.LAYOUT.replace('-', ' ')}</span>
+                         </div>
+                         <div className="px-3 py-2 bg-gray-50 rounded-xl flex flex-col gap-0.5 border border-gray-100/50">
+                            <span className="text-[7px] uppercase tracking-tighter text-gray-400 font-bold">Vibe</span>
+                            <span className="text-[9px] font-bold text-gray-700">{template.tag}</span>
+                         </div>
+                      </div>
+                      
+                      <div className="mt-auto pt-6 border-t border-gray-50 flex items-center justify-between text-gray-300 group-hover:text-romantic-pink transition-all">
+                        <span className="text-[9px] font-bold uppercase tracking-[0.25em]">Activate</span>
+                        <div className="p-1.5 rounded-full bg-gray-50 group-hover:bg-romantic-pink group-hover:text-white transition-all shadow-sm">
+                          <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="p-6 md:p-8 bg-gray-50/50 backdrop-blur-md flex items-center justify-between border-t border-gray-100/50 flex-shrink-0">
+               <div className="hidden md:block">
+                 <p className="text-[10px] text-gray-400 font-bold max-w-xs uppercase tracking-widest">Premium Handcrafted Kits • All Assets Included</p>
+               </div>
+               <div className="flex gap-4 w-full md:w-auto">
+                 <button 
+                   onClick={onClose}
+                   className="flex-1 md:flex-none px-8 py-4 bg-white rounded-2xl border-2 border-gray-100 text-gray-400 text-xs font-bold hover:bg-gray-100 hover:text-gray-600 transition-all shadow-sm active:scale-95"
+                  >
+                   Wait
+                 </button>
+                 <button 
+                   onClick={onClose}
+                   className="flex-1 md:flex-none px-12 py-4 bg-romantic-pink rounded-2xl text-white text-xs font-bold hover:bg-pink-600 transition-all shadow-lg shadow-pink-200 active:scale-95"
+                  >
+                   Confirm Design
+                 </button>
+               </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+const CursorTrail = ({ config }: { config: any }) => {
+  const [particles, setParticles] = useState<any[]>([]);
+  const lastPos = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!config.DESIGN?.cursorTrail) {
+      setParticles([]);
+      return;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const dist = Math.hypot(e.clientX - lastPos.current.x, e.clientY - lastPos.current.y);
+      if (dist < 40) return;
+      
+      lastPos.current = { x: e.clientX, y: e.clientY };
+      
+      const id = Math.random();
+      const p = {
+        id,
+        x: e.clientX,
+        y: e.clientY,
+        size: Math.random() * 20 + 10,
+        rotation: Math.random() * 360,
+        color: config.THEME.primary
+      };
+      
+      setParticles(prev => [...prev.slice(-12), p]);
+      setTimeout(() => {
+        setParticles(prev => prev.filter(item => item.id !== id));
+      }, 1000);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [config.DESIGN?.cursorTrail, config.THEME.primary]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[1001] overflow-hidden">
+      <AnimatePresence>
+        {particles.map(p => (
+          <motion.div
+            key={p.id}
+            initial={{ scale: 0, opacity: 1, rotate: p.rotation }}
+            animate={{ scale: 1.5, opacity: 0, y: -50, rotate: p.rotation + 90 }}
+            exit={{ scale: 0, opacity: 0 }}
+            style={{
+              position: 'fixed',
+              left: p.x,
+              top: p.y,
+              color: p.color,
+              marginLeft: -p.size / 2,
+              marginTop: -p.size / 2,
+            }}
+          >
+            <Heart size={p.size} fill="currentColor" className="drop-shadow-lg" />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, onDownloadStory, onEnterCinematicMode }: { 
   config: any, 
-  onSave: (newConfig: any) => void, 
+  onSave: (config: any) => void, 
   onClose: () => void,
   onDownloadHTML: () => void,
   onDownloadPDF: () => void,
@@ -65,6 +275,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
   onEnterCinematicMode: () => void
 }) => {
   const [formData, setFormData] = useState(config);
+  const [activeTab, setActiveTab] = useState<'content' | 'appearance' | 'layout' | 'advanced'>('content');
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
@@ -85,684 +296,471 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
     handleChange(field, newArray);
   };
 
+  const tabs = [
+    { id: 'content', label: 'Content', icon: Type },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
+    { id: 'layout', label: 'Layout', icon: Layout },
+    { id: 'advanced', label: 'Advanced', icon: Sliders },
+  ];
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white rounded-[2rem] md:rounded-[3rem] w-full max-w-3xl max-h-[95vh] md:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
       >
-        <div className="sticky top-0 bg-white/80 backdrop-blur-md z-10 p-4 md:p-6 border-b flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-heading text-romantic-pink">Customize Your Surprise</h2>
+        <div className="bg-white/80 backdrop-blur-md z-10 p-4 md:p-6 border-b flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-romantic-pink/10 rounded-xl">
+              <Brush size={24} className="text-romantic-pink" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-heading text-romantic-pink">Studio Customizer</h2>
+          </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
-        <div className="p-5 md:p-8 space-y-6 md:space-y-8">
-          {/* Templates Section */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Layout size={18} className="text-romantic-pink" /> Choose a Template
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              {TEMPLATES.map((template) => (
-                <button
-                  key={template.id}
-                  onClick={() => {
-                    setFormData((prev: any) => ({
-                      ...prev,
-                      ...template.config,
-                      // We can also add unique themes here if we had a theme system
-                    }));
-                    toast.success(`Applied ${template.name} template!`);
-                  }}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all group relative",
-                    formData.THEME.primary === template.config.THEME.primary 
-                      ? "border-romantic-pink bg-romantic-pink/5 shadow-inner" 
-                      : "border-gray-100 hover:border-romantic-pink/30 hover:bg-gray-50"
-                  )}
-                  title={template.description}
-                >
-                  <div className={cn(
-                    "p-2 rounded-xl transition-colors",
-                    formData.THEME.primary === template.config.THEME.primary 
-                      ? "bg-romantic-pink text-white" 
-                      : "bg-gray-100 text-gray-400 group-hover:bg-romantic-pink/10 group-hover:text-romantic-pink"
-                  )}>
-                    <template.icon size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-center leading-tight">{template.name}</span>
-                  {formData.THEME.primary === template.config.THEME.primary && (
-                    <motion.div 
-                      layoutId="active-template"
-                      className="absolute -top-1 -right-1 bg-romantic-pink text-white rounded-full p-0.5 shadow-sm"
-                    >
-                      <Heart size={8} fill="currentColor" />
-                    </motion.div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Tab Navigation */}
+        <div className="flex border-b overflow-x-auto no-scrollbar flex-shrink-0 bg-gray-50/50">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-4 px-6 text-sm font-bold transition-all border-b-2",
+                activeTab === tab.id 
+                  ? "border-romantic-pink text-romantic-pink bg-white" 
+                  : "border-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+              )}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Theme Colors */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Plus size={18} className="text-romantic-pink" /> Theme Colors
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {Object.entries(formData.THEME).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">{key}</label>
-                  <div className="flex items-center gap-2">
+        <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-8">
+          {activeTab === 'content' && (
+            <>
+              {/* Basic Info */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Heart size={18} className="text-romantic-pink" /> Basic Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Recipient Name</label>
                     <input 
-                      type="color"
-                      value={value as string}
-                      onChange={(e) => {
-                        const newTheme = { ...formData.THEME, [key]: e.target.value };
-                        setFormData((prev: any) => ({
-                          ...prev,
-                          THEME: newTheme,
-                          CONFETTI: {
-                            ...prev.CONFETTI,
-                            colors: [newTheme.primary, newTheme.secondary, '#ffffff']
-                          }
-                        }));
-                      }}
-                      className="w-10 h-10 rounded-lg cursor-pointer border-none"
+                      value={formData.GIRLFRIEND_NAME} 
+                      onChange={(e) => handleChange('GIRLFRIEND_NAME', e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
+                      placeholder="e.g. Sarah"
                     />
-                    <input 
-                      type="text"
-                      value={value as string}
-                      onChange={(e) => {
-                        const newTheme = { ...formData.THEME, [key]: e.target.value };
-                        setFormData((prev: any) => ({
-                          ...prev,
-                          THEME: newTheme,
-                          CONFETTI: {
-                            ...prev.CONFETTI,
-                            colors: [newTheme.primary, newTheme.secondary, '#ffffff']
-                          }
-                        }));
-                      }}
-                      className="flex-1 px-3 py-1.5 text-xs rounded-lg border outline-none focus:border-romantic-pink"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Confetti Customization */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Zap size={18} className="text-romantic-pink" /> Confetti Effects
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-2xl">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Particle Count</label>
-                  <span className="text-xs font-bold text-romantic-pink">{formData.CONFETTI?.particleCount || 150}</span>
-                </div>
-                <input 
-                  type="range"
-                  min="50"
-                  max="500"
-                  step="10"
-                  value={formData.CONFETTI?.particleCount || 150}
-                  onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, particleCount: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-romantic-pink"
-                />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Density Multiplier</label>
-                  <span className="text-xs font-bold text-romantic-pink">{formData.CONFETTI?.density || 1}x</span>
-                </div>
-                <input 
-                  type="range"
-                  min="0.5"
-                  max="3"
-                  step="0.1"
-                  value={formData.CONFETTI?.density || 1}
-                  onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, density: parseFloat(e.target.value) })}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-romantic-pink"
-                />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Spread Angle</label>
-                  <span className="text-xs font-bold text-romantic-pink">{formData.CONFETTI?.spread || 70}°</span>
-                </div>
-                <input 
-                  type="range"
-                  min="30"
-                  max="360"
-                  step="10"
-                  value={formData.CONFETTI?.spread || 70}
-                  onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, spread: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-romantic-pink"
-                />
-              </div>
-              <div className="flex items-center justify-center">
-                <button 
-                  onClick={() => confetti({
-                    particleCount: Math.floor((formData.CONFETTI?.particleCount || 150) * (formData.CONFETTI?.density || 1)),
-                    spread: formData.CONFETTI?.spread || 70,
-                    colors: formData.CONFETTI?.colors || [formData.THEME.primary, formData.THEME.secondary, '#ffffff']
-                  })}
-                  className="px-6 py-2 rounded-full bg-white border-2 border-romantic-pink text-romantic-pink text-xs font-bold hover:bg-romantic-pink hover:text-white transition-all shadow-sm"
-                >
-                  Test Confetti 🎉
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Event Type Selection */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Calendar size={18} className="text-romantic-pink" /> Event Type
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {EVENT_TYPES.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => handleChange('EVENT_TYPE', type.id)}
-                  className={cn(
-                    "p-3 rounded-2xl border-2 text-left transition-all flex flex-col items-center justify-center gap-1 group",
-                    formData.EVENT_TYPE === type.id 
-                      ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink shadow-md" 
-                      : "border-gray-100 hover:border-gray-200 text-gray-600 bg-white"
-                  )}
-                >
-                  <span className="text-2xl group-hover:scale-110 transition-transform">{type.icon}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-tighter text-center">{type.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Basic Info */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Heart size={18} className="text-romantic-pink" /> Basic Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Recipient Name</label>
-                <input 
-                  value={formData.GIRLFRIEND_NAME} 
-                  onChange={(e) => handleChange('GIRLFRIEND_NAME', e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                  placeholder="Enter name..."
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Your Name</label>
-                <input 
-                  value={formData.YOUR_NAME} 
-                  onChange={(e) => handleChange('YOUR_NAME', e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                  placeholder="Your name..."
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Password to Unlock</label>
-                <input 
-                  value={formData.PASSWORD} 
-                  onChange={(e) => handleChange('PASSWORD', e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                  placeholder="Secret password..."
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Event Date & Time</label>
-                <input 
-                  type="datetime-local"
-                  value={formData.BIRTHDAY_DATE.slice(0, 16)} 
-                  onChange={(e) => handleChange('BIRTHDAY_DATE', e.target.value + ':00')}
-                  className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Visuals Section */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Camera size={18} className="text-romantic-pink" /> Visuals
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Hero Image */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase">Hero Background Image</label>
-                <div className="flex gap-2">
-                  <input 
-                    value={formData.HERO_IMAGE} 
-                    onChange={(e) => handleChange('HERO_IMAGE', e.target.value)}
-                    className="flex-1 px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none text-sm"
-                    placeholder="Image URL..."
-                  />
-                  <label className="cursor-pointer p-2 bg-romantic-pink/10 text-romantic-pink rounded-xl hover:bg-romantic-pink/20 transition-colors">
-                    <Upload size={20} />
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => handleChange('HERO_IMAGE', reader.result);
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-              </div>
-              {/* Recipient Photo */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase">Recipient Photo</label>
-                <div className="flex gap-2">
-                  <input 
-                    value={formData.GIRLFRIEND_PHOTO} 
-                    onChange={(e) => handleChange('GIRLFRIEND_PHOTO', e.target.value)}
-                    className="flex-1 px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none text-sm"
-                    placeholder="Image URL..."
-                  />
-                  <label className="cursor-pointer p-2 bg-romantic-pink/10 text-romantic-pink rounded-xl hover:bg-romantic-pink/20 transition-colors">
-                    <Upload size={20} />
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => handleChange('GIRLFRIEND_PHOTO', reader.result);
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Love Letter */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <MessageCircle size={18} className="text-romantic-pink" /> Love Letter
-              </h3>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => {
-                    const textarea = document.getElementById('love-letter-textarea') as HTMLTextAreaElement;
-                    if (textarea) {
-                      const start = textarea.selectionStart;
-                      const end = textarea.selectionEnd;
-                      const text = formData.LOVE_LETTER;
-                      const newText = text.substring(0, start) + '**' + text.substring(start, end) + '**' + text.substring(end);
-                      handleChange('LOVE_LETTER', newText);
-                    }
-                  }}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
-                  title="Bold"
-                >
-                  <Bold size={16} />
-                </button>
-                <button 
-                  onClick={() => {
-                    const textarea = document.getElementById('love-letter-textarea') as HTMLTextAreaElement;
-                    if (textarea) {
-                      const start = textarea.selectionStart;
-                      const end = textarea.selectionEnd;
-                      const text = formData.LOVE_LETTER;
-                      const newText = text.substring(0, start) + '*' + text.substring(start, end) + '*' + text.substring(end);
-                      handleChange('LOVE_LETTER', newText);
-                    }
-                  }}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
-                  title="Italic"
-                >
-                  <Italic size={16} />
-                </button>
-              </div>
-            </div>
-            <textarea 
-              id="love-letter-textarea"
-              value={formData.LOVE_LETTER} 
-              onChange={(e) => handleChange('LOVE_LETTER', e.target.value)}
-              rows={6}
-              className="w-full px-4 py-3 rounded-2xl border focus:border-romantic-pink outline-none resize-none"
-              placeholder="Write your heart out... Use **bold** or *italics* for emphasis."
-            />
-          </div>
-
-          {/* Photos */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <Camera size={18} className="text-romantic-pink" /> Photos
-              </h3>
-              <div className="flex gap-2">
-                <label className="cursor-pointer text-xs font-bold text-romantic-pink flex items-center gap-1 hover:bg-romantic-pink/5 px-2 py-1 rounded-lg transition-colors">
-                  <Upload size={14} /> Upload
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 2 * 1024 * 1024) {
-                          toast.error("Image too large! Please keep it under 2MB.");
-                          return;
-                        }
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          addArrayItem('PHOTOS', { url: reader.result as string, caption: file.name.split('.')[0] });
-                          toast.success("Image uploaded!");
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                </label>
-                <button 
-                  onClick={() => addArrayItem('PHOTOS', { url: 'https://picsum.photos/800/1000', caption: 'New Memory' })}
-                  className="text-xs font-bold text-romantic-pink flex items-center gap-1 hover:bg-romantic-pink/5 px-2 py-1 rounded-lg transition-colors"
-                >
-                  <Plus size={14} /> Add URL
-                </button>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {formData.PHOTOS.map((photo: any, i: number) => (
-                <div key={i} className="flex gap-2 items-start bg-gray-50 p-3 rounded-2xl">
-                  <div className="flex-1 space-y-2">
-                    <input 
-                      placeholder="Image URL"
-                      value={photo.url} 
-                      onChange={(e) => handleArrayChange('PHOTOS', i, 'url', e.target.value)}
-                      className="w-full px-3 py-1 text-sm rounded-lg border outline-none"
-                    />
-                    <input 
-                      placeholder="Caption"
-                      value={photo.caption} 
-                      onChange={(e) => handleArrayChange('PHOTOS', i, 'caption', e.target.value)}
-                      className="w-full px-3 py-1 text-sm rounded-lg border outline-none"
-                    />
-                  </div>
-                  <button onClick={() => removeArrayItem('PHOTOS', i)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Media */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Music size={18} className="text-romantic-pink" /> Music & Video
-            </h3>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Music URL (MP3)</label>
-                <input 
-                  value={formData.MUSIC_URL} 
-                  onChange={(e) => handleChange('MUSIC_URL', e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Video URL (YouTube Embed)</label>
-                <input 
-                  value={formData.VIDEO_URL} 
-                  onChange={(e) => handleChange('VIDEO_URL', e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Animations */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Play size={18} className="text-romantic-pink" /> Creative Animations
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(formData.ANIMATIONS).map(([key, value]) => (
-                <div key={key} className="space-y-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase">{key.replace('_', ' ')}</label>
-                  <select 
-                    value={value as string}
-                    onChange={(e) => handleChange('ANIMATIONS', { ...formData.ANIMATIONS, [key]: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none bg-white"
-                  >
-                    {Object.keys(ANIMATION_PRESETS).map((preset) => (
-                      <option key={preset} value={preset}>{preset}</option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Journey/Timeline */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <Calendar size={18} className="text-romantic-pink" /> Our Journey
-              </h3>
-              <button 
-                onClick={() => addArrayItem('TIMELINE', { date: 'New Date', event: 'New Event', description: 'Describe the moment...' })}
-                className="text-xs font-bold text-romantic-pink flex items-center gap-1"
-              >
-                <Plus size={14} /> Add Event
-              </button>
-            </div>
-            <div className="space-y-4">
-              {formData.TIMELINE.map((item: any, i: number) => (
-                <div key={i} className="bg-gray-50 p-4 rounded-2xl space-y-3 relative group">
-                  <button 
-                    onClick={() => removeArrayItem('TIMELINE', i)} 
-                    className="absolute top-2 right-2 p-1 text-red-400 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Date</label>
-                      <input 
-                        placeholder="e.g. June 12, 2023"
-                        value={item.date} 
-                        onChange={(e) => handleArrayChange('TIMELINE', i, 'date', e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm rounded-lg border outline-none focus:border-romantic-pink"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Event Title</label>
-                      <input 
-                        placeholder="e.g. First Meet"
-                        value={item.event} 
-                        onChange={(e) => handleArrayChange('TIMELINE', i, 'event', e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm rounded-lg border outline-none focus:border-romantic-pink"
-                      />
-                    </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Description</label>
-                    <textarea 
-                      placeholder="What happened?"
-                      value={item.description} 
-                      onChange={(e) => handleArrayChange('TIMELINE', i, 'description', e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-1.5 text-sm rounded-lg border outline-none focus:border-romantic-pink resize-none"
+                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Your Name</label>
+                    <input 
+                      value={formData.YOUR_NAME} 
+                      onChange={(e) => handleChange('YOUR_NAME', e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
+                      placeholder="e.g. Anil"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Password to Unlock</label>
+                    <input 
+                      value={formData.PASSWORD} 
+                      onChange={(e) => handleChange('PASSWORD', e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Event Date & Time</label>
+                    <input 
+                      type="datetime-local"
+                      value={formData.BIRTHDAY_DATE.slice(0, 16)} 
+                      onChange={(e) => handleChange('BIRTHDAY_DATE', e.target.value + ':00')}
+                      className="w-full px-4 py-3 rounded-2xl border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none transition-all"
                     />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Map Configuration */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+              {/* Love Letter */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <MessageCircle size={18} className="text-romantic-pink" /> Love Letter
+                  </h3>
+                </div>
+                <textarea 
+                  value={formData.LOVE_LETTER} 
+                  onChange={(e) => handleChange('LOVE_LETTER', e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-4 rounded-[2rem] border bg-gray-50/50 focus:bg-white focus:border-romantic-pink outline-none resize-none transition-all"
+                  placeholder="Tell her how you feel..."
+                />
+              </div>
+
+              {/* Photos */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <Camera size={18} className="text-romantic-pink" /> Memories
+                  </h3>
+                  <button 
+                    onClick={() => addArrayItem('PHOTOS', { url: 'https://picsum.photos/800/1000', caption: 'New Memory' })}
+                    className="text-xs font-bold text-romantic-pink flex items-center gap-1"
+                  >
+                    <Plus size={14} /> Add Photo
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formData.PHOTOS.map((photo: any, i: number) => (
+                    <div key={i} className="flex flex-col gap-2 p-4 bg-gray-50 rounded-2xl relative group">
+                      <button onClick={() => removeArrayItem('PHOTOS', i)} className="absolute top-2 right-2 p-1.5 text-red-400 hover:bg-red-50 rounded-lg">
+                        <Trash2 size={14} />
+                      </button>
+                      <input 
+                        value={photo.url} 
+                        onChange={(e) => handleArrayChange('PHOTOS', i, 'url', e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs rounded-lg border outline-none bg-white"
+                        placeholder="Image URL"
+                      />
+                      <input 
+                        value={photo.caption} 
+                        onChange={(e) => handleArrayChange('PHOTOS', i, 'caption', e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs rounded-lg border outline-none bg-white font-medium"
+                        placeholder="Caption"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'appearance' && (
+            <>
+              {/* Theme Colors */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Palette size={18} className="text-romantic-pink" /> Color Palette
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-3xl">
+                  {Object.entries(formData.THEME).map(([key, value]) => (
+                    <div key={key} className="space-y-2 text-center">
+                      <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{key}</label>
+                      <div className="relative group">
+                        <input 
+                          type="color"
+                          value={value as string}
+                          onChange={(e) => handleChange('THEME', { ...formData.THEME, [key]: e.target.value })}
+                          className="w-full h-12 rounded-2xl cursor-pointer border-4 border-white shadow-sm appearance-none p-0 overflow-hidden"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Design Sliders */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Brush size={18} className="text-romantic-pink" /> Design Finetuning
+                </h3>
+                <div className="space-y-6 p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Glass Intensity</label>
+                      <span className="text-xs font-bold text-romantic-pink">{(formData.DESIGN?.glassIntensity || 0.4).toFixed(1)}</span>
+                    </div>
+                    <input 
+                      type="range" min="0" max="1" step="0.1"
+                      value={formData.DESIGN?.glassIntensity || 0.4}
+                      onChange={(e) => handleChange('DESIGN', { ...formData.DESIGN, glassIntensity: parseFloat(e.target.value) })}
+                      className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Corner Rounding</label>
+                      <span className="text-xs font-bold text-romantic-pink">{formData.DESIGN?.borderRadius || '2rem'}</span>
+                    </div>
+                    <input 
+                      type="range" min="0" max="48" step="4"
+                      value={parseInt(formData.DESIGN?.borderRadius || '32')}
+                      onChange={(e) => handleChange('DESIGN', { ...formData.DESIGN, borderRadius: `${e.target.value}px` })}
+                      className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Font Family</label>
+                    <select 
+                      value={formData.FONT_FAMILY}
+                      onChange={(e) => handleChange('FONT_FAMILY', e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl border bg-white focus:border-romantic-pink outline-none"
+                    >
+                      <option value="'Playfair Display', serif">Premium Serif (Playfair)</option>
+                      <option value="'Dancing Script', cursive">Romantic Cursive (Dancing Script)</option>
+                      <option value="'Pacifico', cursive">Playful Script (Pacifico)</option>
+                      <option value="'Outfit', sans-serif">Modern Clean (Outfit)</option>
+                      <option value="'Inter', sans-serif">Professional (Inter)</option>
+                      <option value="'Cormorant Garamond', serif">Classic Elegant (Cormorant)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Particles Control */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Stars size={18} className="text-romantic-pink" /> Floating Elements
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {[
+                    { id: 'heart', label: 'Hearts', icon: Heart },
+                    { id: 'star', label: 'Stars', icon: Stars },
+                    { id: 'sparkle', label: 'Sparkles', icon: Sparkles },
+                    { id: 'music', label: 'Music', icon: Music2 },
+                    { id: 'snow', label: 'Snow', icon: CloudSnow },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleChange('DESIGN', { ...formData.DESIGN, floatingObject: item.id })}
+                      className={cn(
+                        "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
+                        formData.DESIGN?.floatingObject === item.id 
+                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink" 
+                          : "border-gray-100 hover:border-romantic-pink/20"
+                      )}
+                    >
+                      <item.icon size={20} />
+                      <span className="text-[10px] font-bold uppercase">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Button Styles */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Square size={18} className="text-romantic-pink" /> Button Style
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { id: 'pill', label: 'Pill', radius: '9999px' },
+                    { id: 'rounded', label: 'Soft', radius: '1.25rem' },
+                    { id: 'square', label: 'Square', radius: '0.4rem' },
+                    { id: 'outline', label: 'Outline', radius: '1.25rem', outline: true },
+                  ].map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => handleChange('DESIGN', { ...formData.DESIGN, buttonStyle: style.id })}
+                      className={cn(
+                        "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
+                        formData.DESIGN?.buttonStyle === style.id 
+                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink font-bold" 
+                          : "border-gray-100 hover:border-romantic-pink/20"
+                      )}
+                    >
+                      <div 
+                        className={cn(
+                          "w-12 h-6 border-2 flex items-center justify-center text-[10px]",
+                          style.outline ? "border-current bg-transparent" : "bg-current border-transparent"
+                        )}
+                        style={{ borderRadius: style.radius }}
+                      >
+                        {style.id === 'outline' ? '' : '•'}
+                      </div>
+                      <span className="text-[10px] uppercase tracking-tighter">{style.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'layout' && (
+            <div className="space-y-6">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <MapPin size={18} className="text-romantic-pink" /> Map Section
+                <Layout size={18} className="text-romantic-pink" /> Page Components
               </h3>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-bold text-gray-400 uppercase">Show Map</label>
-                <input 
-                  type="checkbox"
-                  checked={formData.MAP_CONFIG?.show}
-                  onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, show: e.target.checked })}
-                  className="w-4 h-4 accent-romantic-pink"
-                />
+              <p className="text-sm text-gray-400 italic">Toggle which sections should be visible in your surprise ❤️</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { id: 'stats', label: 'Relationship Stats', icon: Zap },
+                  { id: 'timeline', label: 'Our Journey Timeline', icon: Calendar },
+                  { id: 'envelopes', label: 'Surprise Envelopes', icon: FileCode },
+                  { id: 'polaroid', label: 'Polaroid Wall', icon: Camera },
+                  { id: 'reasons', label: 'Reasons to Love', icon: MessageCircle },
+                  { id: 'video', label: 'Video Memory', icon: Video },
+                  { id: 'map', label: 'Special Location Map', icon: MapPin },
+                  { id: 'starMap', label: 'Celestial Star Map', icon: Stars },
+                  { id: 'wishlist', label: 'Virtual Wishlist', icon: Gift },
+                  { id: 'guestbook', label: 'Guestbook/Messages', icon: Smile },
+                  { id: 'candles', label: 'Birthday Candles', icon: Zap },
+                  { id: 'daysSince', label: 'Days Counter', icon: Heart },
+                ].map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => handleChange('SECTIONS', { 
+                      ...formData.SECTIONS, 
+                      [section.id]: !formData.SECTIONS[section.id as keyof typeof formData.SECTIONS] 
+                    })}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left",
+                      formData.SECTIONS?.[section.id as keyof typeof formData.SECTIONS]
+                        ? "border-romantic-pink bg-romantic-pink/5 text-gray-800"
+                        : "border-gray-100 text-gray-300 bg-gray-50/50"
+                    )}
+                  >
+                    <div className={cn(
+                      "p-2 rounded-xl",
+                      formData.SECTIONS?.[section.id as keyof typeof formData.SECTIONS] ? "bg-romantic-pink text-white" : "bg-gray-200 text-white"
+                    )}>
+                      <section.icon size={18} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-sm leading-tight">{section.label}</p>
+                      <p className="text-[10px] opacity-70 uppercase tracking-widest">
+                        {formData.SECTIONS?.[section.id as keyof typeof formData.SECTIONS] ? 'Enabled' : 'Hidden'}
+                      </p>
+                    </div>
+                    {formData.SECTIONS?.[section.id as keyof typeof formData.SECTIONS] ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </button>
+                ))}
               </div>
             </div>
-            {formData.MAP_CONFIG?.show && (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-2xl">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase">Section Title</label>
-                  <input 
-                    value={formData.MAP_CONFIG.title} 
-                    onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, title: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase">Location (Address or City)</label>
-                  <input 
-                    value={formData.MAP_CONFIG.location} 
-                    onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, location: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase">Description</label>
-                  <textarea 
-                    value={formData.MAP_CONFIG.description} 
-                    onChange={(e) => handleChange('MAP_CONFIG', { ...formData.MAP_CONFIG, description: e.target.value })}
-                    rows={2}
-                    className="w-full px-4 py-2 rounded-xl border focus:border-romantic-pink outline-none resize-none"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          )}
 
-          {/* Stats Section */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Zap size={18} className="text-romantic-pink" /> Relationship Stats
-            </h3>
-            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-2xl">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Days Together</label>
-                <input
-                  type="number"
-                  value={formData.STATS?.DAYS_TOGETHER || 0}
-                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, DAYS_TOGETHER: parseInt(e.target.value) } })}
-                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
-                />
+          {activeTab === 'advanced' && (
+            <div className="space-y-8">
+              {/* Confetti */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Zap size={18} className="text-romantic-pink" /> Interaction FX
+                </h3>
+                <div className="p-6 bg-gray-50 rounded-3xl space-y-6">
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Confetti Density</label>
+                    <input 
+                      type="range" min="50" max="500" step="10"
+                      value={formData.CONFETTI?.particleCount || 150}
+                      onChange={(e) => handleChange('CONFETTI', { ...formData.CONFETTI, particleCount: parseInt(e.target.value) })}
+                      className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Floating Object Speed</label>
+                    <input 
+                      type="range" min="0.5" max="3" step="0.1"
+                      value={formData.DESIGN?.particleSpeed || 1.0}
+                      onChange={(e) => handleChange('DESIGN', { ...formData.DESIGN, particleSpeed: parseFloat(e.target.value) })}
+                      className="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer accent-romantic-pink"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Photos Shared</label>
-                <input
-                  type="number"
-                  value={formData.STATS?.PHOTOS_SHARED || 0}
-                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, PHOTOS_SHARED: parseInt(e.target.value) } })}
-                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Date Nights</label>
-                <input
-                  type="number"
-                  value={formData.STATS?.DATE_NIGHTS || 0}
-                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, DATE_NIGHTS: parseInt(e.target.value) } })}
-                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase ml-2 tracking-widest">Love Score (%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.STATS?.LOVE_SCORE || 0}
-                  onChange={(e) => setFormData({ ...formData, STATS: { ...formData.STATS, LOVE_SCORE: parseInt(e.target.value) } })}
-                  className="w-full px-4 py-2 rounded-xl bg-white border focus:border-romantic-pink outline-none transition-all text-sm"
-                />
+
+              {/* Layout Mode */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <MousePointer2 size={18} className="text-romantic-pink" /> Interaction Design
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                    {['default', 'minimal', 'editorial', 'split', 'bento', 'scrapbook', 'love-stats', 'modern-split'].map(layout => (
+                        <button
+                            key={layout}
+                            onClick={() => handleChange('LAYOUT', layout)}
+                            className={cn(
+                              "py-3 px-4 rounded-xl border-2 text-[11px] font-bold uppercase transition-all",
+                              formData.LAYOUT === layout ? "border-romantic-pink bg-romantic-pink/5 text-romantic-pink" : "border-gray-100 hover:bg-gray-50"
+                            )}
+                          >
+                            {layout.replace('-', ' ')}
+                          </button>
+                        ))}
+                 </div>
+               </div>
+
+               {/* New Interactivity Controls */}
+               <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Sparkles size={18} className="text-romantic-pink" /> Advanced Interactivity
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button
+                    onClick={() => handleChange('DESIGN', { 
+                      ...formData.DESIGN, 
+                      cursorTrail: !formData.DESIGN?.cursorTrail 
+                    })}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-[1.5rem] border-2 transition-all text-left",
+                      formData.DESIGN?.cursorTrail
+                        ? "border-romantic-pink bg-romantic-pink/5 text-gray-800"
+                        : "border-gray-100 text-gray-300 bg-gray-50/50"
+                    )}
+                  >
+                    <div className={cn(
+                      "p-3 rounded-2xl",
+                      formData.DESIGN?.cursorTrail ? "bg-romantic-pink text-white" : "bg-gray-200 text-white"
+                    )}>
+                      <Pointer size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-sm leading-tight">Cursor Trail</p>
+                      <p className="text-[10px] opacity-70 uppercase tracking-widest mt-1">
+                        {formData.DESIGN?.cursorTrail ? 'Hearts follow mouse' : 'Disabled'}
+                      </p>
+                    </div>
+                    {formData.DESIGN?.cursorTrail ? <Zap size={16} className="text-yellow-400 fill-current" /> : <EyeOff size={16} />}
+                  </button>
+
+                  <div className="flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] border border-gray-100">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Animation Intensity</label>
+                    <div className="flex gap-1 p-1 bg-white rounded-xl shadow-sm">
+                       {['subtle', 'normal', 'energetic'].map(level => (
+                         <button
+                           key={level}
+                           onClick={() => handleChange('DESIGN', { ...formData.DESIGN, animationIntensity: level })}
+                           className={cn(
+                             "flex-1 py-2 text-[9px] font-bold uppercase rounded-lg transition-all",
+                             formData.DESIGN?.animationIntensity === level ? "bg-romantic-pink text-white shadow-md" : "text-gray-400 hover:bg-gray-50"
+                           )}
+                         >
+                           {level}
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Export Options */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Download size={18} className="text-romantic-pink" /> Export & Download
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <button 
-                onClick={onDownloadHTML}
-                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
-              >
-                <FileCode size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-bold text-gray-700">Save as HTML</span>
-                <span className="text-[10px] text-gray-400 mt-1">Offline Shortcut</span>
-              </button>
-              <button 
-                onClick={onDownloadStory}
-                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
-              >
-                <Camera size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-bold text-gray-700">IG Story</span>
-                <span className="text-[10px] text-gray-400 mt-1">9:16 Share Card</span>
-              </button>
-              <button 
-                onClick={onDownloadPDF}
-                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
-              >
-                <FileText size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-bold text-gray-700">Save as PDF</span>
-                <span className="text-[10px] text-gray-400 mt-1">Printable Keepsake</span>
-              </button>
-              <button 
-                onClick={onEnterCinematicMode}
-                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group"
-              >
-                <Video size={24} className="text-romantic-pink mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-bold text-gray-700">Record Video</span>
-                <span className="text-[10px] text-gray-400 mt-1">Cinematic Mode</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="pt-4 space-y-3">
-            <button 
-              onClick={() => onSave(formData)}
-              className="w-full py-4 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
-            >
-              <Save size={20} /> Save & Apply
-            </button>
-            <button 
-              onClick={() => setFormData(BIRTHDAY_CONFIG)}
-              className="w-full py-3 rounded-full border-2 border-gray-100 text-gray-400 font-bold hover:bg-gray-50 transition-all text-sm"
-            >
-              Reset to Default
-            </button>
-          </div>
+        <div className="p-6 md:p-8 bg-gray-50/80 backdrop-blur-md border-t flex flex-col sm:flex-row gap-4 flex-shrink-0">
+          <button 
+            onClick={() => {
+              onSave(formData);
+              onClose();
+            }}
+            className="flex-1 py-4 rounded-[1.5rem] bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-xl shadow-romantic-pink/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <Save size={20} /> Save Changes
+          </button>
+          <button 
+            onClick={() => setFormData(BIRTHDAY_CONFIG)}
+            className="px-8 py-4 rounded-[1.5rem] border-2 border-gray-200 text-gray-400 font-bold hover:bg-white hover:text-gray-600 transition-all text-sm"
+          >
+            Reset
+          </button>
         </div>
       </motion.div>
     </div>
@@ -1464,17 +1462,30 @@ const ParallaxSection = ({ children, offset = 50 }: { children: React.ReactNode,
   );
 };
 
-const FloatingHearts = () => {
+const FloatingHearts = ({ config }: { config: any }) => {
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'star': return Stars;
+      case 'music': return Music2;
+      case 'sparkle': return Sparkles;
+      case 'petal': return Heart; // Petal is basically a thin heart but we can use heart for now
+      case 'snow': return CloudSnow;
+      default: return Heart;
+    }
+  };
+
+  const Icon = getIcon(config.DESIGN?.floatingObject || 'heart');
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {[...Array(15)].map((_, i) => (
+      {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
           initial={{ 
             x: Math.random() * 100 + '%', 
             y: '110%', 
-            scale: Math.random() * 0.5 + 0.5,
-            opacity: Math.random() * 0.5 + 0.2
+            scale: Math.random() * 0.5 + 0.3,
+            opacity: Math.random() * 0.4 + 0.1
           }}
           animate={{ 
             y: '-10%',
@@ -1482,14 +1493,15 @@ const FloatingHearts = () => {
             rotate: Math.random() * 360
           }}
           transition={{ 
-            duration: Math.random() * 10 + 10, 
+            duration: (Math.random() * 10 + 15) / (config.DESIGN?.particleSpeed || 1), 
             repeat: Infinity, 
             ease: "linear",
-            delay: Math.random() * 10
+            delay: Math.random() * 15
           }}
-          className="absolute text-romantic-pink/20"
+          className="absolute"
+          style={{ color: i % 2 === 0 ? config.THEME.primary : config.THEME.secondary }}
         >
-          <Heart fill="currentColor" size={Math.random() * 30 + 20} />
+          <Icon fill="currentColor" size={Math.random() * 25 + 15} />
         </motion.div>
       ))}
     </div>
@@ -1946,7 +1958,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                 overflow: 'hidden',
                 boxShadow: '0 40px 80px rgba(0,0,0,0.4)',
                 transform: `rotate(${[ -4, 6, 12, -8, 3 ][i]}deg)`,
-                zIndex: i === 0 ? 5 : 1,
+                zIndex: 5 - i,
                 border: '1px solid rgba(255,255,255,0.1)'
               }}>
                 <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
@@ -2798,6 +2810,7 @@ export default function App() {
   const [config, setConfig] = useState(BIRTHDAY_CONFIG);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isThemeGalleryOpen, setIsThemeGalleryOpen] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [captureTemplateId, setCaptureTemplateId] = useState(0);
@@ -2833,6 +2846,7 @@ export default function App() {
     };
     setConfig(newConfig);
     setIsUnlocked(true);
+    setIsThemeGalleryOpen(true); // Open themes immediately for sender
     toast.success(`Welcome! Now you can customize the surprise for ${receiver}. ❤️`);
   };
 
@@ -3013,14 +3027,41 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Apply theme colors
+    // Apply theme colors & design vars
     const root = document.documentElement;
     root.style.setProperty('--romantic-pink', config.THEME.primary);
     root.style.setProperty('--romantic-purple', config.THEME.secondary);
     root.style.setProperty('--romantic-accent', config.THEME.accent);
     root.style.setProperty('--romantic-bg', config.THEME.background);
     root.style.setProperty('--romantic-text', config.THEME.text);
-  }, [config.THEME]);
+    
+    root.style.setProperty('--font-family', config.FONT_FAMILY);
+    
+    // New design variables
+    root.style.setProperty('--glass-intensity', config.DESIGN?.glassIntensity?.toString() || '0.1');
+    root.style.setProperty('--border-radius', config.DESIGN?.borderRadius || '1.5rem');
+    
+    // Button Style variables
+    let btnRadius = '9999px';
+    let btnBorder = '0px';
+    if (config.DESIGN?.buttonStyle === 'rounded') btnRadius = '1.25rem';
+    if (config.DESIGN?.buttonStyle === 'square') btnRadius = '0.4rem';
+    if (config.DESIGN?.buttonStyle === 'outline') {
+      btnRadius = '1.25rem';
+      btnBorder = '2px';
+    }
+    root.style.setProperty('--btn-radius', btnRadius);
+    root.style.setProperty('--btn-border', btnBorder);
+
+    // Background logic
+    if (config.DESIGN?.bgStyle === 'pattern') {
+      root.style.setProperty('--bg-gradient', `radial-gradient(circle at 2px 2px, ${config.THEME.primary}22 1px, transparent 0)`);
+    } else if (config.DESIGN?.backgroundStyle === 'solid') {
+      root.style.setProperty('--bg-gradient', 'none');
+    } else {
+      root.style.setProperty('--bg-gradient', `linear-gradient(135deg, ${config.THEME.background} 0%, white 100%)`);
+    }
+  }, [config.THEME, config.DESIGN, config.FONT_FAMILY]);
 
   const handleShare = () => {
     setIsShareModalOpen(true);
@@ -3055,9 +3096,13 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className={cn(
+      "min-h-screen transition-all duration-1000",
+      config.LAYOUT === 'minimal' ? "bg-white" : "bg-romantic-bg"
+    )} style={{ fontFamily: 'var(--font-family)' }}>
       <Toaster position="bottom-center" richColors />
-      <FloatingHearts />
+      <FloatingHearts config={config} />
+      {config.DESIGN?.cursorTrail && <CursorTrail config={config} />}
       
       {/* Feature 2: Now Playing Widget */}
       {config.MUSIC_URL && <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />}
@@ -3066,6 +3111,24 @@ export default function App() {
       <audio ref={audioRef} src={config.MUSIC_URL} loop />
       
       <div className="fixed top-6 right-6 z-40 flex gap-3 no-print">
+        {!hasSParam && (
+          <>
+            <button 
+              onClick={() => setIsThemeGalleryOpen(true)}
+              className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
+              title="Theme Gallery"
+            >
+              <Palette size={24} />
+            </button>
+            <button 
+              onClick={handleShare}
+              className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
+              title="Share Surprise"
+            >
+              <Share2 size={24} />
+            </button>
+          </>
+        )}
         <button 
           onClick={() => setIsCustomizing(true)}
           className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
@@ -3082,6 +3145,14 @@ export default function App() {
       </div>
 
       <AnimatePresence>
+        {isThemeGalleryOpen && (
+          <ThemeGalleryModal 
+            isOpen={isThemeGalleryOpen} 
+            onClose={() => setIsThemeGalleryOpen(false)} 
+            currentConfig={config} 
+            onApply={(tplConfig) => setConfig(prev => ({ ...prev, ...tplConfig }))} 
+          />
+        )}
         {isCustomizing && (
           <Customizer 
             config={config} 
@@ -3119,6 +3190,9 @@ export default function App() {
           config.LAYOUT === 'minimal' ? "max-w-6xl mx-auto" : ""
         )}
       >
+        {/* Theme Picker Gallery is now a Modal triggered from top bar */}
+
+
         {/* Hero Section */}
         {config.LAYOUT === 'modern-split' ? (
           <section className="relative min-h-screen grid grid-cols-1 md:grid-cols-2 bg-[#f5f5f4] overflow-hidden">
@@ -3377,212 +3451,220 @@ export default function App() {
         )}
 
         {/* Photo Gallery */}
-        <section className={cn(
-          "py-20",
-          config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-white/30"
-        )}>
-          <div className="container mx-auto px-4">
-            <motion.h2 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
-              whileInView="animate"
-              viewport={{ once: true }}
-              className={cn(
-                "text-4xl font-heading text-romantic-pink mb-12",
-                config.LAYOUT === 'minimal' ? "text-left" : "text-center"
-              )}
-            >
-              Our Beautiful Memories
-            </motion.h2>
-            
-            {config.LAYOUT === 'bento' ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
-                {config.PHOTOS.map((photo: any, i: number) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ scale: 1.02 }}
-                    className={cn(
-                      "relative rounded-3xl overflow-hidden shadow-lg group",
-                      i === 0 ? "col-span-2 row-span-2 h-[500px]" : "h-[240px]",
-                      i === 3 ? "col-span-2 h-[240px]" : ""
-                    )}
-                  >
-                    <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                      <p className="text-white text-xs italic">{photo.caption}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <Swiper
-                effect={'coverflow'}
-                grabCursor={true}
-                centeredSlides={true}
-                slidesPerView={'auto'}
-                coverflowEffect={{
-                  rotate: 50,
-                  stretch: 0,
-                  depth: 100,
-                  modifier: 1,
-                  slideShadows: true,
-                }}
-                autoplay={{
-                  delay: 3000,
-                  disableOnInteraction: false,
-                }}
-                pagination={true}
-                modules={[EffectCoverflow, Pagination, Autoplay]}
-                className="w-full max-w-4xl py-12"
-              >
-                {config.PHOTOS.map((photo: any, i: number) => (
-                  <SwiperSlide key={i} className="w-[300px] h-[400px]">
-                    <div className={cn(
-                      "relative w-full h-full overflow-hidden shadow-xl group transition-all duration-500",
-                      config.LAYOUT === 'scrapbook' ? "bg-white p-3 border-b-8 border-white rounded-none shadow-md -rotate-2" : "rounded-3xl",
-                      config.LAYOUT === 'minimal' ? "rounded-none grayscale hover:grayscale-0" : ""
-                    )}>
-                      <img 
-                        src={photo.url} 
-                        alt={photo.caption} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                        <p className="text-white text-sm italic">{photo.caption}</p>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            )}
-          </div>
-        </section>
-
-        {/* Timeline Section */}
-        <section className="py-20 px-6">
-          <h2 className={cn(
-            "text-4xl font-heading text-romantic-pink mb-16",
-            config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
-          )}>Our Journey Together</h2>
-          <motion.div 
-            {...ANIMATION_PRESETS.StaggerContainer}
-            whileInView="animate"
-            viewport={{ once: true }}
-            className={cn(
-              "max-w-lg mx-auto space-y-12",
-              config.LAYOUT === 'minimal' ? "max-w-4xl grid md:grid-cols-2 gap-12 space-y-0" : ""
-            )}
-          >
-            {config.TIMELINE.map((item: any, i: number) => (
-              <motion.div 
-                key={i}
-                variants={ANIMATION_PRESETS.StaggerItem}
+        {config.SECTIONS?.polaroid && (
+          <section className={cn(
+            "py-20",
+            config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-white/30"
+          )}>
+            <div className="container mx-auto px-4">
+              <motion.h2 
+                {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
+                whileInView="animate"
+                viewport={{ once: true }}
                 className={cn(
-                  "flex gap-6 items-start",
-                  config.LAYOUT === 'minimal' ? "border-b border-gray-100 pb-8" : ""
+                  "text-4xl font-heading text-romantic-pink mb-12",
+                  config.LAYOUT === 'minimal' ? "text-left" : "text-center"
                 )}
               >
-                <div className={cn(
-                  "flex flex-col items-center",
-                  config.LAYOUT === 'minimal' ? "hidden" : ""
-                )}>
-                  <div className="w-12 h-12 rounded-full bg-romantic-pink text-white flex items-center justify-center shadow-lg">
-                    <Calendar size={20} />
-                  </div>
-                  {i !== config.TIMELINE.length - 1 && (
-                    <div className="w-0.5 h-24 bg-romantic-pink/20 mt-2" />
-                  )}
+                Our Beautiful Memories
+              </motion.h2>
+              
+              {config.LAYOUT === 'bento' ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+                  {config.PHOTOS.map((photo: any, i: number) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ scale: 1.02 }}
+                      className={cn(
+                        "relative rounded-3xl overflow-hidden shadow-lg group",
+                        i === 0 ? "col-span-2 row-span-2 h-[500px]" : "h-[240px]",
+                        i === 3 ? "col-span-2 h-[240px]" : ""
+                      )}
+                    >
+                      <img src={photo.url} alt={photo.caption} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p className="text-white text-xs italic">{photo.caption}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                <div className={cn(
-                  "rounded-2xl flex-1",
-                  config.LAYOUT === 'minimal' ? "" : "glass p-6"
-                )}>
-                  <span className="text-xs font-bold text-romantic-purple uppercase tracking-widest">{item.date}</span>
-                  <h3 className="text-xl font-bold text-gray-800 mt-1">{item.event}</h3>
-                  <p className="text-gray-600 text-sm mt-2">{item.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </section>
+              ) : (
+                <Swiper
+                  effect={'coverflow'}
+                  grabCursor={true}
+                  centeredSlides={true}
+                  slidesPerView={'auto'}
+                  coverflowEffect={{
+                    rotate: 50,
+                    stretch: 0,
+                    depth: 100,
+                    modifier: 1,
+                    slideShadows: true,
+                  }}
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false,
+                  }}
+                  pagination={true}
+                  modules={[EffectCoverflow, Pagination, Autoplay]}
+                  className="w-full max-w-4xl py-12"
+                >
+                  {config.PHOTOS.map((photo: any, i: number) => (
+                    <SwiperSlide key={i} className="w-[300px] h-[400px]">
+                      <div className={cn(
+                        "relative w-full h-full overflow-hidden shadow-xl group transition-all duration-500",
+                        config.LAYOUT === 'scrapbook' ? "bg-white p-3 border-b-8 border-white rounded-none shadow-md -rotate-2" : "rounded-3xl",
+                        config.LAYOUT === 'minimal' ? "rounded-none grayscale hover:grayscale-0" : ""
+                      )}>
+                        <img 
+                          src={photo.url} 
+                          alt={photo.caption} 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                          <p className="text-white text-sm italic">{photo.caption}</p>
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              )}
+            </div>
+          </section>
+        )}
 
-        {/* Map Section */}
-        <MapSection config={config} />
-
-        {/* Reasons Section */}
-        <section className={cn(
-          "py-20",
-          config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-gradient-to-b from-transparent to-romantic-pink/5"
-        )}>
-          <div className="container mx-auto px-4">
+        {/* Timeline Section */}
+        {config.SECTIONS?.timeline && (
+          <section className="py-20 px-6">
             <h2 className={cn(
-              "text-4xl font-heading text-romantic-pink mb-12",
+              "text-4xl font-heading text-romantic-pink mb-16",
               config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
-            )}>Reasons Why I Love You</h2>
+            )}>Our Journey Together</h2>
             <motion.div 
               {...ANIMATION_PRESETS.StaggerContainer}
               whileInView="animate"
               viewport={{ once: true }}
               className={cn(
-                "grid gap-6 max-w-5xl mx-auto",
-                config.LAYOUT === 'bento' ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"
+                "max-w-lg mx-auto space-y-12",
+                config.LAYOUT === 'minimal' ? "max-w-4xl grid md:grid-cols-2 gap-12 space-y-0" : ""
               )}
             >
-              {config.REASONS_TO_LOVE.map((reason: any, i: number) => (
-                <motion.div
+              {config.TIMELINE.map((item: any, i: number) => (
+                <motion.div 
                   key={i}
                   variants={ANIMATION_PRESETS.StaggerItem}
-                  whileHover={{ y: -10 }}
                   className={cn(
-                    "p-8 rounded-3xl text-center transition-all duration-500",
-                    config.LAYOUT === 'bento' && i % 3 === 0 ? "md:col-span-2" : "",
-                    config.LAYOUT === 'minimal' ? "border border-gray-100 hover:border-romantic-pink" : "glass hover:bg-white/60 shadow-xl"
+                    "flex gap-6 items-start",
+                    config.LAYOUT === 'minimal' ? "border-b border-gray-100 pb-8" : ""
                   )}
                 >
-                  <div className="text-4xl mb-4">{reason.icon}</div>
-                  <p className="text-gray-700 font-medium italic">{reason.text}</p>
+                  <div className={cn(
+                    "flex flex-col items-center",
+                    config.LAYOUT === 'minimal' ? "hidden" : ""
+                  )}>
+                    <div className="w-12 h-12 rounded-full bg-romantic-pink text-white flex items-center justify-center shadow-lg">
+                      <Calendar size={20} />
+                    </div>
+                    {i !== config.TIMELINE.length - 1 && (
+                      <div className="w-0.5 h-24 bg-romantic-pink/20 mt-2" />
+                    )}
+                  </div>
+                  <div className={cn(
+                    "rounded-2xl flex-1",
+                    config.LAYOUT === 'minimal' ? "" : "glass p-6"
+                  )}>
+                    <span className="text-xs font-bold text-romantic-purple uppercase tracking-widest">{item.date}</span>
+                    <h3 className="text-xl font-bold text-gray-800 mt-1">{item.event}</h3>
+                    <p className="text-gray-600 text-sm mt-2">{item.description}</p>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
-          </div>
-        </section>
+          </section>
+        )}
+
+        {/* Map Section */}
+        {config.SECTIONS?.map && <MapSection config={config} />}
+
+        {/* Reasons Section */}
+        {config.SECTIONS?.reasons && (
+          <section className={cn(
+            "py-20",
+            config.LAYOUT === 'minimal' ? "bg-transparent" : "bg-gradient-to-b from-transparent to-romantic-pink/5"
+          )}>
+            <div className="container mx-auto px-4">
+              <h2 className={cn(
+                "text-4xl font-heading text-romantic-pink mb-12",
+                config.LAYOUT === 'minimal' ? "text-left max-w-4xl mx-auto" : "text-center"
+              )}>Reasons Why I Love You</h2>
+              <motion.div 
+                {...ANIMATION_PRESETS.StaggerContainer}
+                whileInView="animate"
+                viewport={{ once: true }}
+                className={cn(
+                  "grid gap-6 max-w-5xl mx-auto",
+                  config.LAYOUT === 'bento' ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"
+                )}
+              >
+                {config.REASONS_TO_LOVE.map((reason: any, i: number) => (
+                  <motion.div
+                    key={i}
+                    variants={ANIMATION_PRESETS.StaggerItem}
+                    whileHover={{ y: -10 }}
+                    className={cn(
+                      "p-8 rounded-3xl text-center transition-all duration-500",
+                      config.LAYOUT === 'bento' && i % 3 === 0 ? "md:col-span-2" : "",
+                      config.LAYOUT === 'minimal' ? "border border-gray-100 hover:border-romantic-pink" : "glass hover:bg-white/60 shadow-xl"
+                    )}
+                  >
+                    <div className="text-4xl mb-4">{reason.icon}</div>
+                    <p className="text-gray-700 font-medium italic">{reason.text}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </section>
+        )}
 
         {/* Video Section */}
-        <section className="py-20 px-6">
-          <div className="max-w-4xl mx-auto">
-            <motion.h2 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
-              whileInView="animate"
-              viewport={{ once: true }}
-              className={cn(
-                "text-4xl font-heading text-romantic-pink mb-12",
-                config.LAYOUT === 'minimal' ? "text-left" : "text-center"
-              )}
-            >
-              A Special Memory
-            </motion.h2>
-            <motion.div 
-              {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
-              whileInView="animate"
-              viewport={{ once: true }}
-              className={cn(
-                "aspect-video overflow-hidden shadow-2xl p-2",
-                config.LAYOUT === 'minimal' ? "rounded-none" : "glass rounded-[2rem]"
-              )}
-            >
-              <iframe
+        {config.SECTIONS?.video && (
+          <section className="py-20 px-6">
+            <div className="max-w-4xl mx-auto">
+              <motion.h2 
+                {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
+                whileInView="animate"
+                viewport={{ once: true }}
                 className={cn(
-                  "w-full h-full",
-                  config.LAYOUT === 'minimal' ? "" : "rounded-2xl"
+                  "text-4xl font-heading text-romantic-pink mb-12",
+                  config.LAYOUT === 'minimal' ? "text-left" : "text-center"
                 )}
-                src={config.VIDEO_URL}
-                title="Romantic Memory"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </motion.div>
-          </div>
-        </section>
+              >
+                A Special Memory
+              </motion.h2>
+              <motion.div 
+                {...ANIMATION_PRESETS[config.ANIMATIONS.SECTIONS as AnimationKey] as any}
+                whileInView="animate"
+                viewport={{ once: true }}
+                className={cn(
+                  "aspect-video overflow-hidden shadow-2xl p-2",
+                  config.LAYOUT === 'minimal' ? "rounded-none" : "glass rounded-[2rem]"
+                )}
+              >
+                <iframe
+                  className={cn(
+                    "w-full h-full",
+                    config.LAYOUT === 'minimal' ? "" : "rounded-2xl"
+                  )}
+                  src={config.VIDEO_URL}
+                  title="Romantic Memory"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </motion.div>
+            </div>
+          </section>
+        )}
 
         {/* Fun Section */}
         <section className="py-20 text-center px-6">
@@ -3654,25 +3736,25 @@ export default function App() {
         </section>
 
         {/* Feature 8: Days Since We Met Counter */}
-        <DaysSinceSection config={config} />
+        {config.SECTIONS?.daysSince && <DaysSinceSection config={config} />}
 
         {/* Feature 4: Birthday Candles (only for birthday event type) */}
-        {config.EVENT_TYPE === 'birthday' && <BirthdayCandlesSection config={config} />}
+        {config.EVENT_TYPE === 'birthday' && config.SECTIONS?.candles && <BirthdayCandlesSection config={config} />}
 
         {/* Feature 3: Surprise Envelopes */}
-        <SurpriseEnvelopesSection config={config} />
+        {config.SECTIONS?.envelopes && <SurpriseEnvelopesSection config={config} />}
 
         {/* Feature 5: Polaroid Memory Wall */}
-        <PolaroidWallSection config={config} />
+        {config.SECTIONS?.polaroid && <PolaroidWallSection config={config} />}
 
         {/* Feature 6: Star Map */}
-        <StarMapSection config={config} />
+        {config.SECTIONS?.starMap && <StarMapSection config={config} />}
 
         {/* Feature 9: Wish List */}
-        <WishListSection config={config} />
+        {config.SECTIONS?.wishlist && <WishListSection config={config} />}
 
         {/* Feature 7: Guestbook */}
-        <GuestbookSection config={config} />
+        {config.SECTIONS?.guestbook && <GuestbookSection config={config} />}
 
         {/* Final Note */}
         <section className={cn(
@@ -3701,19 +3783,8 @@ export default function App() {
 
         {/* Footer */}
         <footer className="py-12 text-center text-gray-500 text-sm">
-          <div className="flex flex-col items-center justify-center gap-4 mb-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleShare}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-romantic-pink text-white font-medium shadow-lg hover:shadow-romantic-pink/50 transition-all no-print"
-            >
-              <Share2 size={18} /> Share this Surprise
-            </motion.button>
-            
-            <div className="flex items-center gap-2">
-              Made with <Heart size={14} className="text-romantic-pink animate-pulse" fill="currentColor" /> by {config.YOUR_NAME}
-            </div>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            Made with <Heart size={14} className="text-romantic-pink animate-pulse" fill="currentColor" /> by {config.YOUR_NAME}
           </div>
           <p>© 2026 • For My One and Only</p>
         </footer>

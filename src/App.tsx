@@ -2726,7 +2726,9 @@ export default function App() {
       if (decoded) {
         setConfig(decoded);
       }
-      setIsUnlocked(true);
+      // Set unlocked to false so the receiver MUST interact with the password screen.
+      // Mobile browsers strictly block audio from autoplaying unless the user interacts first!
+      setIsUnlocked(false); 
       // Romantic delay for the loading animation
       setTimeout(() => setIsLoading(false), 3500);
     }
@@ -2760,6 +2762,19 @@ export default function App() {
     const y = Math.random() * 200 - 100;
     setNoButtonPos({ x, y });
   };
+
+  useEffect(() => {
+    if (isUnlocked && !isLoading && audioRef.current) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setIsPlaying(true);
+        }).catch((error) => {
+          console.log('Autoplay blocked by browser. User needs to interact first.');
+        });
+      }
+    }
+  }, [isUnlocked, isLoading]);
 
   const toggleMusic = () => {
     if (audioRef.current) {
@@ -3001,10 +3016,10 @@ export default function App() {
       {config.DESIGN?.cursorTrail && <CursorTrail config={config} />}
 
       {/* Feature 2: Now Playing Widget */}
-      {config.MUSIC_URL && <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />}
+      {/* {config.MUSIC_URL && <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />} */}
 
       {/* Background Music */}
-      <audio ref={audioRef} src={config.MUSIC_URL} loop />
+      {/* <audio ref={audioRef} src={config.MUSIC_URL} loop autoPlay /> */}
 
       <div className="fixed top-6 right-6 z-40 flex gap-3 no-print">
         {!hasSParam && (
@@ -3023,21 +3038,21 @@ export default function App() {
             >
               <Share2 size={24} />
             </button>
+            <button
+              onClick={() => setIsCustomizing(true)}
+              className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
+              title="Customize Surprise"
+            >
+              <Edit3 size={24} />
+            </button>
           </>
         )}
-        <button
-          onClick={() => setIsCustomizing(true)}
-          className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
-          title="Customize Surprise"
-        >
-          <Edit3 size={24} />
-        </button>
-        <button
+        {/* <button
           onClick={toggleMusic}
           className="glass p-3 rounded-full text-romantic-pink shadow-lg active:scale-90 transition-all"
         >
           {isPlaying ? <Volume2 size={24} /> : <VolumeX size={24} />}
-        </button>
+        </button> */}
       </div>
 
       <AnimatePresence>

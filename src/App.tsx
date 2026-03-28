@@ -82,10 +82,10 @@ const CursorTrail = ({ config }: { config: any }) => {
         color: config.THEME.primary
       };
 
-      setParticles(prev => [...prev.slice(-12), p]);
+      setParticles(prev => [...prev.slice(-30), p]);
       setTimeout(() => {
         setParticles(prev => prev.filter(item => item.id !== id));
-      }, 1000);
+      }, 1500);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -864,6 +864,16 @@ const WelcomeScreen = ({ onStart }: { onStart: (receiver: string, sender: string
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           className="absolute -bottom-40 -right-40 w-[800px] h-[800px] bg-romantic-purple/10 rounded-full blur-[150px]"
         />
+        {[...Array(30)].map((_, i) => (
+          <motion.div key={i}
+            initial={{ y: '110%', x: `${Math.random() * 100}%`, opacity: 0 }}
+            animate={{ y: '-10%', opacity: [0, 0.4, 0] }}
+            transition={{ duration: 5 + Math.random() * 5, repeat: Infinity, delay: Math.random() * 5, ease: 'linear' }}
+            className="absolute text-romantic-pink/20"
+          >
+            <Heart fill="currentColor" size={16 + Math.random() * 24} />
+          </motion.div>
+        ))}
       </div>
 
       <div className="h-full flex items-center justify-center p-2 md:p-4 overflow-hidden">
@@ -937,7 +947,7 @@ const LoadingScreen = () => {
 
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(40)].map((_, i) => (
           <motion.div
             key={i}
             initial={{
@@ -947,18 +957,18 @@ const LoadingScreen = () => {
               y: Math.random() * 100 + '%'
             }}
             animate={{
-              opacity: [0, 0.5, 0],
-              scale: [0, 1, 0],
-              y: [null, '-20%']
+              opacity: [0, 0.7, 0],
+              scale: [0, 1.5, 0],
+              y: [null, '-30%']
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 2 + Math.random() * 3,
               repeat: Infinity,
               delay: Math.random() * 2
             }}
-            className="absolute text-romantic-pink/30"
+            className="absolute text-romantic-pink/40"
           >
-            <Heart fill="currentColor" size={10 + Math.random() * 20} />
+            <Heart fill="currentColor" size={10 + Math.random() * 30} />
           </motion.div>
         ))}
       </div>
@@ -1023,68 +1033,25 @@ const LoadingScreen = () => {
   );
 };
 
-const PasswordLock = ({ password, hint, onUnlock }: { password: string, hint?: string, onUnlock: () => void }) => {
-  const [inputPassword, setInputPassword] = useState('');
-  const [error, setError] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState(0);
-  const [showHint, setShowHint] = useState(false);
-  const MAX_ATTEMPTS = 3;
-  const LOCKOUT_SECONDS = 30;
-
-  useEffect(() => {
-    if (!lockedUntil) return;
-    const interval = setInterval(() => {
-      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
-      if (remaining <= 0) {
-        setLockedUntil(null);
-        setAttempts(0);
-        setSecondsLeft(0);
-      } else {
-        setSecondsLeft(remaining);
-      }
-    }, 500);
-    return () => clearInterval(interval);
-  }, [lockedUntil]);
-
+const PasswordLock = ({ onUnlock }: { onUnlock: () => void }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (lockedUntil) return;
-    if (inputPassword.toLowerCase() === password.toLowerCase()) {
-      confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 }, colors: ['#ff6b6b', '#f06292', '#ffffff'] });
-      onUnlock();
-    } else {
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-      setError(true);
-      setInputPassword('');
-      setTimeout(() => setError(false), 600);
-      if (newAttempts >= MAX_ATTEMPTS) {
-        const lockTime = Date.now() + LOCKOUT_SECONDS * 1000;
-        setLockedUntil(lockTime);
-        setSecondsLeft(LOCKOUT_SECONDS);
-        toast.error(`Too many wrong attempts! Locked for ${LOCKOUT_SECONDS} seconds. 😢`);
-      } else {
-        toast.error(`Wrong password! ${MAX_ATTEMPTS - newAttempts} attempt${MAX_ATTEMPTS - newAttempts !== 1 ? 's' : ''} remaining.`);
-      }
-    }
+    confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 }, colors: ['#ff6b6b', '#f06292', '#ffffff'] });
+    onUnlock();
   };
-
-  const isLocked = !!lockedUntil;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(135deg, #ffe4e8 0%, #f3e0f7 50%, #e0e8ff 100%)' }}>
       {/* Floating hearts background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[...Array(12)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <motion.div key={i}
             initial={{ y: '110%', x: `${Math.random() * 100}%`, opacity: 0 }}
-            animate={{ y: '-10%', opacity: [0, 0.4, 0] }}
-            transition={{ duration: 6 + Math.random() * 6, repeat: Infinity, delay: Math.random() * 5, ease: 'linear' }}
-            className="absolute text-romantic-pink/30"
+            animate={{ y: '-10%', opacity: [0, 0.6, 0] }}
+            transition={{ duration: 4 + Math.random() * 5, repeat: Infinity, delay: Math.random() * 4, ease: 'linear' }}
+            className="absolute text-romantic-pink/40"
           >
-            <Heart fill="currentColor" size={16 + Math.random() * 24} />
+            <Heart fill="currentColor" size={16 + Math.random() * 34} />
           </motion.div>
         ))}
       </div>
@@ -1107,81 +1074,20 @@ const PasswordLock = ({ password, hint, onUnlock }: { password: string, hint?: s
             </div>
           </motion.div>
 
-          <h2 className="text-3xl font-heading text-gray-800 mb-1">Unlock My Heart 🔐</h2>
-          <p className="text-sm text-gray-400 mb-6">Enter the secret password to open your surprise</p>
+          <h2 className="text-3xl font-heading text-gray-800 mb-1">You have a surprise! 💝</h2>
+          <p className="text-sm text-gray-400 mb-6">Tap the button below to open it</p>
 
-          {/* Hint toggle */}
-          <button
-            type="button"
-            onClick={() => setShowHint(!showHint)}
-            className="text-xs text-romantic-pink font-semibold mb-4 inline-flex items-center gap-1 hover:underline"
-          >
-            💭 {showHint ? 'Hide hint' : 'Need a hint?'}
-          </button>
-          <AnimatePresence>
-            {showHint && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-4 overflow-hidden"
-              >
-                <p className="text-sm text-gray-600 italic bg-romantic-pink/10 rounded-2xl px-4 py-2 border border-romantic-pink/20">
-                  {hint || 'Think of your own name 💭'}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Lockout state */}
-          {isLocked ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-4"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              type="submit"
+              autoFocus
+              className="w-full py-4 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-lg shadow-romantic-pink/30 transition-all text-lg"
             >
-              <div className="w-20 h-20 mx-auto rounded-full border-4 border-red-200 flex items-center justify-center">
-                <motion.span
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ repeat: Infinity, duration: 1 }}
-                  className="text-3xl font-bold text-red-400"
-                >
-                  {secondsLeft}
-                </motion.span>
-              </div>
-              <p className="text-sm text-red-400 font-semibold">Too many attempts! 😢</p>
-              <p className="text-xs text-gray-400">Try again in <strong>{secondsLeft}s</strong></p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <motion.input
-                animate={error ? { x: [-12, 12, -12, 12, -6, 6, 0] } : {}}
-                transition={{ duration: 0.5 }}
-                type="password"
-                value={inputPassword}
-                onChange={(e) => setInputPassword(e.target.value)}
-                placeholder="Enter your secret..."
-                autoFocus
-                className={cn(
-                  "w-full px-6 py-3 rounded-full bg-white/80 border-2 outline-none transition-all text-center text-base tracking-widest",
-                  error ? "border-red-400 bg-red-50 placeholder-red-300" : "border-romantic-pink/30 focus:border-romantic-pink"
-                )}
-              />
-              {attempts > 0 && !isLocked && (
-                <p className="text-xs text-orange-400">
-                  {MAX_ATTEMPTS - attempts} attempt{MAX_ATTEMPTS - attempts !== 1 ? 's' : ''} remaining
-                </p>
-              )}
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                type="submit"
-                className="w-full py-3.5 rounded-full bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold shadow-lg shadow-romantic-pink/30 transition-all"
-              >
-                Open My Surprise 💝
-              </motion.button>
-            </form>
-          )}
+              Open My Surprise 💝
+            </motion.button>
+          </form>
 
           <p className="text-[10px] text-gray-300 mt-6">Made with ❤️ just for you</p>
         </div>
@@ -1299,14 +1205,14 @@ const FloatingHearts = ({ config }: { config: any }) => {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {[...Array(20)].map((_, i) => (
+      {[...Array(50)].map((_, i) => (
         <motion.div
           key={i}
           initial={{
             x: Math.random() * 100 + '%',
             y: '110%',
-            scale: Math.random() * 0.5 + 0.3,
-            opacity: Math.random() * 0.4 + 0.1
+            scale: Math.random() * 0.6 + 0.4,
+            opacity: Math.random() * 0.5 + 0.2
           }}
           animate={{
             y: '-10%',
@@ -1314,15 +1220,15 @@ const FloatingHearts = ({ config }: { config: any }) => {
             rotate: Math.random() * 360
           }}
           transition={{
-            duration: (Math.random() * 10 + 15) / (config.DESIGN?.particleSpeed || 1),
+            duration: (Math.random() * 8 + 10) / (config.DESIGN?.particleSpeed || 1),
             repeat: Infinity,
             ease: "linear",
-            delay: Math.random() * 15
+            delay: Math.random() * 10
           }}
           className="absolute"
           style={{ color: i % 2 === 0 ? config.THEME.primary : config.THEME.secondary }}
         >
-          <Icon fill="currentColor" size={Math.random() * 25 + 15} />
+          <Icon fill="currentColor" size={Math.random() * 30 + 15} />
         </motion.div>
       ))}
     </div>
@@ -2995,7 +2901,7 @@ export default function App() {
     if (!hasSParam) {
       return <WelcomeScreen onStart={handleStart} />;
     }
-    return <PasswordLock password={config.PASSWORD} hint={config.PASSWORD_HINT} onUnlock={() => setIsUnlocked(true)} />;
+    return <PasswordLock onUnlock={() => setIsUnlocked(true)} />;
   }
 
   // Feature 14: Time Lock / Scheduled Reveal

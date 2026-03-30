@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload, Stars, Sparkles, Smile, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Scissors, Mail, User, Info, Lock, ChevronLeft, ChevronRight, Clock, RefreshCw, Send, Image, Maximize2, Pointer, Square, Check } from 'lucide-react';
+import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload, Stars, Sparkles, Smile, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Scissors, Mail, User, Info, Lock, ChevronLeft, ChevronRight, Clock, RefreshCw, Send, Image, Maximize2, Pointer, Square, Check, Copy, Link, QrCode } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -18,6 +18,7 @@ import { BIRTHDAY_CONFIG, ANIMATION_PRESETS, EVENT_TYPES } from './constants';
 import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
 import ThemeGalleryModal from './components/ThemeGalleryModal';
+import Balloons from './components/Balloons';
 
 type AnimationKey = keyof typeof ANIMATION_PRESETS;
 
@@ -628,6 +629,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
 }) => {
   const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
   const [showStoryPreview, setShowStoryPreview] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
 
   const handleCopyLink = async () => {
@@ -651,6 +653,26 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
       console.error('Error sharing:', err);
     }
   };
+
+  const handleDirectCopy = async () => {
+    const encoded = encodeConfig(config);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Link copied to clipboard! 🔗', {
+        duration: 3000,
+      });
+    } catch (err) {
+      console.error('Error copying:', err);
+      toast.error('Failed to copy link. Please try again.');
+    }
+  };
+
+  if (showQR) {
+    const encoded = encodeConfig(config);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
+    return <QRCodeModal url={shareUrl} onClose={() => setShowQR(false)} config={config} />;
+  }
 
   if (showStoryPreview) {
     return (
@@ -775,6 +797,19 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
             </button>
 
             <button
+              onClick={handleDirectCopy}
+              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <Copy size={20} className="text-romantic-pink md:w-6 md:h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm md:text-base">Copy Link</p>
+                <p className="text-[10px] md:text-xs text-gray-400">Copy the URL to clipboard</p>
+              </div>
+            </button>
+
+            <button
               onClick={onDownloadHTML}
               className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
@@ -797,6 +832,19 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
               <div>
                 <p className="font-bold text-gray-800 text-sm md:text-base">Instagram Story</p>
                 <p className="text-[10px] md:text-xs text-gray-400">Preview & generate card</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setShowQR(true)}
+              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+            >
+              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                <QrCode size={20} className="text-romantic-pink md:w-6 md:h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm md:text-base">Save as QR Code</p>
+                <p className="text-[10px] md:text-xs text-gray-400">Scan to open surprise</p>
               </div>
             </button>
 
@@ -2505,10 +2553,10 @@ const QRCodeModal = ({ url, onClose, config }: { url: string, onClose: () => voi
         <h2 className="text-xl font-heading mb-1" style={{ color: config.THEME.primary }}>Share the Surprise 💝</h2>
         <p className="text-xs text-gray-400 mb-5">Send directly via WhatsApp or copy the link</p>
 
-        {/* Decorative "QR" box */}
-        <div className="w-36 h-36 mx-auto mb-5 rounded-2xl border-4 flex items-center justify-center bg-gray-50"
+        {/* Real QR box */}
+        <div className="w-40 h-40 mx-auto mb-5 rounded-2xl border-4 flex items-center justify-center bg-gray-50 p-1 overflow-hidden"
           style={{ borderColor: config.THEME.primary }}>
-          <div className="text-4xl">❤️</div>
+          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`} alt="Surprise QR Code" className="w-full h-full" />
         </div>
 
         <div className="bg-gray-50 rounded-2xl p-3 mb-4 text-left">
@@ -2918,6 +2966,7 @@ export default function App() {
       config.LAYOUT === 'minimal' ? "bg-white" : "bg-romantic-bg"
     )} style={{ fontFamily: 'var(--font-family)' }}>
       <Toaster position="bottom-center" richColors />
+      {config.EVENT_TYPE === 'birthday' && <Balloons />}
       <FloatingHearts config={config} />
       {config.DESIGN?.cursorTrail && <CursorTrail config={config} />}
 

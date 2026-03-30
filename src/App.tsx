@@ -2963,7 +2963,7 @@ export default function App() {
 
   return (
     <div className={cn(
-      "min-h-screen transition-all duration-1000",
+      "min-h-screen transition-all duration-1000 overflow-x-hidden",
       config.LAYOUT === 'minimal' ? "bg-white" : "bg-romantic-bg"
     )} style={{ fontFamily: 'var(--font-family)' }}>
       <Toaster position="bottom-center" richColors />

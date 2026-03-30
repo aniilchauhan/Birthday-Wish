@@ -121,11 +121,14 @@ const FairyLights = () => {
         if (colIndex === 0 || colIndex === 5) stringBulbCount += 8; 
         else if (colIndex === 1 || colIndex === 4) stringBulbCount += 4; 
         else stringBulbCount += 1; 
+        
+        // Hide the inner strings on mobile so only 2 columns remain (1 far left, 1 far right)
+        const visibilityClass = (colIndex === 0 || colIndex === 5) ? "flex" : "hidden md:flex";
 
         return (
           <div
             key={`v-string-${colIndex}`}
-            className="absolute top-0 flex flex-col items-center"
+            className={`absolute top-0 flex-col items-center ${visibilityClass}`}
             style={{ left: `${leftPos}%` }}
           >
             {/* Start the recursive physics chain here! */}

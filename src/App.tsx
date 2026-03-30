@@ -19,6 +19,7 @@ import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
 import ThemeGalleryModal from './components/ThemeGalleryModal';
 import Balloons from './components/Balloons';
+import FairyLights from './components/FairyLights';
 
 type AnimationKey = keyof typeof ANIMATION_PRESETS;
 
@@ -2967,6 +2968,7 @@ export default function App() {
     )} style={{ fontFamily: 'var(--font-family)' }}>
       <Toaster position="bottom-center" richColors />
       {config.EVENT_TYPE === 'birthday' && <Balloons />}
+      {config.EVENT_TYPE === 'birthday' && <FairyLights />}
       <FloatingHearts config={config} />
       {config.DESIGN?.cursorTrail && <CursorTrail config={config} />}
 

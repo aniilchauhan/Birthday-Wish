@@ -113,8 +113,8 @@ const FairyLights = () => {
       {/* 2. SIX VERTICAL STRINGS (3 Left, 3 Right) */}
       {stringPositions.map((leftPos, colIndex) => {
         
-        // Organic wind sway speed
-        const swayDuration = 3.5 + colIndex * 0.4;
+        // Organic gentle wind sway speed (slowed down for a more relaxed, realistic feel)
+        const swayDuration = 7.0 + colIndex * 1.2;
         
         // Curtain length effect
         let stringBulbCount = baseVerticalBulbsCount;

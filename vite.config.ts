@@ -5,6 +5,7 @@ import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
+  const apiProxyTarget = env.API_PROXY_TARGET?.trim().replace(/\/$/, '') ?? '';
   return {
     plugins: [react(), tailwindcss()],
     define: {
@@ -22,6 +23,16 @@ export default defineConfig(({mode}) => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
+      // Forward /api/* to deployed Vercel (local `vite` has no serverless routes → else 404).
+      proxy: apiProxyTarget
+        ? {
+            '/api': {
+              target: apiProxyTarget,
+              changeOrigin: true,
+              secure: true,
+            },
+          }
+        : {},
     },
   };
 });

@@ -17,6 +17,7 @@ import 'swiper/css/effect-coverflow';
 import { BIRTHDAY_CONFIG, ANIMATION_PRESETS, EVENT_TYPES } from './constants';
 import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
+import { saveSurpriseToBackend, fetchSurpriseByKey } from './lib/shareBackend';
 import ThemeGalleryModal from './components/ThemeGalleryModal';
 import Balloons from './components/Balloons';
 import FairyLights from './components/FairyLights';
@@ -25,11 +26,46 @@ type AnimationKey = keyof typeof ANIMATION_PRESETS;
 
 // --- Utils ---
 
+/** Browsers choke on huge URLs; link also encodes full JSON (see buildShareUrl). */
+const MAX_SHARE_URL_CHARS = 7500;
+
+/**
+ * Share links embed the whole surprise config (JSON → deflate → base64 in ?s=).
+ * No server = no short ID — length grows with love letter, photo URLs, lists, etc.
+ * This clone only trims what we send in the URL so links stay smaller / under limits.
+ */
+const prepareConfigForShareUrl = (config: any): any => {
+  try {
+    const c = JSON.parse(JSON.stringify(config));
+    if (typeof c.LOVE_LETTER === 'string' && c.LOVE_LETTER.length > 2800) {
+      c.LOVE_LETTER = `${c.LOVE_LETTER.slice(0, 2800)}\n\n…`;
+    }
+    if (Array.isArray(c.PHOTOS) && c.PHOTOS.length > 12) c.PHOTOS = c.PHOTOS.slice(0, 12);
+    if (Array.isArray(c.TIMELINE) && c.TIMELINE.length > 16) c.TIMELINE = c.TIMELINE.slice(0, 16);
+    if (Array.isArray(c.REASONS_TO_LOVE) && c.REASONS_TO_LOVE.length > 12) {
+      c.REASONS_TO_LOVE = c.REASONS_TO_LOVE.slice(0, 12);
+    }
+    if (Array.isArray(c.SURPRISE_ENVELOPES) && c.SURPRISE_ENVELOPES.length > 8) {
+      c.SURPRISE_ENVELOPES = c.SURPRISE_ENVELOPES.slice(0, 8);
+    }
+    return c;
+  } catch {
+    return config;
+  }
+};
+
 const encodeConfig = (config: any) => {
   try {
     const json = JSON.stringify(config);
-    const compressed = pako.deflate(json);
-    const base64 = btoa(String.fromCharCode.apply(null, Array.from(compressed)))
+    const compressed = pako.deflate(json, { level: 9 });
+    const bytes = compressed instanceof Uint8Array ? compressed : new Uint8Array(compressed);
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      binary += String.fromCharCode.apply(null, chunk as unknown as number[]);
+    }
+    const base64 = btoa(binary)
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/, '');
@@ -42,7 +78,11 @@ const encodeConfig = (config: any) => {
 
 const decodeConfig = (base64: string) => {
   try {
-    const normalized = base64.replace(/-/g, '+').replace(/_/g, '/');
+    let normalized = base64.replace(/-/g, '+').replace(/_/g, '/');
+    const rem = normalized.length % 4;
+    if (rem === 2) normalized += '==';
+    else if (rem === 3) normalized += '=';
+    else if (rem === 1) throw new Error('Invalid base64');
     const binary = atob(normalized);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
@@ -55,6 +95,56 @@ const decodeConfig = (base64: string) => {
     return null;
   }
 };
+
+async function copyTextToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    /* fall through */
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+function buildShareUrl(config: any): { ok: true; url: string } | { ok: false; reason: 'encode' | 'length' } {
+  const payload = prepareConfigForShareUrl(config);
+  const encoded = encodeConfig(payload);
+  if (!encoded) return { ok: false, reason: 'encode' };
+  const url = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
+  if (url.length > MAX_SHARE_URL_CHARS) return { ok: false, reason: 'length' };
+  return { ok: true, url };
+}
+
+/** Tries Mongo-backed short link (?k=) first; falls back to long ?s= URL if API offline. */
+async function createShareUrl(config: any): Promise<
+  { ok: true; url: string } | { ok: false; reason: 'encode' | 'length' }
+> {
+  const key = await saveSurpriseToBackend(config);
+  if (key) {
+    return {
+      ok: true,
+      url: `${window.location.origin}${window.location.pathname}?k=${encodeURIComponent(key)}`,
+    };
+  }
+  return buildShareUrl(config);
+}
 
 // --- Components ---
 
@@ -631,12 +721,20 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
   const currentEvent = EVENT_TYPES.find(e => e.id === config.EVENT_TYPE) || EVENT_TYPES[0];
   const [showStoryPreview, setShowStoryPreview] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [qrShareUrl, setQrShareUrl] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
 
   const handleCopyLink = async () => {
-    const encoded = encodeConfig(config);
-    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
-
+    const built = await createShareUrl(config);
+    if (built.ok === false) {
+      toast.error(
+        built.reason === 'length'
+          ? 'Link is too long for browsers. Shorten the love letter or use Save as HTML.'
+          : 'Could not create share link. Try again or use Save as HTML.'
+      );
+      return;
+    }
+    const shareUrl = built.url;
     const shareData = {
       title: 'A Special Surprise ❤️',
       text: `I made this special ${currentEvent.label.toLowerCase()} surprise for ${config.GIRLFRIEND_NAME}! Check it out!`,
@@ -646,33 +744,64 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
     try {
       if (navigator.share) {
         await navigator.share(shareData);
+        toast.success('Shared! ❤️');
       } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success('Unique link copied! ❤️');
+        const ok = await copyTextToClipboard(shareUrl);
+        if (ok) toast.success('Link copied! ❤️');
+        else toast.error('Could not copy. Try Copy Link or use HTTPS / localhost.');
       }
-    } catch (err) {
-      console.error('Error sharing:', err);
+    } catch (err: unknown) {
+      const name = err && typeof err === 'object' && 'name' in err ? (err as { name: string }).name : '';
+      if (name === 'AbortError') return;
+      const ok = await copyTextToClipboard(shareUrl);
+      if (ok) toast.success('Link copied to clipboard! 🔗');
+      else toast.error('Share failed. Try Copy Link.');
     }
   };
 
   const handleDirectCopy = async () => {
-    const encoded = encodeConfig(config);
-    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast.success('Link copied to clipboard! 🔗', {
-        duration: 3000,
-      });
-    } catch (err) {
-      console.error('Error copying:', err);
-      toast.error('Failed to copy link. Please try again.');
+    const built = await createShareUrl(config);
+    if (built.ok === false) {
+      toast.error(
+        built.reason === 'length'
+          ? 'Link is too long. Shorten text or use Save as HTML.'
+          : 'Could not create link.'
+      );
+      return;
+    }
+    const ok = await copyTextToClipboard(built.url);
+    if (ok) {
+      toast.success('Link copied to clipboard! 🔗', { duration: 3000 });
+    } else {
+      toast.error('Copy failed. Use HTTPS, localhost, or pick the link manually.');
     }
   };
 
-  if (showQR) {
-    const encoded = encodeConfig(config);
-    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${encoded}`;
-    return <QRCodeModal url={shareUrl} onClose={() => setShowQR(false)} config={config} />;
+  const openQrModal = async () => {
+    const built = await createShareUrl(config);
+    if (built.ok === false) {
+      toast.error(
+        built.reason === 'length'
+          ? 'Link too long for QR. Shorten content or use Save as HTML.'
+          : 'Could not create link for QR.'
+      );
+      return;
+    }
+    setQrShareUrl(built.url);
+    setShowQR(true);
+  };
+
+  if (showQR && qrShareUrl) {
+    return (
+      <QRCodeModal
+        url={qrShareUrl}
+        onClose={() => {
+          setShowQR(false);
+          setQrShareUrl(null);
+        }}
+        config={config}
+      />
+    );
   }
 
   if (showStoryPreview) {
@@ -837,7 +966,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
             </button>
 
             <button
-              onClick={() => setShowQR(true)}
+              onClick={openQrModal}
               className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
             >
               <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
@@ -2572,7 +2701,12 @@ const QRCodeModal = ({ url, onClose, config }: { url: string, onClose: () => voi
           >
             <span className="text-lg">📱</span> Send via WhatsApp
           </a>
-          <button onClick={() => { navigator.clipboard.writeText(url); toast.success('Link copied! 🔗'); }}
+          <button
+            onClick={async () => {
+              const ok = await copyTextToClipboard(url);
+              if (ok) toast.success('Link copied! 🔗');
+              else toast.error('Could not copy. Try selecting the link or use HTTPS.');
+            }}
             className="flex items-center justify-center gap-2 w-full py-3 rounded-full font-bold border-2 border-gray-100 text-gray-600 hover:bg-gray-50 transition-colors text-sm"
           >
             <Share2 size={16} /> Copy Link
@@ -2669,24 +2803,39 @@ export default function App() {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
+  const [isAccepted, setIsAccepted] = useState(false);
   const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const k = params.get('k');
     const data = params.get('s');
-    if (data) {
-      setHasSParam(true);
-      setIsLoading(true);
-      const decoded = decodeConfig(data);
-      if (decoded) {
-        setConfig(decoded);
+
+    (async () => {
+      if (k) {
+        setHasSParam(true);
+        setIsLoading(true);
+        const fromDb = await fetchSurpriseByKey(k);
+        if (fromDb) {
+          setConfig(fromDb as any);
+        } else {
+          toast.error('Link invalid or expired.');
+        }
+        setIsUnlocked(false);
+        setTimeout(() => setIsLoading(false), 3500);
+        return;
       }
-      // Set unlocked to false so the receiver MUST interact with the password screen.
-      // Mobile browsers strictly block audio from autoplaying unless the user interacts first!
-      setIsUnlocked(false); 
-      // Romantic delay for the loading animation
-      setTimeout(() => setIsLoading(false), 3500);
-    }
+      if (data) {
+        setHasSParam(true);
+        setIsLoading(true);
+        const decoded = decodeConfig(data);
+        if (decoded) {
+          setConfig(decoded);
+        }
+        setIsUnlocked(false);
+        setTimeout(() => setIsLoading(false), 3500);
+      }
+    })();
   }, []);
 
   const handleStart = (receiver: string, sender: string) => {
@@ -2742,14 +2891,23 @@ export default function App() {
     }
   };
 
-  const handleDownloadHTML = () => {
-    const currentUrl = window.location.href;
+  const handleDownloadHTML = async () => {
+    const built = await createShareUrl(config);
+    if (built.ok === false) {
+      toast.error(
+        built.reason === 'length'
+          ? 'Link too long for a shortcut file. Shorten the love letter first.'
+          : 'Could not build share link for HTML file.'
+      );
+      return;
+    }
+    const shareUrl = built.url;
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <title>${currentEvent.label} Surprise for ${config.GIRLFRIEND_NAME}</title>
-        <meta http-equiv="refresh" content="0; url=${currentUrl}">
+        <meta http-equiv="refresh" content="0; url=${shareUrl}">
         <style>
           body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: ${config.THEME.background}; }
           .card { text-align: center; padding: 2rem; background: white; border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; }
@@ -2764,7 +2922,7 @@ export default function App() {
           <div class="heart">❤️</div>
           <h1>Your Surprise is Ready!</h1>
           <p>This file contains the link to your personalized ${currentEvent.label.toLowerCase()} surprise for <strong>${config.GIRLFRIEND_NAME}</strong>.</p>
-          <p>If you are not redirected automatically, <a href="${currentUrl}">click here to open it</a>.</p>
+          <p>If you are not redirected automatically, <a href="${shareUrl}">click here to open it</a>.</p>
         </div>
       </body>
       </html>
@@ -2972,11 +3130,14 @@ export default function App() {
       <FloatingHearts config={config} />
       {config.DESIGN?.cursorTrail && <CursorTrail config={config} />}
 
-      {/* Feature 2: Now Playing Widget */}
-      {/* {config.MUSIC_URL && <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />} */}
+      {/* Feature 2: Now Playing — uses public/happy-birthday.mp3 via MUSIC_URL in constants */}
+      {config.MUSIC_URL && (
+        <NowPlayingWidget config={config} isPlaying={isPlaying} onToggle={toggleMusic} />
+      )}
 
-      {/* Background Music */}
-      {/* <audio ref={audioRef} src={config.MUSIC_URL} loop autoPlay /> */}
+      {config.MUSIC_URL && (
+        <audio ref={audioRef} src={config.MUSIC_URL} loop preload="auto" />
+      )}
 
       <div className="fixed top-6 right-6 z-40 flex gap-3 no-print">
         {!hasSParam && (
@@ -3537,7 +3698,18 @@ export default function App() {
             )}
           >
             <h2 className="text-3xl font-heading text-romantic-pink mb-8">Quick Question...</h2>
-            <p className="text-2xl font-bold text-gray-800 mb-12">Do you love me? 🥺</p>
+            
+            <div className="flex justify-center mb-6">
+              <img 
+                src={isAccepted ? "https://media1.tenor.com/m/aKFaZBrZ9cgAAAAC/bubu-dudu-kiss.gif" : "https://media.tenor.com/bCbp9WeP9y8AAAAi/bubu-dudu.gif"} 
+                alt="Bubu Dudu" 
+                className="h-48 object-contain" 
+              />
+            </div>
+
+            <p className="text-2xl font-bold text-gray-800 mb-12">
+              {isAccepted ? "I love you too! ❤️" : "Do you love me? 🥺"}
+            </p>
 
             <div className="flex flex-wrap items-center justify-center gap-6">
               <motion.button
@@ -3545,6 +3717,7 @@ export default function App() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
+                  setIsAccepted(true);
                   confetti({
                     particleCount: Math.floor((config.CONFETTI?.particleCount || 200) * (config.CONFETTI?.density || 1.5)),
                     spread: (config.CONFETTI?.spread || 70) * 1.5,

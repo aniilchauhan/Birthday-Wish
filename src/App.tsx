@@ -4049,7 +4049,7 @@ export default function App() {
 
             <div className="flex justify-center mb-6">
               <img
-                src={isAccepted ? "https://media1.tenor.com/m/aKFaZBrZ9cgAAAAC/bubu-dudu-kiss.gif" : "https://media.tenor.com/bCbp9WeP9y8AAAAi/bubu-dudu.gif"}
+                src={isAccepted ? "/bubu-dudu-kiss.gif" : "/bubu-dudu.gif"}
                 alt="Bubu Dudu"
                 className="h-48 object-contain"
               />

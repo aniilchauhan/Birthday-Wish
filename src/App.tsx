@@ -6,7 +6,7 @@ import { Heart, Music, Music2, ChevronDown, Play, Pause, Camera, Calendar, Messa
 import ReactMarkdown from 'react-markdown';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
+import { Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
 import { Toaster, toast } from 'sonner';
 import pako from 'pako';
 import 'swiper/css';
@@ -2385,13 +2385,13 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
   const candlePos = useMemo(() => {
     return Array.from({ length: CANDLE_COUNT }).map((_, i) => {
       const angle = (i / CANDLE_COUNT) * Math.PI * 2;
-      const rX = 70 + Math.random() * 30;
-      const rY = 30 + Math.random() * 15;
+      const rX = 80 + Math.random() * 20;
+      const rY = 40 + Math.random() * 20;
       return {
         left: `${50 + Math.cos(angle) * rX * 0.4}%`,
-        top: `${25 + Math.sin(angle) * rY * 0.4}%`,
-        z: Math.floor(Math.sin(angle) * 10) + 20,
-        scale: 0.8 + Math.random() * 0.3
+        top: `${Math.sin(angle) * rY * 0.2}%`, // Centered around the top surface
+        z: 100 + Math.floor(Math.sin(angle) * 10),
+        scale: 1 + Math.random() * 0.2
       };
     });
   }, [CANDLE_COUNT]);
@@ -2528,15 +2528,15 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                             initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 0.9, 1.1, 1], y: [0, -2, 0] }}
                             exit={{ scale: 0, opacity: 0 }}
                             transition={{ duration: 0.6 + Math.random(), repeat: Infinity }}
-                            className="absolute -top-4 left-1/2 -translate-x-1/2 text-sm drop-shadow-[0_0_5px_orange]"
+                            className="absolute -top-7 left-1/2 -translate-x-1/2 text-2xl drop-shadow-[0_0_8px_orange]"
                           >🔥</motion.div>
                         )}
                       </AnimatePresence>
-                      <div className="w-1.5 h-8 rounded-full shadow-sm"
-                        style={{ background: blownOut[i] ? '#999' : `linear-gradient(to bottom, #fff, ${config.THEME.primary})`, transition: 'all 0.4s' }}
+                      <div className="w-2.5 h-12 rounded-full shadow-lg border-x border-white/20"
+                        style={{ background: blownOut[i] ? '#666' : `linear-gradient(to bottom, #fff, ${config.THEME.primary})`, transition: 'all 0.4s' }}
                       />
                       {blownOut[i] && (
-                        <motion.div initial={{ opacity: 0, y: 0 }} animate={{ opacity: [0, 1, 0], y: -20 }} className="absolute -top-6 left-0 text-[10px]">💨</motion.div>
+                        <motion.div initial={{ opacity: 0, y: 0 }} animate={{ opacity: [0, 1, 0], y: -20 }} className="absolute -top-10 left-0 text-lg">💨</motion.div>
                       )}
                     </motion.div>
                   ))}

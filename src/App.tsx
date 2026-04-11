@@ -15,7 +15,6 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
 
 import { BIRTHDAY_CONFIG, ANIMATION_PRESETS, EVENT_TYPES } from './constants';
-import { TEMPLATES } from './templates';
 import { cn } from './lib/utils';
 import { saveSurpriseToBackend, fetchSurpriseByKey } from './lib/shareBackend';
 import ThemeGalleryModal from './components/ThemeGalleryModal';
@@ -956,7 +955,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
             <p className="text-sm text-gray-500 mb-6">
               Your personalized surprise is ready! Pay to unlock sharing and send it to {config.GIRLFRIEND_NAME}.
             </p>
-            
+
             <div className="w-full bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100 text-left">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-600 font-medium">Premium Template</span>
@@ -2122,7 +2121,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
             <div style={{ position: 'absolute', top: '150px', right: '80px', transform: 'rotate(12deg)', width: '250px', height: '60px', backgroundColor: '#ffd1dc', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', boxShadow: '2px 4px 10px rgba(0,0,0,0.1)', zIndex: 10 }}>
               <p style={{ fontFamily: "'Dancing Script', cursive", fontSize: '36px', color: '#ff4d6d', margin: 0 }}>Love You!</p>
             </div>
-            
+
             <div style={{ position: 'relative', zIndex: 5, width: '700px', height: '800px', backgroundColor: 'white', padding: '24px', paddingBottom: '100px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', transform: 'rotate(-4deg) translateY(100px)', marginLeft: '100px' }}>
               <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '150px', height: '40px', backgroundColor: 'rgba(255,255,255,0.7)', border: '1px solid #ddd', backdropFilter: 'blur(4px)' }} />
               <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(0.2) contrast(1.1)' }} crossOrigin="anonymous" />
@@ -2160,11 +2159,11 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                 </div>
               </div>
             </div>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', height: '40%' }}>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: '60px', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-                 <p style={{ color: primaryColor, fontSize: '100px', margin: 0 }}>♥</p>
-                 <p style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginTop: '20px' }}>FOREVER</p>
+                <p style={{ color: primaryColor, fontSize: '100px', margin: 0 }}>♥</p>
+                <p style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginTop: '20px' }}>FOREVER</p>
               </div>
               <div style={{ backgroundColor: '#111', borderRadius: '60px', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ fontSize: '32px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.5 }} className="markdown-content">
@@ -2423,8 +2422,8 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
           <div className="relative h-24 mb-6">
             {/* Left Half */}
             <motion.div
-              animate={{ 
-                x: isCut ? -30 : 0, 
+              animate={{
+                x: isCut ? -30 : 0,
                 rotate: isCut ? -4 : 0,
                 opacity: isCut ? 0.9 : 1
               }}
@@ -2436,21 +2435,21 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                 <p className="font-heading text-xl drop-shadow" style={{ color: cakeColors.text }}>Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
               </div>
             </motion.div>
-            
+
             {/* Right Half */}
             <motion.div
-              animate={{ 
-                x: isCut ? 30 : 0, 
+              animate={{
+                x: isCut ? 30 : 0,
                 rotate: isCut ? 4 : 0,
                 opacity: isCut ? 0.9 : 1
               }}
               className="absolute inset-0 origin-bottom-right"
               style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 48% 100%)' }}
             >
-               <div className="w-full h-full flex items-center justify-center p-4" style={{ background: cakeColors.bg, borderRadius: '0 0 2rem 2rem', border: '3px solid rgba(255,255,255,0.2)' }}>
+              <div className="w-full h-full flex items-center justify-center p-4" style={{ background: cakeColors.bg, borderRadius: '0 0 2rem 2rem', border: '3px solid rgba(255,255,255,0.2)' }}>
                 <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
                 <p className="font-heading text-xl drop-shadow" style={{ color: cakeColors.text }}>Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
-                
+
                 {/* Inner Cake Sponge - Only visible on the split edge of the right half */}
                 <div className="absolute left-0 top-0 bottom-0 w-4 bg-black/10" style={{ transform: 'translateX(-50%)' }} />
               </div>
@@ -2459,7 +2458,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
             {/* Hidden Surprise Inside when Cut */}
             <AnimatePresence>
               {isCut && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0, y: 20 }}
                   animate={{ opacity: 1, scale: 1.5, y: -20 }}
                   transition={{ type: "spring", delay: 0.3 }}
@@ -2491,7 +2490,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
             style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
           >💨 Blow All Out</motion.button>
         ) : !isCut ? (
-          <motion.button 
+          <motion.button
             initial={{ scale: 0 }} animate={{ scale: 1 }}
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             onClick={cutCake}
@@ -2499,7 +2498,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
             style={{ background: `linear-gradient(135deg, #FFD700, #FDB931)` }}
           >🔪 Cut the Cake!</motion.button>
         ) : null}
-        
+
         <button onClick={reset} className="px-6 py-2.5 rounded-full border border-white/20 text-white text-sm font-bold hover:bg-white/10 transition-colors backdrop-blur-sm">
           🔄 Reset Cake
         </button>
@@ -3930,12 +3929,12 @@ export default function App() {
             )}
           >
             <h2 className="text-3xl font-heading text-romantic-pink mb-8">Quick Question...</h2>
-            
+
             <div className="flex justify-center mb-6">
-              <img 
-                src={isAccepted ? "https://media1.tenor.com/m/aKFaZBrZ9cgAAAAC/bubu-dudu-kiss.gif" : "https://media.tenor.com/bCbp9WeP9y8AAAAi/bubu-dudu.gif"} 
-                alt="Bubu Dudu" 
-                className="h-48 object-contain" 
+              <img
+                src={isAccepted ? "https://media1.tenor.com/m/aKFaZBrZ9cgAAAAC/bubu-dudu-kiss.gif" : "https://media.tenor.com/bCbp9WeP9y8AAAAi/bubu-dudu.gif"}
+                alt="Bubu Dudu"
+                className="h-48 object-contain"
               />
             </div>
 

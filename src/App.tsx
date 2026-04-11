@@ -4049,7 +4049,7 @@ export default function App() {
 
             <div className="flex justify-center mb-6">
               <img
-                src={isAccepted ? "/bubu-dudu-kiss.gif" : "/bubu-dudu.gif"}
+                src={isAccepted ? (config.GIFS?.ACCEPTED || "/bubu-dudu-kiss.gif") : (config.GIFS?.DEFAULT || "/bubu-dudu.gif")}
                 alt="Bubu Dudu"
                 className="h-48 object-contain"
               />

@@ -173,6 +173,17 @@ Anil`,
     spread: 70,
     colors: ["#ff6b6b", "#f06292", "#ffffff"],
     density: 1
+  },
+
+  // Feature: Bubu Dudu GIFs
+  GIFS: {
+    DEFAULT: "/bubu-dudu.gif",
+    ACCEPTED: "/bubu-dudu-kiss.gif",
+    DANCE: "/bubu-dudu-dance.gif",
+    LOVE: "/bubu-dudu-love.gif",
+    FIGHT: "/bubu-dudu-fight.gif",
+    EATING: "/bubu-dudu-eating.gif",
+    SLEEPING: "/bubu-dudu-sleeping.gif",
   }
 };
 

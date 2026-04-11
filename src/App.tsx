@@ -2341,41 +2341,41 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
 
   const getCakeColors = () => {
     switch (config.DESIGN?.cakeStyle) {
-      case 'chocolate': return { 
-        base: '#5C3A21', 
-        top: '#7D4F2E', 
+      case 'chocolate': return {
+        base: '#5C3A21',
+        top: '#7D4F2E',
         side: '#4E311B',
-        inner: '#3D2314', 
+        inner: '#3D2314',
         frosting: '#3D2314',
         drip: '#2B180D',
-        text: '#FDF6E3' 
+        text: '#FDF6E3'
       };
-      case 'strawberry': return { 
-        base: '#ff9a9e', 
-        top: '#ffb9bc', 
+      case 'strawberry': return {
+        base: '#ff9a9e',
+        top: '#ffb9bc',
         side: '#f9c3cc',
-        inner: '#D94973', 
+        inner: '#D94973',
         frosting: '#ffffff',
         drip: '#fecfef',
-        text: '#D94973' 
+        text: '#D94973'
       };
-      case 'vanilla': return { 
-        base: '#fdfbfb', 
-        top: '#ffffff', 
+      case 'vanilla': return {
+        base: '#fdfbfb',
+        top: '#ffffff',
         side: '#f5f7fa',
-        inner: '#ebedee', 
+        inner: '#ebedee',
         frosting: '#f0f0f0',
         drip: '#e2e2e2',
-        text: '#555555' 
+        text: '#555555'
       };
-      case 'classic': default: return { 
-        base: '#f9c3cc', 
-        top: '#fecfef', 
+      case 'classic': default: return {
+        base: '#f9c3cc',
+        top: '#fecfef',
         side: '#f7a8b6',
-        inner: '#F2A0B0', 
+        inner: '#F2A0B0',
         frosting: '#ffffff',
         drip: '#ffffff',
-        text: '#D94973' 
+        text: '#D94973'
       };
     }
   };
@@ -2450,7 +2450,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
       {/* Realistic Cake Container */}
       <div className="max-w-xl mx-auto mb-12 relative z-10 perspective-1000">
         <div className="relative mx-auto" style={{ width: 'min(400px, 95vw)', height: '320px' }}>
-          
+
           {/* Cake Stand */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[110%] h-8 bg-gray-200 rounded-[50%] shadow-2xl border-b-4 border-gray-300 z-0" />
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[105%] h-6 bg-white rounded-[50%] z-0" />
@@ -2477,16 +2477,16 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                   {/* Drips */}
                   <div className="absolute top-0 left-0 w-full h-12">
                     {cakeDecorations.drips.map((drip, i) => (
-                      <div key={i} className="absolute w-3 rounded-full" 
-                        style={{ height: drip.height, left: `${drip.left}%`, background: cakeColors.frosting, top: -1 }} 
+                      <div key={i} className="absolute w-3 rounded-full"
+                        style={{ height: drip.height, left: `${drip.left}%`, background: cakeColors.frosting, top: -1 }}
                       />
                     ))}
                   </div>
                   {/* Sprinkles */}
                   <div className="absolute inset-0 overflow-hidden opacity-40">
                     {cakeDecorations.sprinkles.slice(0, 15).map((s, i) => (
-                      <div key={i} className="absolute rounded-full" 
-                        style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, background: s.color }} 
+                      <div key={i} className="absolute rounded-full"
+                        style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, background: s.color }}
                       />
                     ))}
                   </div>
@@ -2500,8 +2500,8 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                   {/* Sprinkles */}
                   <div className="absolute inset-0 overflow-hidden opacity-30">
                     {cakeDecorations.sprinkles.slice(15, 25).map((s, i) => (
-                      <div key={i} className="absolute rounded-full" 
-                        style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, background: s.color }} 
+                      <div key={i} className="absolute rounded-full"
+                        style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, background: s.color }}
                       />
                     ))}
                   </div>
@@ -2512,7 +2512,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                   <div className="absolute top-0 w-full h-6 rounded-[50%] -translate-y-1/2" style={{ background: cakeColors.top, border: `2px solid ${cakeColors.frosting}22` }} />
                   {/* Decorative Text on Top Tier */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                     <p className="text-[10px] font-heading opacity-40 uppercase tracking-tighter" style={{ color: cakeColors.text }}>{config.GIRLFRIEND_NAME}</p>
+                    <p className="text-[10px] font-heading opacity-40 uppercase tracking-tighter" style={{ color: cakeColors.text }}>{config.GIRLFRIEND_NAME}</p>
                   </div>
 
                   {/* Candles on Top Tier */}
@@ -2588,8 +2588,8 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
 
       <div className="flex items-center justify-center gap-4 flex-wrap relative z-20">
         {!allOut ? (
-          <motion.button 
-            whileHover={{ scale: 1.05, y: -2 }} 
+          <motion.button
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={blowAll}
             className="px-8 py-3 rounded-full text-white text-sm font-bold shadow-2xl transition-all border border-white/20"
@@ -2604,7 +2604,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
             style={{ background: `linear-gradient(135deg, #FFD700, #FDB931)` }}
           >🔪 Slice the Cake!</motion.button>
         ) : (
-          <motion.button 
+          <motion.button
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             onClick={reset}
             className="px-6 py-2 rounded-full border border-white/10 text-white/60 text-xs font-bold hover:text-white transition-colors"

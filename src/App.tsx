@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import { Heart, Music, Music2, Volume2, VolumeX, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Bold, Italic, Upload, Stars, Sparkles, Smile, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Scissors, Mail, User, Info, Lock, ChevronLeft, ChevronRight, Clock, RefreshCw, Send, Image, Maximize2, Pointer, Square, Check, Copy, Link, QrCode } from 'lucide-react';
+import { Heart, Music, Music2, ChevronDown, Play, Pause, Camera, Calendar, MessageCircle, Gift, MapPin, Share2, Edit3, X, Save, Plus, Trash2, Download, FileText, Video, FileCode, Layout, Zap, Type, Stars, Sparkles, Eye, EyeOff, Sliders, Palette, MousePointer2, Brush, CloudSnow, Lock, Clock, RefreshCw, Send, Pointer, Square, Check, Copy, Link, QrCode } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import confetti from 'canvas-confetti';
 import { Swiper, SwiperSlide } from 'swiper/react';

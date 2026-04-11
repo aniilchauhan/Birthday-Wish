@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -538,7 +538,7 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                     { id: 'classic', label: 'Classic Pink', color: '#f7a8b6' },
                     { id: 'chocolate', label: 'Chocolate', color: '#5C3A21' },
                     { id: 'strawberry', label: 'Strawberry', color: '#ff9a9e' },
-                    { id: 'minimalist', label: 'Minimalist', color: '#ffffff' },
+                    { id: 'vanilla', label: 'Vanilla', color: '#fdfbfb' },
                   ].map((cake) => (
                     <button
                       key={cake.id}
@@ -2341,13 +2341,75 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
 
   const getCakeColors = () => {
     switch (config.DESIGN?.cakeStyle) {
-      case 'chocolate': return { bg: 'linear-gradient(135deg, #5C3A21, #3D2314)', text: '#FDF6E3', inner: '#2B180D' };
-      case 'strawberry': return { bg: 'linear-gradient(135deg, #ff9a9e, #fecfef)', text: '#D94973', inner: '#FFA3B1' };
-      case 'minimalist': return { bg: '#ffffff', text: '#333333', inner: '#F5F5F5' };
-      case 'classic': default: return { bg: 'linear-gradient(135deg, #f9c3cc, #f7a8b6)', text: '#ffffff', inner: '#F2A0B0' };
+      case 'chocolate': return { 
+        base: '#5C3A21', 
+        top: '#7D4F2E', 
+        side: '#4E311B',
+        inner: '#3D2314', 
+        frosting: '#3D2314',
+        drip: '#2B180D',
+        text: '#FDF6E3' 
+      };
+      case 'strawberry': return { 
+        base: '#ff9a9e', 
+        top: '#ffb9bc', 
+        side: '#f9c3cc',
+        inner: '#D94973', 
+        frosting: '#ffffff',
+        drip: '#fecfef',
+        text: '#D94973' 
+      };
+      case 'vanilla': return { 
+        base: '#fdfbfb', 
+        top: '#ffffff', 
+        side: '#f5f7fa',
+        inner: '#ebedee', 
+        frosting: '#f0f0f0',
+        drip: '#e2e2e2',
+        text: '#555555' 
+      };
+      case 'classic': default: return { 
+        base: '#f9c3cc', 
+        top: '#fecfef', 
+        side: '#f7a8b6',
+        inner: '#F2A0B0', 
+        frosting: '#ffffff',
+        drip: '#ffffff',
+        text: '#D94973' 
+      };
     }
   };
   const cakeColors = getCakeColors();
+
+  // Optimized candle placement for a natural look
+  const candlePos = useMemo(() => {
+    return Array.from({ length: CANDLE_COUNT }).map((_, i) => {
+      const angle = (i / CANDLE_COUNT) * Math.PI * 2;
+      const rX = 70 + Math.random() * 30;
+      const rY = 30 + Math.random() * 15;
+      return {
+        left: `${50 + Math.cos(angle) * rX * 0.4}%`,
+        top: `${25 + Math.sin(angle) * rY * 0.4}%`,
+        z: Math.floor(Math.sin(angle) * 10) + 20,
+        scale: 0.8 + Math.random() * 0.3
+      };
+    });
+  }, [CANDLE_COUNT]);
+
+  // Memoized decorations for stability
+  const cakeDecorations = useMemo(() => ({
+    drips: Array.from({ length: 12 }).map(() => ({
+      height: 8 + Math.random() * 12,
+      delay: Math.random() * 2,
+      left: Math.random() * 100
+    })),
+    sprinkles: Array.from({ length: 30 }).map(() => ({
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      size: 2 + Math.random() * 3,
+      color: ['#FFD700', '#FF69B4', '#00BFFF', '#ADFF2F', '#FF4500'][Math.floor(Math.random() * 5)]
+    }))
+  }), []);
 
   const blowCandle = (i: number) => {
     if (blownOut[i] || allOut) return;
@@ -2385,123 +2447,169 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
         <p className="text-gray-400 text-sm">{allOut ? "🌟 You made a wish! Now click to slice the cake! 🌟" : `${CANDLE_COUNT - remaining} candles left — click to blow them out!`}</p>
       </motion.div>
 
-      {/* Cake base */}
-      <div className="max-w-xl mx-auto mb-8 relative z-10">
-        <div className="relative mx-auto" style={{ width: 'min(340px, 90vw)' }}>
-          {/* Candles grid */}
-          <motion.div animate={{ opacity: isCut ? 0 : 1 }} className="grid grid-cols-8 gap-1.5 mb-2 justify-items-center">
-            {Array.from({ length: CANDLE_COUNT }).map((_, i) => (
-              <motion.div key={i}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => blowCandle(i)}
-                className="cursor-pointer flex flex-col items-center"
-                title={blownOut[i] ? "Blown out!" : "Click to blow!"}
+      {/* Realistic Cake Container */}
+      <div className="max-w-xl mx-auto mb-12 relative z-10 perspective-1000">
+        <div className="relative mx-auto" style={{ width: 'min(400px, 95vw)', height: '320px' }}>
+          
+          {/* Cake Stand */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[110%] h-8 bg-gray-200 rounded-[50%] shadow-2xl border-b-4 border-gray-300 z-0" />
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[105%] h-6 bg-white rounded-[50%] z-0" />
+
+          {/* All Tiers Split Container */}
+          <div className="relative w-full h-full">
+            {[
+              { id: 'left', moveX: -40, rotate: -5, clip: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' },
+              { id: 'right', moveX: 40, rotate: 5, clip: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }
+            ].map(half => (
+              <motion.div
+                key={half.id}
+                animate={{
+                  x: isCut ? half.moveX : 0,
+                  rotate: isCut ? half.rotate : 0,
+                  y: isCut ? 10 : 0
+                }}
+                className="absolute inset-0 origin-bottom"
+                style={{ clipPath: half.clip }}
               >
-                {/* Flame */}
-                <AnimatePresence>
-                  {!blownOut[i] && (
-                    <motion.div
-                      initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 0.9, 1.1, 1], y: [0, -2, 0] }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ duration: 0.8, repeat: Infinity }}
-                      className="text-xs mb-0.5"
-                    >🔥</motion.div>
-                  )}
-                </AnimatePresence>
-                {blownOut[i] && <div className="text-xs mb-0.5 opacity-20">💨</div>}
-                {/* Wax */}
-                <div className="rounded-t-full rounded-b-sm shadow-sm"
-                  style={{ width: 8, height: 22, background: blownOut[i] ? '#aaa' : `linear-gradient(${config.THEME.primary}, ${config.THEME.secondary})`, transition: 'background 0.3s' }}
-                />
+                {/* Tier 3 (Bottom) */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-80 h-24 rounded-b-3xl" style={{ background: cakeColors.side }}>
+                  <div className="absolute top-0 w-full h-10 rounded-[50%] -translate-y-1/2" style={{ background: cakeColors.top, border: `2px solid ${cakeColors.frosting}44` }} />
+                  {/* Drips */}
+                  <div className="absolute top-0 left-0 w-full h-12">
+                    {cakeDecorations.drips.map((drip, i) => (
+                      <div key={i} className="absolute w-3 rounded-full" 
+                        style={{ height: drip.height, left: `${drip.left}%`, background: cakeColors.frosting, top: -1 }} 
+                      />
+                    ))}
+                  </div>
+                  {/* Sprinkles */}
+                  <div className="absolute inset-0 overflow-hidden opacity-40">
+                    {cakeDecorations.sprinkles.slice(0, 15).map((s, i) => (
+                      <div key={i} className="absolute rounded-full" 
+                        style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, background: s.color }} 
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tier 2 (Middle) */}
+                <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-64 h-20 rounded-b-3xl shadow-inner" style={{ background: cakeColors.side, zIndex: 5 }}>
+                  <div className="absolute top-0 w-full h-8 rounded-[50%] -translate-y-1/2" style={{ background: cakeColors.top, border: `2px solid ${cakeColors.frosting}33` }} />
+                  {/* Frosting layer */}
+                  <div className="absolute -top-1 left-0 w-full h-3 rounded-full" style={{ background: cakeColors.frosting, opacity: 0.8 }} />
+                  {/* Sprinkles */}
+                  <div className="absolute inset-0 overflow-hidden opacity-30">
+                    {cakeDecorations.sprinkles.slice(15, 25).map((s, i) => (
+                      <div key={i} className="absolute rounded-full" 
+                        style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, background: s.color }} 
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tier 1 (Top) */}
+                <div className="absolute bottom-40 left-1/2 -translate-x-1/2 w-48 h-16 rounded-b-2xl" style={{ background: cakeColors.side, zIndex: 10 }}>
+                  <div className="absolute top-0 w-full h-6 rounded-[50%] -translate-y-1/2" style={{ background: cakeColors.top, border: `2px solid ${cakeColors.frosting}22` }} />
+                  {/* Decorative Text on Top Tier */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                     <p className="text-[10px] font-heading opacity-40 uppercase tracking-tighter" style={{ color: cakeColors.text }}>{config.GIRLFRIEND_NAME}</p>
+                  </div>
+
+                  {/* Candles on Top Tier */}
+                  {!isCut && candlePos.map((pos, i) => (
+                    <motion.div key={i}
+                      onClick={(e) => { e.stopPropagation(); blowCandle(i); }}
+                      style={{ position: 'absolute', left: pos.left, top: pos.top, zIndex: pos.z, scale: pos.scale }}
+                      className="cursor-pointer group"
+                    >
+                      <AnimatePresence>
+                        {!blownOut[i] && (
+                          <motion.div
+                            initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 0.9, 1.1, 1], y: [0, -2, 0] }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            transition={{ duration: 0.6 + Math.random(), repeat: Infinity }}
+                            className="absolute -top-4 left-1/2 -translate-x-1/2 text-sm drop-shadow-[0_0_5px_orange]"
+                          >🔥</motion.div>
+                        )}
+                      </AnimatePresence>
+                      <div className="w-1.5 h-8 rounded-full shadow-sm"
+                        style={{ background: blownOut[i] ? '#999' : `linear-gradient(to bottom, #fff, ${config.THEME.primary})`, transition: 'all 0.4s' }}
+                      />
+                      {blownOut[i] && (
+                        <motion.div initial={{ opacity: 0, y: 0 }} animate={{ opacity: [0, 1, 0], y: -20 }} className="absolute -top-6 left-0 text-[10px]">💨</motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Inner Content (revealed when cut) */}
+                {isCut && (
+                  <div className="absolute inset-0 flex items-center justify-center z-0">
+                    <div className="w-12 h-40 bg-pink-100/20 blur-xl rounded-full" />
+                  </div>
+                )}
               </motion.div>
             ))}
-          </motion.div>
-
-          {/* Animated Cake Tiers Container */}
-          <div className="relative h-24 mb-6">
-            {/* Left Half */}
-            <motion.div
-              animate={{
-                x: isCut ? -30 : 0,
-                rotate: isCut ? -4 : 0,
-                opacity: isCut ? 0.9 : 1
-              }}
-              className="absolute inset-0 origin-bottom-left"
-              style={{ clipPath: 'polygon(0 0, 50% 0, 48% 100%, 0 100%)' }}
-            >
-              <div className="w-full h-full flex items-center justify-center p-4" style={{ background: cakeColors.bg, borderRadius: '0 0 2rem 2rem', border: '3px solid rgba(255,255,255,0.2)' }}>
-                <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
-                <p className="font-heading text-xl drop-shadow" style={{ color: cakeColors.text }}>Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
-              </div>
-            </motion.div>
-
-            {/* Right Half */}
-            <motion.div
-              animate={{
-                x: isCut ? 30 : 0,
-                rotate: isCut ? 4 : 0,
-                opacity: isCut ? 0.9 : 1
-              }}
-              className="absolute inset-0 origin-bottom-right"
-              style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 48% 100%)' }}
-            >
-              <div className="w-full h-full flex items-center justify-center p-4" style={{ background: cakeColors.bg, borderRadius: '0 0 2rem 2rem', border: '3px solid rgba(255,255,255,0.2)' }}>
-                <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
-                <p className="font-heading text-xl drop-shadow" style={{ color: cakeColors.text }}>Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
-
-                {/* Inner Cake Sponge - Only visible on the split edge of the right half */}
-                <div className="absolute left-0 top-0 bottom-0 w-4 bg-black/10" style={{ transform: 'translateX(-50%)' }} />
-              </div>
-            </motion.div>
-
-            {/* Hidden Surprise Inside when Cut */}
-            <AnimatePresence>
-              {isCut && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0, y: 20 }}
-                  animate={{ opacity: 1, scale: 1.5, y: -20 }}
-                  transition={{ type: "spring", delay: 0.3 }}
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
-                >
-                  <div className="text-4xl filter drop-shadow-xl">💌</div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
-          {/* Progress bar */}
-          <div className="mt-4 bg-white/10 rounded-full h-2 overflow-hidden mx-auto" style={{ width: '90%' }}>
-            <motion.div
-              animate={{ width: `${(remaining / CANDLE_COUNT) * 100}%` }}
-              className="h-full rounded-full"
-              style={{ background: `linear-gradient(90deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
-            />
-          </div>
-          <p className="text-gray-400 text-xs mt-1">{remaining}/{CANDLE_COUNT} blown out</p>
+          {/* Hidden Surprise Inside when Cut */}
+          <AnimatePresence>
+            {isCut && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0, y: 20 }}
+                animate={{ opacity: 1, scale: 1.5, y: -40 }}
+                transition={{ type: "spring", delay: 0.3, damping: 12 }}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+              >
+                <div className="relative">
+                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="text-5xl filter drop-shadow-2xl">💌</motion.div>
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.6 }} className="absolute -top-2 -right-2 text-xl">✨</motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+
+        {/* Shadow and Glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-8 bg-black/20 blur-2xl -z-10 rounded-full" />
       </div>
 
-      <div className="flex items-center justify-center gap-3 flex-wrap mt-8 relative z-20">
+      {/* Progress and interactions */}
+      <div className="max-w-xs mx-auto mb-8">
+        <div className="bg-white/5 rounded-full h-1.5 overflow-hidden backdrop-blur-sm">
+          <motion.div
+            animate={{ width: `${(remaining / CANDLE_COUNT) * 100}%` }}
+            className="h-full rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+            style={{ background: `linear-gradient(90deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
+          />
+        </div>
+        <p className="text-gray-500 text-[10px] mt-2 tracking-widest uppercase">{remaining} of {CANDLE_COUNT} candles blown out</p>
+      </div>
+
+      <div className="flex items-center justify-center gap-4 flex-wrap relative z-20">
         {!allOut ? (
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+          <motion.button 
+            whileHover={{ scale: 1.05, y: -2 }} 
+            whileTap={{ scale: 0.95 }}
             onClick={blowAll}
-            className="px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-xl border border-white/20"
+            className="px-8 py-3 rounded-full text-white text-sm font-bold shadow-2xl transition-all border border-white/20"
             style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
-          >💨 Blow All Out</motion.button>
+          >✨ Blow All Candles</motion.button>
         ) : !isCut ? (
           <motion.button
-            initial={{ scale: 0 }} animate={{ scale: 1 }}
-            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            initial={{ scale: 0, rotate: -5 }} animate={{ scale: 1, rotate: 0 }}
+            whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}
             onClick={cutCake}
-            className="px-8 py-3 rounded-full text-zinc-900 text-md font-bold shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+            className="px-10 py-4 rounded-full text-zinc-900 text-lg font-bold shadow-[0_20px_40px_rgba(255,215,0,0.3)] border-b-4 border-yellow-600"
             style={{ background: `linear-gradient(135deg, #FFD700, #FDB931)` }}
-          >🔪 Cut the Cake!</motion.button>
-        ) : null}
-
-        <button onClick={reset} className="px-6 py-2.5 rounded-full border border-white/20 text-white text-sm font-bold hover:bg-white/10 transition-colors backdrop-blur-sm">
-          🔄 Reset Cake
-        </button>
+          >🔪 Slice the Cake!</motion.button>
+        ) : (
+          <motion.button 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            onClick={reset}
+            className="px-6 py-2 rounded-full border border-white/10 text-white/60 text-xs font-bold hover:text-white transition-colors"
+          >🔄 Reset Cake</motion.button>
+        )}
       </div>
     </section>
   );

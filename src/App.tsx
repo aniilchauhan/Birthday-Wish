@@ -2514,33 +2514,42 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <p className="text-[10px] font-heading opacity-40 uppercase tracking-tighter" style={{ color: cakeColors.text }}>{config.GIRLFRIEND_NAME}</p>
                   </div>
-
-                  {/* Candles on Top Tier */}
-                  {!isCut && candlePos.map((pos, i) => (
-                    <motion.div key={i}
-                      onClick={(e) => { e.stopPropagation(); blowCandle(i); }}
-                      style={{ position: 'absolute', left: pos.left, top: pos.top, zIndex: pos.z, scale: pos.scale }}
-                      className="cursor-pointer group"
-                    >
-                      <AnimatePresence>
-                        {!blownOut[i] && (
-                          <motion.div
-                            initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 0.9, 1.1, 1], y: [0, -2, 0] }}
-                            exit={{ scale: 0, opacity: 0 }}
-                            transition={{ duration: 0.6 + Math.random(), repeat: Infinity }}
-                            className="absolute -top-7 left-1/2 -translate-x-1/2 text-2xl drop-shadow-[0_0_8px_orange]"
-                          >🔥</motion.div>
-                        )}
-                      </AnimatePresence>
-                      <div className="w-2.5 h-12 rounded-full shadow-lg border-x border-white/20"
-                        style={{ background: blownOut[i] ? '#666' : `linear-gradient(to bottom, #fff, ${config.THEME.primary})`, transition: 'all 0.4s' }}
-                      />
-                      {blownOut[i] && (
-                        <motion.div initial={{ opacity: 0, y: 0 }} animate={{ opacity: [0, 1, 0], y: -20 }} className="absolute -top-10 left-0 text-lg">💨</motion.div>
-                      )}
-                    </motion.div>
-                  ))}
                 </div>
+
+                {/* Highly Visible Candle Layer */}
+                {!isCut && (
+                  <div className="absolute bottom-40 left-1/2 -translate-x-1/2 w-48 h-16" style={{ zIndex: 100 }}>
+                    {candlePos.map((pos, i) => (
+                      <motion.div key={i}
+                        onClick={(e) => { e.stopPropagation(); blowCandle(i); }}
+                        style={{ position: 'absolute', left: pos.left, top: pos.top, zIndex: pos.z, scale: pos.scale }}
+                        className="cursor-pointer group pointer-events-auto"
+                      >
+                        <AnimatePresence>
+                          {!blownOut[i] && (
+                            <motion.div
+                              initial={{ scale: 0 }} animate={{ scale: [1, 1.2, 0.9, 1.1, 1], y: [0, -2, 0] }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{ duration: 0.6 + Math.random(), repeat: Infinity }}
+                              className="absolute -top-10 left-1/2 -translate-x-1/2 text-3xl drop-shadow-[0_0_15px_orange] z-50"
+                            >🔥</motion.div>
+                          )}
+                        </AnimatePresence>
+                        <div className="w-3.5 h-16 rounded-full shadow-2xl border-x border-white/40"
+                          style={{
+                            background: blownOut[i]
+                              ? '#444'
+                              : `repeating-linear-gradient(45deg, #fff, #fff 5px, ${config.THEME.primary} 5px, ${config.THEME.primary} 10px)`,
+                            transition: 'all 0.4s'
+                          }}
+                        />
+                        {blownOut[i] && (
+                          <motion.div initial={{ opacity: 0, y: 0 }} animate={{ opacity: [0, 1, 0], y: -40 }} className="absolute -top-14 left-0 text-3xl">💨</motion.div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Inner Content (revealed when cut) */}
                 {isCut && (

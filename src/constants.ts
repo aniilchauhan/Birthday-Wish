@@ -149,6 +149,7 @@ Anil`,
     particleType: 'hearts',
     particleSpeed: 'medium',
     confettiDensity: 1.5,
+    cakeStyle: 'classic',
   },
 
   // Section Visibility Toggles

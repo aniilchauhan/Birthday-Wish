@@ -21,6 +21,7 @@ import { saveSurpriseToBackend, fetchSurpriseByKey } from './lib/shareBackend';
 import ThemeGalleryModal from './components/ThemeGalleryModal';
 import Balloons from './components/Balloons';
 import FairyLights from './components/FairyLights';
+import { storyTemplates, StoryTemplate } from './templates/storyTemplates';
 
 type AnimationKey = keyof typeof ANIMATION_PRESETS;
 
@@ -527,6 +528,35 @@ const Customizer = ({ config, onSave, onClose, onDownloadHTML, onDownloadPDF, on
                   ))}
                 </div>
               </div>
+
+              {/* Cake Style Customizer Block */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <span className="text-romantic-pink text-xl">🎂</span> Cake Flavor
+                </h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[
+                    { id: 'classic', label: 'Classic Pink', color: '#f7a8b6' },
+                    { id: 'chocolate', label: 'Chocolate', color: '#5C3A21' },
+                    { id: 'strawberry', label: 'Strawberry', color: '#ff9a9e' },
+                    { id: 'minimalist', label: 'Minimalist', color: '#ffffff' },
+                  ].map((cake) => (
+                    <button
+                      key={cake.id}
+                      onClick={() => handleChange('DESIGN', { ...formData.DESIGN, cakeStyle: cake.id })}
+                      className={cn(
+                        "p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all",
+                        formData.DESIGN?.cakeStyle === cake.id
+                          ? "border-romantic-pink bg-romantic-pink/10 text-romantic-pink font-bold"
+                          : "border-gray-100 hover:border-romantic-pink/20"
+                      )}
+                    >
+                      <div className="w-10 h-10 rounded-full shadow-sm border border-gray-100" style={{ background: cake.color }} />
+                      <span className="text-[10px] uppercase tracking-tighter">{cake.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </>
           )}
 
@@ -724,6 +754,18 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
   const [qrShareUrl, setQrShareUrl] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
 
+  const [isPaid, setIsPaid] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleMockPayment = () => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsPaid(true);
+      toast.success('Payment Successful! 🎉', { description: 'Sharing features are now unlocked.' });
+    }, 2000);
+  };
+
   const handleCopyLink = async () => {
     const built = await createShareUrl(config);
     if (built.ok === false) {
@@ -830,7 +872,7 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
               }}
             >
               <div style={{ transform: `scale(${Math.min(320, window.innerWidth * 0.8) / 1080})`, transformOrigin: 'top left', width: '1080px', height: '1920px' }}>
-                <StoryCard config={config} templateId={selectedTemplateId} />
+                {storyTemplates[selectedTemplateId] && <StoryTemplate config={config} template={storyTemplates[selectedTemplateId]} isPreview={true} />}
               </div>
             </div>
           </div>
@@ -843,18 +885,18 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
             </div>
 
             <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto p-2 scrollbar-hide">
-              {TEMPLATE_PRESETS.map((t) => (
+              {storyTemplates.map((t, i) => (
                 <button
-                  key={t.id}
-                  onClick={() => setSelectedTemplateId(t.id)}
+                  key={i}
+                  onClick={() => setSelectedTemplateId(i)}
                   className={cn(
                     "p-4 rounded-2xl text-left transition-all border-2",
-                    selectedTemplateId === t.id
+                    selectedTemplateId === i
                       ? "bg-romantic-pink border-white shadow-lg scale-105"
                       : "bg-white/5 border-transparent hover:bg-white/10"
                   )}
                 >
-                  <p className="font-bold text-sm">Template #{t.id + 1}</p>
+                  <p className="font-bold text-sm">Template #{i + 1}</p>
                   <p className="text-[10px] opacity-60 uppercase tracking-widest">{t.layout.replace('-', ' ')}</p>
                 </button>
               ))}
@@ -900,118 +942,171 @@ const ShareModal = ({ config, onClose, onDownloadHTML, onDownloadPDF, onDownload
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 z-10"
         >
           <X size={20} />
         </button>
 
-        <div className="p-6 md:p-8 text-center">
-          <div className="inline-block p-3 md:p-4 bg-romantic-pink/10 rounded-full mb-4">
-            <Share2 size={28} className="text-romantic-pink md:w-8 md:h-8" />
+        {!isPaid ? (
+          <div className="p-6 md:p-8 text-center flex flex-col items-center">
+            <div className="w-16 h-16 bg-romantic-pink/10 rounded-full flex items-center justify-center mb-6">
+              <Lock className="w-8 h-8 text-romantic-pink" />
+            </div>
+            <h2 className="text-2xl font-heading text-gray-800 mb-2">Unlock Sharing</h2>
+            <p className="text-sm text-gray-500 mb-6">
+              Your personalized surprise is ready! Pay to unlock sharing and send it to {config.GIRLFRIEND_NAME}.
+            </p>
+            
+            <div className="w-full bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100 text-left">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-gray-600 font-medium">Premium Template</span>
+                <span className="text-gray-800 font-bold">₹299</span>
+              </div>
+              <div className="flex justify-between items-center mb-2 text-sm">
+                <span className="text-gray-500">Interactive Features</span>
+                <span className="text-green-500 font-medium">Included</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">Lifetime Hosting</span>
+                <span className="text-green-500 font-medium">Included</span>
+              </div>
+              <div className="border-t border-gray-200 my-3"></div>
+              <div className="flex justify-between items-center text-lg font-bold">
+                <span className="text-gray-800">Total</span>
+                <span className="text-romantic-pink">₹299</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleMockPayment}
+              disabled={isProcessing}
+              className="w-full py-4 rounded-[1.5rem] bg-gradient-to-r from-romantic-pink to-romantic-purple text-white font-bold text-lg shadow-xl shadow-romantic-pink/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isProcessing ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Lock size={20} />
+                  Pay ₹299 to Unlock
+                </>
+              )}
+            </button>
+            <p className="text-[10px] text-gray-400 mt-4 text-center">
+              Secured by Razorpay • 100% Safe Payment
+            </p>
           </div>
-          <h2 className="text-xl md:text-2xl font-heading text-romantic-pink mb-2">Share the Love</h2>
-          <p className="text-xs md:text-sm text-gray-500 mb-6 md:mb-8 italic">Choose how you want to share this special surprise ❤️</p>
+        ) : (
+          <div className="p-6 md:p-8 text-center">
+            <div className="inline-block p-3 md:p-4 bg-romantic-pink/10 rounded-full mb-4">
+              <Share2 size={28} className="text-romantic-pink md:w-8 md:h-8" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-heading text-romantic-pink mb-2">Share the Love</h2>
+            <p className="text-xs md:text-sm text-gray-500 mb-6 md:mb-8 italic">Choose how you want to share this special surprise ❤️</p>
 
-          <div className="grid grid-cols-1 gap-3 md:gap-4">
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
-            >
-              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <Share2 size={20} className="text-romantic-pink md:w-6 md:h-6" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800 text-sm md:text-base">Share Link</p>
-                <p className="text-[10px] md:text-xs text-gray-400">Send the live website link</p>
-              </div>
-            </button>
+            <div className="grid grid-cols-1 gap-3 md:gap-4">
+              <button
+                onClick={handleCopyLink}
+                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <Share2 size={20} className="text-romantic-pink md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 text-sm md:text-base">Share Link</p>
+                  <p className="text-[10px] md:text-xs text-gray-400">Send the live website link</p>
+                </div>
+              </button>
+
+              <button
+                onClick={handleDirectCopy}
+                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <Copy size={20} className="text-romantic-pink md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 text-sm md:text-base">Copy Link</p>
+                  <p className="text-[10px] md:text-xs text-gray-400">Copy the URL to clipboard</p>
+                </div>
+              </button>
+
+              <button
+                onClick={onDownloadHTML}
+                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <FileCode size={20} className="text-romantic-pink md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 text-sm md:text-base">Save as HTML</p>
+                  <p className="text-[10px] md:text-xs text-gray-400">Download offline shortcut</p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setShowStoryPreview(true)}
+                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <Camera size={20} className="text-romantic-pink md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 text-sm md:text-base">Instagram Story</p>
+                  <p className="text-[10px] md:text-xs text-gray-400">Preview & generate card</p>
+                </div>
+              </button>
+
+              <button
+                onClick={openQrModal}
+                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <QrCode size={20} className="text-romantic-pink md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800 text-sm md:text-base">Save as QR Code</p>
+                  <p className="text-[10px] md:text-xs text-gray-400">Scan to open surprise</p>
+                </div>
+              </button>
+
+              <button
+                onClick={onDownloadPDF}
+                className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <FileText size={24} className="text-romantic-pink" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800">Save as PDF</p>
+                  <p className="text-xs text-gray-400">Printable keepsake card</p>
+                </div>
+              </button>
+
+              <button
+                onClick={onEnterCinematicMode}
+                className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              >
+                <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <Video size={24} className="text-romantic-pink" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-800">Record Video</p>
+                  <p className="text-xs text-gray-400">Enter Cinematic Mode</p>
+                </div>
+              </button>
+            </div>
 
             <button
-              onClick={handleDirectCopy}
-              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
+              onClick={onClose}
+              className="mt-8 w-full py-3 rounded-full border-2 border-gray-100 text-gray-400 font-bold hover:bg-gray-50 transition-all"
             >
-              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <Copy size={20} className="text-romantic-pink md:w-6 md:h-6" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800 text-sm md:text-base">Copy Link</p>
-                <p className="text-[10px] md:text-xs text-gray-400">Copy the URL to clipboard</p>
-              </div>
-            </button>
-
-            <button
-              onClick={onDownloadHTML}
-              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
-            >
-              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <FileCode size={20} className="text-romantic-pink md:w-6 md:h-6" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800 text-sm md:text-base">Save as HTML</p>
-                <p className="text-[10px] md:text-xs text-gray-400">Download offline shortcut</p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setShowStoryPreview(true)}
-              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
-            >
-              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <Camera size={20} className="text-romantic-pink md:w-6 md:h-6" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800 text-sm md:text-base">Instagram Story</p>
-                <p className="text-[10px] md:text-xs text-gray-400">Preview & generate card</p>
-              </div>
-            </button>
-
-            <button
-              onClick={openQrModal}
-              className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
-            >
-              <div className="p-2 md:p-3 bg-white rounded-lg md:rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <QrCode size={20} className="text-romantic-pink md:w-6 md:h-6" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800 text-sm md:text-base">Save as QR Code</p>
-                <p className="text-[10px] md:text-xs text-gray-400">Scan to open surprise</p>
-              </div>
-            </button>
-
-            <button
-              onClick={onDownloadPDF}
-              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
-            >
-              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <FileText size={24} className="text-romantic-pink" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">Save as PDF</p>
-                <p className="text-xs text-gray-400">Printable keepsake card</p>
-              </div>
-            </button>
-
-            <button
-              onClick={onEnterCinematicMode}
-              className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border-2 border-transparent hover:border-romantic-pink/30 hover:bg-romantic-pink/5 transition-all group text-left"
-            >
-              <div className="p-3 bg-white rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-                <Video size={24} className="text-romantic-pink" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-800">Record Video</p>
-                <p className="text-xs text-gray-400">Enter Cinematic Mode</p>
-              </div>
+              Close
             </button>
           </div>
-
-          <button
-            onClick={onClose}
-            className="mt-8 w-full py-3 rounded-full border-2 border-gray-100 text-gray-400 font-bold hover:bg-gray-50 transition-all"
-          >
-            Close
-          </button>
-        </div>
+        )}
       </motion.div>
     </div>
   );
@@ -1529,7 +1624,7 @@ const MapSection = ({ config }: { config: any }) => {
 
 const TEMPLATE_LAYOUTS = [
   'editorial-modern', 'glass-floating', 'atmospheric-blur', 'brutalist-bold', 'organic-soft',
-  'polaroid-stack', 'magazine-cover', 'minimal-text', 'collage-scatter', 'film-strip', 'love-stats', 'modern-split'
+  'polaroid-stack', 'magazine-cover', 'minimal-text', 'collage-scatter', 'film-strip', 'scrapbook-aesthetic', 'bento-grid'
 ];
 
 const TEMPLATE_FONTS = [
@@ -1904,7 +1999,7 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                 </div>
                 <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover', padding: '0 80px', filter: 'contrast(1.1) saturate(1.1)' }} crossOrigin="anonymous" />
                 <div style={{ position: 'absolute', bottom: '20px', right: '100px', color: '#ff6b00', fontFamily: 'monospace', fontSize: '20px', opacity: 0.8 }}>
-                  {i + 1}A
+                  [ {String(i + 1).padStart(2, '0')} // 24 ]
                 </div>
               </div>
             ))}
@@ -2016,6 +2111,66 @@ const StoryCard = ({ config, templateId = 0 }: { config: any, templateId?: numbe
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'scrapbook-aesthetic':
+        return (
+          <div style={{ height: '100%', backgroundColor: '#f2f0e6', backgroundImage: 'radial-gradient(#d5d1c2 2px, transparent 0)', backgroundSize: '30px 30px', padding: '60px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: '150px', right: '80px', transform: 'rotate(12deg)', width: '250px', height: '60px', backgroundColor: '#ffd1dc', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', boxShadow: '2px 4px 10px rgba(0,0,0,0.1)', zIndex: 10 }}>
+              <p style={{ fontFamily: "'Dancing Script', cursive", fontSize: '36px', color: '#ff4d6d', margin: 0 }}>Love You!</p>
+            </div>
+            
+            <div style={{ position: 'relative', zIndex: 5, width: '700px', height: '800px', backgroundColor: 'white', padding: '24px', paddingBottom: '100px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', transform: 'rotate(-4deg) translateY(100px)', marginLeft: '100px' }}>
+              <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '150px', height: '40px', backgroundColor: 'rgba(255,255,255,0.7)', border: '1px solid #ddd', backdropFilter: 'blur(4px)' }} />
+              <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'sepia(0.2) contrast(1.1)' }} crossOrigin="anonymous" />
+              <p style={{ position: 'absolute', bottom: '30px', left: '0', width: '100%', textAlign: 'center', fontFamily: "'Dancing Script', cursive", fontSize: '48px', color: '#333' }}>{config.GIRLFRIEND_NAME}</p>
+            </div>
+
+            <div style={{ position: 'absolute', bottom: '150px', right: '80px', width: '450px', height: '450px', backgroundColor: 'white', padding: '16px', paddingBottom: '60px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', transform: 'rotate(6deg)', zIndex: 6 }}>
+              <img src={photos[0]?.url || mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              <p style={{ position: 'absolute', bottom: '15px', right: '30px', fontFamily: "'Dancing Script', cursive", fontSize: '32px', color: '#555' }}>{dateStr}</p>
+            </div>
+
+            <div style={{ position: 'absolute', bottom: '50px', left: '80px', zIndex: 20 }}>
+              <h1 style={{ fontSize: '80px', color: '#2b2d42', fontFamily: "'Playfair Display', serif", fontWeight: 'bold' }}>Happy {currentEvent.label}</h1>
+            </div>
+          </div>
+        );
+
+      case 'bento-grid':
+        return (
+          <div style={{ height: '100%', backgroundColor: '#000', padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px', fontFamily: "'Inter', sans-serif" }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', height: '60%' }}>
+              <div style={{ backgroundColor: '#111', borderRadius: '60px', overflow: 'hidden', position: 'relative' }}>
+                <img src={mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                <div style={{ position: 'absolute', bottom: '40px', left: '40px', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', padding: '16px 32px', borderRadius: '100px' }}>
+                  <p style={{ color: 'white', fontSize: '24px', fontWeight: 'bold' }}>{config.GIRLFRIEND_NAME}</p>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: '24px' }}>
+                <div style={{ backgroundColor: primaryColor, borderRadius: '60px', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <p style={{ color: 'white', fontSize: '24px', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.8 }}>Celebrating</p>
+                  <h2 style={{ color: 'white', fontSize: '70px', fontWeight: '900', lineHeight: 1 }}>{currentEvent.label}</h2>
+                </div>
+                <div style={{ backgroundColor: '#111', borderRadius: '60px', overflow: 'hidden' }}>
+                  <img src={photos[0]?.url || mainPhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', height: '40%' }}>
+              <div style={{ backgroundColor: '#1a1a1a', borderRadius: '60px', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                 <p style={{ color: primaryColor, fontSize: '100px', margin: 0 }}>♥</p>
+                 <p style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginTop: '20px' }}>FOREVER</p>
+              </div>
+              <div style={{ backgroundColor: '#111', borderRadius: '60px', padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ fontSize: '32px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.5 }} className="markdown-content">
+                  <ReactMarkdown>{config.LOVE_LETTER.substring(0, 200)}</ReactMarkdown>
+                </div>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '24px', marginTop: '40px', letterSpacing: '4px' }}>{dateStr}</p>
               </div>
             </div>
           </div>
@@ -2183,6 +2338,17 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
   const CANDLE_COUNT = 24;
   const [blownOut, setBlownOut] = useState<boolean[]>(Array(CANDLE_COUNT).fill(false));
   const [allOut, setAllOut] = useState(false);
+  const [isCut, setIsCut] = useState(false);
+
+  const getCakeColors = () => {
+    switch (config.DESIGN?.cakeStyle) {
+      case 'chocolate': return { bg: 'linear-gradient(135deg, #5C3A21, #3D2314)', text: '#FDF6E3', inner: '#2B180D' };
+      case 'strawberry': return { bg: 'linear-gradient(135deg, #ff9a9e, #fecfef)', text: '#D94973', inner: '#FFA3B1' };
+      case 'minimalist': return { bg: '#ffffff', text: '#333333', inner: '#F5F5F5' };
+      case 'classic': default: return { bg: 'linear-gradient(135deg, #f9c3cc, #f7a8b6)', text: '#ffffff', inner: '#F2A0B0' };
+    }
+  };
+  const cakeColors = getCakeColors();
 
   const blowCandle = (i: number) => {
     if (blownOut[i] || allOut) return;
@@ -2192,7 +2358,7 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
     if (next.every(Boolean)) {
       setAllOut(true);
       confetti({ particleCount: 300, spread: 160, origin: { y: 0.4 }, colors: [config.THEME.primary, config.THEME.secondary, '#ffd700', '#ffffff'] });
-      toast.success("🎂 All candles blown! Make a wish! 🌟");
+      toast.success("🎂 All candles blown! Now let's cut the cake! 🔪");
     }
   };
 
@@ -2200,24 +2366,31 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
     setBlownOut(Array(CANDLE_COUNT).fill(true));
     setAllOut(true);
     confetti({ particleCount: 400, spread: 180, origin: { y: 0.4 }, colors: [config.THEME.primary, config.THEME.secondary, '#ffd700', '#ffffff'] });
-    toast.success("🎂 Wish granted! 🌟");
+    toast.success("🎂 Wish granted! Now let's cut the cake! 🔪");
   };
 
-  const reset = () => { setBlownOut(Array(CANDLE_COUNT).fill(false)); setAllOut(false); };
+  const cutCake = () => {
+    if (!allOut || isCut) return;
+    setIsCut(true);
+    confetti({ particleCount: 500, spread: 360, origin: { y: 0.5 }, colors: ['#ff9a9e', '#fecfef', '#ffffff', cakeColors.text] });
+    toast.success("🎉 Cake Cut! A sweet surprise awaits!");
+  };
+
+  const reset = () => { setBlownOut(Array(CANDLE_COUNT).fill(false)); setAllOut(false); setIsCut(false); };
   const remaining = blownOut.filter(Boolean).length;
 
   return (
     <section className="py-16 md:py-20 px-6 text-center overflow-hidden" style={{ background: `linear-gradient(180deg, #1a0a0a 0%, #2d0e0e 100%)` }}>
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-8">
-        <h2 className="text-4xl font-heading text-white mb-2">🎂 Blow Out the Candles!</h2>
-        <p className="text-gray-400 text-sm">{allOut ? "🌟 You made a wish! 🌟" : `${CANDLE_COUNT - remaining} candles left — click to blow them out!`}</p>
+        <h2 className="text-4xl font-heading text-white mb-2">🎂 {allOut ? "Time to Cut the Cake!" : "Blow Out the Candles!"}</h2>
+        <p className="text-gray-400 text-sm">{allOut ? "🌟 You made a wish! Now click to slice the cake! 🌟" : `${CANDLE_COUNT - remaining} candles left — click to blow them out!`}</p>
       </motion.div>
 
       {/* Cake base */}
-      <div className="max-w-xl mx-auto mb-8">
+      <div className="max-w-xl mx-auto mb-8 relative z-10">
         <div className="relative mx-auto" style={{ width: 'min(340px, 90vw)' }}>
           {/* Candles grid */}
-          <div className="grid grid-cols-8 gap-1.5 mb-2 justify-items-center">
+          <motion.div animate={{ opacity: isCut ? 0 : 1 }} className="grid grid-cols-8 gap-1.5 mb-2 justify-items-center">
             {Array.from({ length: CANDLE_COUNT }).map((_, i) => (
               <motion.div key={i}
                 whileHover={{ scale: 1.15 }}
@@ -2239,21 +2412,67 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
                 </AnimatePresence>
                 {blownOut[i] && <div className="text-xs mb-0.5 opacity-20">💨</div>}
                 {/* Wax */}
-                <div className="rounded-t-full rounded-b-sm"
+                <div className="rounded-t-full rounded-b-sm shadow-sm"
                   style={{ width: 8, height: 22, background: blownOut[i] ? '#aaa' : `linear-gradient(${config.THEME.primary}, ${config.THEME.secondary})`, transition: 'background 0.3s' }}
                 />
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
-          {/* Cake tiers */}
-          <div className="relative" style={{ background: 'linear-gradient(135deg, #f9c3cc, #f7a8b6)', borderRadius: '0 0 2rem 2rem', padding: '20px 30px 24px', border: '3px solid rgba(255,255,255,0.3)' }}>
-            <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
-            <p className="text-white font-heading text-xl drop-shadow">Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
+          {/* Animated Cake Tiers Container */}
+          <div className="relative h-24 mb-6">
+            {/* Left Half */}
+            <motion.div
+              animate={{ 
+                x: isCut ? -30 : 0, 
+                rotate: isCut ? -4 : 0,
+                opacity: isCut ? 0.9 : 1
+              }}
+              className="absolute inset-0 origin-bottom-left"
+              style={{ clipPath: 'polygon(0 0, 50% 0, 48% 100%, 0 100%)' }}
+            >
+              <div className="w-full h-full flex items-center justify-center p-4" style={{ background: cakeColors.bg, borderRadius: '0 0 2rem 2rem', border: '3px solid rgba(255,255,255,0.2)' }}>
+                <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
+                <p className="font-heading text-xl drop-shadow" style={{ color: cakeColors.text }}>Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
+              </div>
+            </motion.div>
+            
+            {/* Right Half */}
+            <motion.div
+              animate={{ 
+                x: isCut ? 30 : 0, 
+                rotate: isCut ? 4 : 0,
+                opacity: isCut ? 0.9 : 1
+              }}
+              className="absolute inset-0 origin-bottom-right"
+              style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 48% 100%)' }}
+            >
+               <div className="w-full h-full flex items-center justify-center p-4" style={{ background: cakeColors.bg, borderRadius: '0 0 2rem 2rem', border: '3px solid rgba(255,255,255,0.2)' }}>
+                <div className="absolute inset-x-4 top-0 h-3 rounded-full" style={{ background: config.THEME.primary, opacity: 0.6, transform: 'translateY(-50%)' }} />
+                <p className="font-heading text-xl drop-shadow" style={{ color: cakeColors.text }}>Happy Birthday, {config.GIRLFRIEND_NAME}! 🎉</p>
+                
+                {/* Inner Cake Sponge - Only visible on the split edge of the right half */}
+                <div className="absolute left-0 top-0 bottom-0 w-4 bg-black/10" style={{ transform: 'translateX(-50%)' }} />
+              </div>
+            </motion.div>
+
+            {/* Hidden Surprise Inside when Cut */}
+            <AnimatePresence>
+              {isCut && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0, y: 20 }}
+                  animate={{ opacity: 1, scale: 1.5, y: -20 }}
+                  transition={{ type: "spring", delay: 0.3 }}
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+                >
+                  <div className="text-4xl filter drop-shadow-xl">💌</div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Progress bar */}
-          <div className="mt-4 bg-white/10 rounded-full h-2 overflow-hidden">
+          <div className="mt-4 bg-white/10 rounded-full h-2 overflow-hidden mx-auto" style={{ width: '90%' }}>
             <motion.div
               animate={{ width: `${(remaining / CANDLE_COUNT) * 100}%` }}
               className="h-full rounded-full"
@@ -2264,16 +2483,25 @@ const BirthdayCandlesSection = ({ config }: { config: any }) => {
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-3 flex-wrap">
-        {!allOut && (
+      <div className="flex items-center justify-center gap-3 flex-wrap mt-8 relative z-20">
+        {!allOut ? (
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             onClick={blowAll}
-            className="px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-xl"
+            className="px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-xl border border-white/20"
             style={{ background: `linear-gradient(135deg, ${config.THEME.primary}, ${config.THEME.secondary})` }}
           >💨 Blow All Out</motion.button>
-        )}
-        <button onClick={reset} className="px-6 py-2.5 rounded-full border border-white/20 text-white text-sm font-bold hover:bg-white/10 transition-colors">
-          🕯️ Relight Candles
+        ) : !isCut ? (
+          <motion.button 
+            initial={{ scale: 0 }} animate={{ scale: 1 }}
+            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            onClick={cutCake}
+            className="px-8 py-3 rounded-full text-zinc-900 text-md font-bold shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+            style={{ background: `linear-gradient(135deg, #FFD700, #FDB931)` }}
+          >🔪 Cut the Cake!</motion.button>
+        ) : null}
+        
+        <button onClick={reset} className="px-6 py-2.5 rounded-full border border-white/20 text-white text-sm font-bold hover:bg-white/10 transition-colors backdrop-blur-sm">
+          🔄 Reset Cake
         </button>
       </div>
     </section>
@@ -3208,7 +3436,11 @@ export default function App() {
       {/* Hidden Story Card for Capture */}
       <div className="fixed -left-[2000px] top-0 pointer-events-none">
         <div ref={storyRef}>
-          <StoryCard config={config} templateId={captureTemplateId} />
+          {captureTemplateId !== null && storyTemplates[captureTemplateId] ? (
+            <StoryTemplate config={config} template={storyTemplates[captureTemplateId]} isPreview={false} />
+          ) : (
+            <div style={{ width: '1080px', height: '1920px', backgroundColor: 'black' }} />
+          )}
         </div>
       </div>
 
